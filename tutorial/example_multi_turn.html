@@ -11,6 +11,8 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=01f34227"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
@@ -61,20 +63,12 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.buffer.reader.html">trinity.buffer.reader</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.buffer.html">trinity.buffer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.buffer.schema.html">trinity.buffer.schema</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.buffer.writer.html">trinity.buffer.writer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.common.models.html">trinity.common.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.common.rewards.html">trinity.common.rewards</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.common.html">trinity.common</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.common.workflows.html">trinity.common.workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.explorer.html">trinity.explorer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.manager.html">trinity.manager</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.html">trinity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.trainer.html">trinity.trainer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.trainer.verl.html">trinity.trainer.verl</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../trinity.utils.html">trinity.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build_api/trinity.buffer.html">trinity.buffer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build_api/trinity.explorer.html">trinity.explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build_api/trinity.trainer.html">trinity.trainer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build_api/trinity.manager.html">trinity.manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build_api/trinity.common.html">trinity.common</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build_api/trinity.utils.html">trinity.utils</a></li>
 </ul>
 
         </div>
@@ -102,15 +96,15 @@
            <div itemprop="articleBody">
              
   <section id="example-multi-turn-rft">
-<h1>Example: Multi-Turn RFT<a class="headerlink" href="#example-multi-turn-rft" title="Link to this heading">¶</a></h1>
+<h1>Example: Multi-Turn RFT<a class="headerlink" href="#example-multi-turn-rft" title="Link to this heading"></a></h1>
 <p>In Trinity-RFT, we support Agentic RL with multiple rounds of interaction with environments.</p>
 <p>Trinity’s decoupled design allows you to easily define custom interaction methods between environments and agents through Workflow configuration, to collect corresponding <code class="docutils literal notranslate"><span class="pre">experiences</span></code> for RL training.</p>
 <p>Below, we will first provide two multi-round environment Workflows - ALFworld and WebShop - as examples of multi-round interaction.</p>
 <p>Here is how to run these two examples step by step.</p>
 <section id="step-1-environments-data-preparation">
-<h2>Step 1: Environments &amp; Data preparation<a class="headerlink" href="#step-1-environments-data-preparation" title="Link to this heading">¶</a></h2>
+<h2>Step 1: Environments &amp; Data preparation<a class="headerlink" href="#step-1-environments-data-preparation" title="Link to this heading"></a></h2>
 <section id="environment-preparation">
-<h3>Environment Preparation<a class="headerlink" href="#environment-preparation" title="Link to this heading">¶</a></h3>
+<h3>Environment Preparation<a class="headerlink" href="#environment-preparation" title="Link to this heading"></a></h3>
 <p>To run the ALFworld and WebShop env, you need to setup the corresponding environments.</p>
 <ul class="simple">
 <li><p>ALFworld is a text-based interactive environment that simulates household scenarios. Agents need to understand natural language instructions and complete various domestic tasks like finding objects, moving items, and operating devices in a virtual home environment.</p></li>
@@ -123,9 +117,9 @@
 </ul>
 </section>
 <section id="data-preparation">
-<h3>Data Preparation<a class="headerlink" href="#data-preparation" title="Link to this heading">¶</a></h3>
+<h3>Data Preparation<a class="headerlink" href="#data-preparation" title="Link to this heading"></a></h3>
 <p>Our dataset follows the format in Huggingface datasets library, so we should correspondingly convert our env dataset.</p>
-<p>Just run the following command.</p>
+<p>Just check the data preparation scripts and run the following command.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For ALFworld env</span>
 python<span class="w"> </span>scripts/data_prepare/get_alfworld_data.py
 
@@ -141,7 +135,7 @@ python<span class="w"> </span>scripts/data_prepare/get_webshop_data.py
 </section>
 </section>
 <section id="step-2-config-preparation-and-run-the-experiment">
-<h2>Step 2: Config preparation and run the experiment<a class="headerlink" href="#step-2-config-preparation-and-run-the-experiment" title="Link to this heading">¶</a></h2>
+<h2>Step 2: Config preparation and run the experiment<a class="headerlink" href="#step-2-config-preparation-and-run-the-experiment" title="Link to this heading"></a></h2>
 <p>You can refer to <code class="docutils literal notranslate"><span class="pre">example_reasoning_basic</span></code> to setup the config and others. The default config files are <code class="docutils literal notranslate"><span class="pre">scripts/config/alfworld.yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">scripts/config/webshop.yaml</span></code>, respectively.
 You may revise the configurations properly and run the experiment!</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For ALFworld env</span>
@@ -153,19 +147,17 @@ trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w
 </div>
 </section>
 <section id="advance-how-to-build-your-own-environment">
-<h2>Advance: How to build your own environment<a class="headerlink" href="#advance-how-to-build-your-own-environment" title="Link to this heading">¶</a></h2>
+<h2>Advance: How to build your own environment<a class="headerlink" href="#advance-how-to-build-your-own-environment" title="Link to this heading"></a></h2>
 <p>We provide an easy way to allow you build your own environment pipeline by creating a new workflow.</p>
 <p>See the <code class="docutils literal notranslate"><span class="pre">trinity/common/workflows/envs/alfworld/alfworld_workflow.py</span></code> as an example on how to construct a multi-round workflow.</p>
-<p>You can interact with environment using the messages format, and call the <code class="docutils literal notranslate"><span class="pre">self.process_batch_messages</span></code> function to transform the messages and rewards into the <code class="docutils literal notranslate"><span class="pre">experience</span></code> we need, and send them to buffer.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">AlfworldWorkflow</span><span class="p">(</span><span class="n">Workflow</span><span class="p">):</span>
+<p>You can interact with environment using the messages format, and call the <code class="docutils literal notranslate"><span class="pre">self.process_messages_to_experience</span></code> function to transform the messages and rewards into the <code class="docutils literal notranslate"><span class="pre">experience</span></code> we need, and send them to buffer.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">AlfworldWorkflow</span><span class="p">(</span><span class="n">MultiTurnWorkflow</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A workflow for alfworld task.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_env_inference_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">rollout_num</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Experience</span><span class="p">]:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating env inference samples...&quot;</span><span class="p">)</span>
-        <span class="n">all_messages</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">all_rewards</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">all_infos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">experience_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rollout_num</span><span class="p">):</span>
             <span class="n">observation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
             <span class="n">final_reward</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.1</span>
@@ -181,14 +173,13 @@ trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w
                 <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
                     <span class="n">final_reward</span> <span class="o">=</span> <span class="n">reward</span>
                     <span class="k">break</span>
-            <span class="n">all_infos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">&quot;env_rounds&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">,</span> <span class="s2">&quot;env_done&quot;</span><span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">done</span> <span class="k">else</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="n">experience</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_messages_to_experience</span><span class="p">(</span>
+                <span class="n">memory</span><span class="p">,</span> <span class="n">final_reward</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;env_rounds&quot;</span><span class="p">:</span> <span class="n">r</span><span class="p">,</span> <span class="s2">&quot;env_done&quot;</span><span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">done</span> <span class="k">else</span> <span class="mi">0</span><span class="p">}</span>
             <span class="p">)</span>
-            <span class="n">all_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>
-            <span class="n">all_rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">final_reward</span><span class="p">)</span>
+            <span class="n">experience_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">experience</span><span class="p">)</span>
         <span class="c1"># Close the env to save cpu memory</span>
         <span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_batch_messages</span><span class="p">(</span><span class="n">all_messages</span><span class="p">,</span> <span class="n">all_rewards</span><span class="p">,</span> <span class="n">all_infos</span><span class="o">=</span><span class="n">all_infos</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">experience_list</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Experience</span><span class="p">]:</span>
@@ -202,7 +193,7 @@ trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w
 </div>
 <p>Also, remember to register your workflow:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@WORKFLOWS</span><span class="o">.</span><span class="n">register_module</span><span class="p">(</span><span class="s2">&quot;alfworld_workflow&quot;</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">AlfworldWorkflow</span><span class="p">(</span><span class="n">Workflow</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlfworldWorkflow</span><span class="p">(</span><span class="n">MultiTurnWorkflow</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A workflow for alfworld task.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </pre></div>
@@ -222,8 +213,8 @@ trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w
 </pre></div>
 </div>
 <p>Then you are all set! It should be pretty simple😄, and both environments converge.</p>
-<img src="../../assets/alfworld_reward_curve.png" width="300" height="150">
-<img src="../../assets/webshop_reward_curve.png" width="300" height="150">
+<p><img alt="" src="tutorial/assets/alfworld_reward_curve.png%22" />
+<img alt="" src="tutorial/assets/webshop_reward_curve.png%22" /></p>
 </section>
 </section>
 

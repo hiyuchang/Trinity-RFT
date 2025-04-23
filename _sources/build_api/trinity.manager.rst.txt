@@ -1,0 +1,28 @@
+trinity.manager
+===============
+Submodules
+----------
+
+trinity.manager.config\_manager module
+--------------------------------------
+
+.. automodule:: trinity.manager.config_manager
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+trinity.manager.manager module
+------------------------------
+
+.. automodule:: trinity.manager.manager
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: trinity.manager
+   :members:
+   :undoc-members:
+   :show-inheritance:
