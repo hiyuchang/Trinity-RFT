@@ -42,7 +42,7 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_reasoning_basic.html">A quick example with GSM8k</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/example_reasoning_advanced.html">Example: off-policy / asynchronous RFT mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/example_reasoning_advanced.html">Example: off-policy RFT mode</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_multi_turn.html">Example: Multi-Turn RFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_dpo.html">Example: Run DPO on Human-Like-DPO-Dataset</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_data_functionalities.html">Data processing functionalities</a></li>
@@ -403,6 +403,8 @@
 </li>
       <li><a href="build_api/trinity.buffer.html#trinity.buffer.buffer_writer.BufferWriter">BufferWriter (class in trinity.buffer.buffer_writer)</a>
 </li>
+      <li><a href="build_api/trinity.common.html#trinity.common.config.ExplorerConfig.bundle_indices">bundle_indices (trinity.common.config.ExplorerConfig attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -689,10 +691,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.RewardModel.enable">enable (trinity.common.verl_config.RewardModel attribute)</a>
 </li>
-      <li><a href="build_api/trinity.common.html#trinity.common.config.ExplorerConfig.enable_chunked_prefil">enable_chunked_prefil (trinity.common.config.ExplorerConfig attribute)</a>
+      <li><a href="build_api/trinity.common.html#trinity.common.config.ExplorerConfig.enable_chunked_prefill">enable_chunked_prefill (trinity.common.config.ExplorerConfig attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Rollout.enable_chunked_prefill">(trinity.common.verl_config.Rollout attribute)</a>
 </li>
-      <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Rollout.enable_chunked_prefill">enable_chunked_prefill (trinity.common.verl_config.Rollout attribute)</a>
-</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Trainer.enable_exp_buffer">enable_exp_buffer (trinity.common.verl_config.Trainer attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.ActorModel.enable_gradient_checkpointing">enable_gradient_checkpointing (trinity.common.verl_config.ActorModel attribute)</a>
@@ -903,7 +907,7 @@
         <li><a href="build_api/trinity.buffer.html#trinity.buffer.buffer.get_buffer_writer">(in module trinity.buffer.buffer)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.common.models.html#trinity.common.models.utils.get_checkpoint_dir_with_iteration">get_checkpoint_dir_with_iteration() (in module trinity.common.models.utils)</a>
+      <li><a href="build_api/trinity.common.models.html#trinity.common.models.utils.get_checkpoint_dir_with_step_num">get_checkpoint_dir_with_step_num() (in module trinity.common.models.utils)</a>
 </li>
       <li><a href="build_api/trinity.common.models.html#trinity.common.models.model.InferenceModel.get_ckp_version">get_ckp_version() (trinity.common.models.model.InferenceModel method)</a>
 
@@ -1056,7 +1060,7 @@
       <li><a href="build_api/trinity.utils.html#trinity.utils.distributed.init_process_group">init_process_group() (in module trinity.utils.distributed)</a>
 
       <ul>
-        <li><a href="build_api/trinity.common.models.html#trinity.common.models.model.InferenceModel.init_process_group">(trinity.common.models.model.InferenceModel method)</a>
+        <li><a href="build_api/trinity.common.models.html#trinity.common.models.vllm_worker.WorkerExtension.init_process_group">(trinity.common.models.vllm_worker.WorkerExtension method)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.trainer.verl.html#trinity.trainer.verl.ray_trainer.RayPPOTrainer.init_workers">init_workers() (trinity.trainer.verl.ray_trainer.RayPPOTrainer method)</a>
@@ -1383,6 +1387,8 @@
 </li>
         <li><a href="build_api/trinity.common.models.html#module-trinity.common.models.vllm_model">trinity.common.models.vllm_model</a>
 </li>
+        <li><a href="build_api/trinity.common.models.html#module-trinity.common.models.vllm_worker">trinity.common.models.vllm_worker</a>
+</li>
         <li><a href="build_api/trinity.common.rewards.html#module-trinity.common.rewards">trinity.common.rewards</a>
 </li>
         <li><a href="build_api/trinity.common.rewards.html#module-trinity.common.rewards.accuracy_reward">trinity.common.rewards.accuracy_reward</a>
@@ -1492,6 +1498,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="build_api/trinity.common.html#trinity.common.config.DatasetConfig.namespace">namespace (trinity.common.config.DatasetConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.html#trinity.common.constants.SyncMethod.NCCL">NCCL (trinity.common.constants.SyncMethod attribute)</a>
 </li>
       <li><a href="build_api/trinity.utils.html#trinity.utils.log.NewLineFormatter">NewLineFormatter (class in trinity.utils.log)</a>
@@ -1854,6 +1862,8 @@
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.workflow.Workflow.run">(trinity.common.workflows.workflow.Workflow method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.manager.html#trinity.manager.config_manager.ConfigManager.run_config">run_config() (trinity.manager.config_manager.ConfigManager method)</a>
+</li>
       <li><a href="build_api/trinity.common.html#trinity.common.experience.Experience.run_id">run_id (trinity.common.experience.Experience attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.experience.Experiences.run_ids">run_ids (trinity.common.experience.Experiences attribute)</a>
@@ -1943,9 +1953,11 @@
       <li><a href="build_api/trinity.common.html#trinity.common.config.BufferConfig.sft_warmup_dataset">sft_warmup_dataset (trinity.common.config.BufferConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.TrainerConfig.sft_warmup_iteration">sft_warmup_iteration (trinity.common.config.TrainerConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.html#trinity.common.config.TrainerConfig.sft_warmup_steps">sft_warmup_steps (trinity.common.config.TrainerConfig attribute)</a>
 
       <ul>
-        <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Trainer.sft_warmup_iteration">(trinity.common.verl_config.Trainer attribute)</a>
+        <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Trainer.sft_warmup_steps">(trinity.common.verl_config.Trainer attribute)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.buffer.schema.html#trinity.buffer.schema.sql_schema.SFTDataModel">SFTDataModel (class in trinity.buffer.schema.sql_schema)</a>
@@ -2022,11 +2034,11 @@
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Trainer.sync_freq">sync_freq (trinity.common.verl_config.Trainer attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.html#trinity.common.config.SynchronizerConfig.sync_interval">sync_interval (trinity.common.config.SynchronizerConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.SynchronizerConfig.sync_iteration_interval">sync_iteration_interval (trinity.common.config.SynchronizerConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.SynchronizerConfig.sync_method">sync_method (trinity.common.config.SynchronizerConfig attribute)</a>
-</li>
-      <li><a href="build_api/trinity.common.models.html#trinity.common.models.model.InferenceModel.sync_model">sync_model() (trinity.common.models.model.InferenceModel method)</a>
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.SynchronizerConfig.sync_timeout">sync_timeout (trinity.common.config.SynchronizerConfig attribute)</a>
 </li>
@@ -2178,36 +2190,36 @@
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.BufferConfig.train_dataset">train_dataset (trinity.common.config.BufferConfig attribute)</a>
 </li>
-      <li><a href="build_api/trinity.manager.html#trinity.manager.TrainEngineWrapper.train_dpo_iteration">train_dpo_iteration() (trinity.manager.TrainEngineWrapper method)</a>
+      <li><a href="build_api/trinity.manager.html#trinity.manager.TrainEngineWrapper.train_dpo_step">train_dpo_step() (trinity.manager.TrainEngineWrapper method)</a>
 
       <ul>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.TrainEngineWrapper.train_dpo_iteration">(trinity.trainer.TrainEngineWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.TrainEngineWrapper.train_dpo_step">(trinity.trainer.TrainEngineWrapper method)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.trainer.TrainEngineWrapper.train_dpo_iteration">(trinity.trainer.trainer.TrainEngineWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.trainer.TrainEngineWrapper.train_dpo_step">(trinity.trainer.trainer.TrainEngineWrapper method)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.train_dpo_iteration">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.train_dpo_step">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Data.train_files">train_files (trinity.common.verl_config.Data attribute)</a>
 </li>
-      <li><a href="build_api/trinity.manager.html#trinity.manager.TrainEngineWrapper.train_rft_iteration">train_rft_iteration() (trinity.manager.TrainEngineWrapper method)</a>
+      <li><a href="build_api/trinity.manager.html#trinity.manager.TrainEngineWrapper.train_rft_step">train_rft_step() (trinity.manager.TrainEngineWrapper method)</a>
 
       <ul>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.TrainEngineWrapper.train_rft_iteration">(trinity.trainer.TrainEngineWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.TrainEngineWrapper.train_rft_step">(trinity.trainer.TrainEngineWrapper method)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.trainer.TrainEngineWrapper.train_rft_iteration">(trinity.trainer.trainer.TrainEngineWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.trainer.TrainEngineWrapper.train_rft_step">(trinity.trainer.trainer.TrainEngineWrapper method)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.train_rft_iteration">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.train_rft_step">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.manager.html#trinity.manager.TrainEngineWrapper.train_sft_iteration">train_sft_iteration() (trinity.manager.TrainEngineWrapper method)</a>
+      <li><a href="build_api/trinity.manager.html#trinity.manager.TrainEngineWrapper.train_sft_step">train_sft_step() (trinity.manager.TrainEngineWrapper method)</a>
 
       <ul>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.TrainEngineWrapper.train_sft_iteration">(trinity.trainer.TrainEngineWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.TrainEngineWrapper.train_sft_step">(trinity.trainer.TrainEngineWrapper method)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.trainer.TrainEngineWrapper.train_sft_iteration">(trinity.trainer.trainer.TrainEngineWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.trainer.TrainEngineWrapper.train_sft_step">(trinity.trainer.trainer.TrainEngineWrapper method)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.train_sft_iteration">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
+        <li><a href="build_api/trinity.trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.train_sft_step">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.DataConfig.train_split">train_split (trinity.common.config.DataConfig attribute)</a>
@@ -2413,6 +2425,13 @@
 
       <ul>
         <li><a href="build_api/trinity.common.models.html#module-trinity.common.models.vllm_model">module</a>
+</li>
+      </ul></li>
+      <li>
+    trinity.common.models.vllm_worker
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.html#module-trinity.common.models.vllm_worker">module</a>
 </li>
       </ul></li>
       <li>
@@ -2687,6 +2706,8 @@
 </li>
       <li><a href="build_api/trinity.trainer.verl.html#trinity.trainer.verl.fsdp_workers.CriticWorker.update_critic">update_critic() (trinity.trainer.verl.fsdp_workers.CriticWorker method)</a>
 </li>
+      <li><a href="build_api/trinity.common.models.html#trinity.common.models.vllm_worker.WorkerExtension.update_weight">update_weight() (trinity.common.models.vllm_worker.WorkerExtension method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Actor.use_dynamic_bsz">use_dynamic_bsz (trinity.common.verl_config.Actor attribute)</a>
@@ -2712,6 +2733,8 @@
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Actor.use_uid">use_uid (trinity.common.verl_config.Actor attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.html#trinity.common.config.ExplorerConfig.use_v1">use_v1 (trinity.common.config.ExplorerConfig attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2750,6 +2773,8 @@
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Optim.warmup_style">warmup_style (trinity.common.verl_config.Optim attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.WebShopWorkflow">WebShopWorkflow (class in trinity.common.workflows)</a>
+</li>
+      <li><a href="build_api/trinity.common.models.html#trinity.common.models.vllm_worker.WorkerExtension">WorkerExtension (class in trinity.common.models.vllm_worker)</a>
 </li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.workflow.Workflow">Workflow (class in trinity.common.workflows.workflow)</a>
 </li>
