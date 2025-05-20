@@ -241,6 +241,7 @@
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.html#trinity.common.config.GlobalConfig.total_epochs"><code class="docutils literal notranslate"><span class="pre">GlobalConfig.total_epochs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.html#trinity.common.config.GlobalConfig.batch_size"><code class="docutils literal notranslate"><span class="pre">GlobalConfig.batch_size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.html#trinity.common.config.GlobalConfig.eval_interval"><code class="docutils literal notranslate"><span class="pre">GlobalConfig.eval_interval</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trinity.common.html#trinity.common.config.GlobalConfig.eval_on_latest_ckp"><code class="docutils literal notranslate"><span class="pre">GlobalConfig.eval_on_latest_ckp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.html#trinity.common.config.GlobalConfig.__init__"><code class="docutils literal notranslate"><span class="pre">GlobalConfig.__init__()</span></code></a></li>
 </ul>
 </li>
@@ -951,6 +952,14 @@
 <li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.distributed.init_process_group"><code class="docutils literal notranslate"><span class="pre">init_process_group()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="trinity.utils.html#module-trinity.utils.dlc_utils">trinity.utils.dlc_utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.dlc_utils.get_dlc_env_vars"><code class="docutils literal notranslate"><span class="pre">get_dlc_env_vars()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.dlc_utils.is_running"><code class="docutils literal notranslate"><span class="pre">is_running()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.dlc_utils.wait_for_ray_setup"><code class="docutils literal notranslate"><span class="pre">wait_for_ray_setup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.dlc_utils.wait_for_ray_worker_nodes"><code class="docutils literal notranslate"><span class="pre">wait_for_ray_worker_nodes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.dlc_utils.setup_ray_cluster"><code class="docutils literal notranslate"><span class="pre">setup_ray_cluster()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="trinity.utils.html#module-trinity.utils.eval_utils">trinity.utils.eval_utils module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.eval_utils.simple_answer_parser"><code class="docutils literal notranslate"><span class="pre">simple_answer_parser()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.eval_utils.find_boxed_answer"><code class="docutils literal notranslate"><span class="pre">find_boxed_answer()</span></code></a></li>
@@ -974,18 +983,21 @@
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.Monitor.log_table"><code class="docutils literal notranslate"><span class="pre">Monitor.log_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.Monitor.calculate_metrics"><code class="docutils literal notranslate"><span class="pre">Monitor.calculate_metrics()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.Monitor.log"><code class="docutils literal notranslate"><span class="pre">Monitor.log()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.Monitor.close"><code class="docutils literal notranslate"><span class="pre">Monitor.close()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.TensorboardLogger"><code class="docutils literal notranslate"><span class="pre">TensorboardLogger</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.TensorboardLogger.__init__"><code class="docutils literal notranslate"><span class="pre">TensorboardLogger.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.TensorboardLogger.log_table"><code class="docutils literal notranslate"><span class="pre">TensorboardLogger.log_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.TensorboardLogger.log"><code class="docutils literal notranslate"><span class="pre">TensorboardLogger.log()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.TensorboardLogger.close"><code class="docutils literal notranslate"><span class="pre">TensorboardLogger.close()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.WandbLogger"><code class="docutils literal notranslate"><span class="pre">WandbLogger</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.WandbLogger.__init__"><code class="docutils literal notranslate"><span class="pre">WandbLogger.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.WandbLogger.log_table"><code class="docutils literal notranslate"><span class="pre">WandbLogger.log_table()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.WandbLogger.log"><code class="docutils literal notranslate"><span class="pre">WandbLogger.log()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trinity.utils.html#trinity.utils.monitor.WandbLogger.close"><code class="docutils literal notranslate"><span class="pre">WandbLogger.close()</span></code></a></li>
 </ul>
 </li>
 </ul>
