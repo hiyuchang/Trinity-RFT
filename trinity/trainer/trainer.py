@@ -127,6 +127,9 @@ class Trainer:
         if not os.path.isdir(path) or len(os.listdir(path)) == 0:
             self.engine.save_checkpoint()
         self.engine.logger.close()
+    
+    def get_current_step(self) -> int:
+        return self.engine.global_steps
 
 
 class TrainEngineWrapper(ABC):

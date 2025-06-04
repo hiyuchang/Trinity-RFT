@@ -219,6 +219,9 @@ class Trainer:
     max_actor_ckpt_to_keep: Optional[int] = None
     max_critic_ckpt_to_keep: Optional[int] = None
 
+    # algorithm
+    rft_sft_mix_ratio: Optional[int] = 0
+
 
 @dataclass
 class veRLConfig:
@@ -276,6 +279,8 @@ class veRLConfig:
         self.trainer.experiment_name = config.name
         self.trainer.default_local_dir = config.checkpoint_job_dir
         self.trainer.sft_warmup_steps = config.buffer.trainer_input.sft_warmup_steps
+        self.trainer.rft_sft_mix_ratio = config.algorithm.rft_sft_mix_ratio
+        # self.trainer.use_gradient_surgery = config.algorithm.use_gradient_surgery
 
         self.buffer = config.buffer
         # TODO: use dynamic read_batch_size to support multi-round scenarios

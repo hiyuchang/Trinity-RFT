@@ -247,8 +247,8 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
         return True, self.global_steps - 1
 
     def train_sft_step(self, experiences: Experiences) -> Tuple[bool, int]:
-        if self.sft_warmup_step_num >= self.config.trainer.sft_warmup_steps:
-            return False, self.global_steps - 1
+        # if self.sft_warmup_step_num >= self.config.trainer.sft_warmup_steps:
+        #     return False, self.global_steps - 1
         metrics = {}
         timing_raw = {}
 
@@ -299,13 +299,23 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
 
         # TODO: log as sft metrics
         self.logger.log(data=metrics, step=self.global_steps)
+        self.logger.log(data={"sft_or_rft": 0}, step=self.global_steps)
         self.sft_warmup_step_num += 1
         self.global_steps += 1
-        if self.sft_warmup_step_num == self.config.trainer.sft_warmup_steps:
-            self.logger.log(
-                data={"sft_warmup_steps": self.sft_warmup_step_num},
-                step=self.global_steps - 1,
-            )
+        # if self.sft_warmup_step_num == self.config.trainer.sft_warmup_steps:
+        #     self.logger.log(
+        #         data={"sft_warmup_steps": self.sft_warmup_step_num},
+        #         step=self.global_steps - 1,
+        #     )
+        if (
+            self.config.trainer.rft_sft_mix_ratio <= 0
+            and self.sft_warmup_step_num == self.config.trainer.sft_warmup_steps
+        ) or (
+            self.config.trainer.rft_sft_mix_ratio > 0
+            and self.sft_warmup_step_num >= self.config.trainer.sft_warmup_steps
+        ):
+            # 1) warmup stage;
+            # 2) mix training stage
             with _timer("save_checkpoint", timing_raw):
                 self._save_checkpoint()
             return False, self.global_steps - 1
@@ -419,6 +429,10 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
             if (
                 self.config.trainer.save_freq > 0
                 and self.global_steps % self.config.trainer.save_freq == 0
+            ) or (
+                self.config.trainer.rft_sft_mix_ratio > 0
+                and self.global_steps % (self.config.trainer.rft_sft_mix_ratio + 1)
+                == 0  # when steps=r+1, 2(r+1)
             ):
                 with _timer("save_checkpoint", timing_raw):
                     self._save_checkpoint()
@@ -435,6 +449,7 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
             self._log_experiences(experiences)
 
         # TODO: make a canonical logger that supports various backend
+        self.logger.log(data={"sft_or_rft": 1}, step=self.global_steps)
         self.logger.log(data=metrics, step=self.global_steps)
 
         self.global_steps += 1
@@ -503,6 +518,8 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
         self.actor_rollout_wg.set_mode(algorithm_type)
         if self.algorithm_type.is_sft() and (not algorithm_type.is_sft()):
             self.sft_to_rft()
+        elif self.algorithm_type.is_rft() and (not algorithm_type.is_rft()):
+            self.rft_to_sft()
         self.algorithm_type = algorithm_type
 
     def sft_to_rft(self) -> None:
@@ -533,12 +550,12 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
                 if not os.path.isabs(global_step_folder):
                     working_dir = os.getcwd()
                     global_step_folder = os.path.join(working_dir, global_step_folder)
-        print(f"Load from checkpoint folder: {global_step_folder}")
+        # print(f"Load from checkpoint folder: {global_step_folder}")
         # set global step
         self.global_steps = int(global_step_folder.split("global_step_")[-1])
 
-        print(f"Setting global step to {self.global_steps}")
-        print(f"Resuming from {global_step_folder}")
+        # print(f"Setting global step to {self.global_steps}")
+        # print(f"Resuming from {global_step_folder}")
 
         actor_path = os.path.join(global_step_folder, "actor")
         print(f"Loading actor from {actor_path} to ref_policy_wg")
@@ -547,6 +564,12 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
         if self.use_critic:
             self.critic_wg.clear_optimizer_state()
         print("sft to rft finished")
+
+    def rft_to_sft(self) -> None:
+        self.actor_rollout_wg.clear_optimizer_state()
+        if self.use_critic:
+            self.critic_wg.clear_optimizer_state()
+        print("rft to sft finished")
 
     def shutdown(self) -> None:
         pass

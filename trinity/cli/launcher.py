@@ -93,7 +93,10 @@ def both(config: Config) -> None:
     # sync weight before training start
     ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
 
-    if config.buffer.trainer_input.sft_warmup_steps > 0:
+    if (
+        config.buffer.trainer_input.sft_warmup_steps > 0
+        and config.algorithm.rft_sft_mix_ratio <= 0
+    ):
         while True:
             train_continue, train_step_num = ray.get(
                 trainer.train_one_period.remote(AlgorithmType.SFT)
@@ -106,8 +109,26 @@ def both(config: Config) -> None:
         ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
 
     algo_type = config.algorithm.algorithm_type
+    train_step_num = ray.get(trainer.get_current_step.remote()) # begins with 1 + sft_warmup_steps
+    explore_step_num = ray.get(explorer.get_current_step.remote())
+    stage_num = 0
+    real_step = 0 # For debug
     while True:
         try:
+            if (
+                config.algorithm.rft_sft_mix_ratio > 0
+                and (train_step_num - 1) % config.algorithm.rft_sft_mix_ratio == 0
+            ):
+                logger.info(f"In stage {stage_num}, SFT started.") # debug
+                ref_train = trainer.train_one_period.remote(AlgorithmType.SFT)
+                train_continue, train_step_num = ray.get(ref_train)
+                ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
+
+                logger.info(f"In stage {stage_num}, SFT has finished.") # debug
+                logger.info(f"{train_step_num=}, {explore_step_num=}, {real_step=}") # debug
+                stage_num += 1
+                real_step += 1
+            
             ref_explore = explorer.explore_one_period.remote()
             ref_train = trainer.train_one_period.remote(algo_type)
             explore_continue, explore_step_num = ray.get(ref_explore)
@@ -124,11 +145,13 @@ def both(config: Config) -> None:
                 break
             ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
             logger.info("Model weight synchronized.")
+            logger.info(f"{train_step_num=}, {explore_step_num=}, {real_step=}")
+            real_step += 1
         except Exception as e:
             logger.error(e)
             logger.error("Training stopped due to exception.")
             raise e
-        if explore_step_num % config.explorer.eval_interval == 0:
+        if train_step_num % config.explorer.eval_interval == 0:
             try:
                 ray.get(explorer.eval.remote())
                 logger.info("Evaluation finished.")

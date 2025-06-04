@@ -1,68 +1,64 @@
 project: "rft_sft_mixed"
-name: "gsm8k_rft_sft_ratio4"
+name: "openr1_sft_then_rft"
 checkpoint_root_dir: /mnt/data/yuchang/checkpoints/
 algorithm:
   algorithm_type: grpo
   repeat_times: 8
-  rft_sft_mix_ratio: 4
+  # rft_sft_mix_ratio: 0
 model:
   model_path: /cpfs/data/xielipeng.xlp/models/Qwen2.5-1.5B-Instruct
-  max_prompt_tokens: 256
-  max_response_tokens: 1024
+  max_prompt_tokens: 1024
+  max_response_tokens: 16392
 cluster:
   node_num: 1
   gpu_per_node: 8
 buffer:
   total_epochs: 1
-  batch_size: 96
+  batch_size: 32
   max_retry_times: 3
   max_retry_interval: 1
   explorer_input:
     taskset:
-      name: gsm8k
+      name: openr1
       storage_type: file
-      path: /mnt/data/yuchang/datasets/gsm8k
-      subset_name: 'main'
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int
       split: 'train'
       format:
-        prompt_key: 'question'
+        prompt_key: 'problem'
         response_key: 'answer'
       rollout_args:
-        n: 8
         temperature: 1.0
         logprobs: 0
+    default_workflow_type: 'math_r1_workflow'
+    default_reward_fn_type: 'math_box_reward'
     eval_tasksets:
-    - name: gsm8k-eval
+    - name: openr1
       storage_type: file
-      path: /mnt/data/yuchang/datasets/gsm8k
-      subset_name: 'main'
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int
       split: 'test'
       format:
-        prompt_key: 'question'
+        prompt_key: 'problem'
         response_key: 'answer'
-    default_workflow_type: 'math_workflow'
   trainer_input:
     experience_buffer:
       name: gsm8k_buffer
       storage_type: queue
-      path: 'sqlite:////mnt/data/yuchang/checkpoints/${project}/${name}/gsm8k.db'
-    sft_warmup_steps: 1
+      path: 'sqlite:////mnt/data/yuchang/checkpoints/${project}/${name}/openr1.db'
+    sft_warmup_steps: 80 # 5098/64
     sft_warmup_dataset:
-      name: sft_data
+      name: openr1_sft
       storage_type: file
-      path: /mnt/data/yuchang/datasets/gsm8k
-      subset_name: 'main'
+      path: /mnt/data/yuchang/datasets/openr1_from_wenhao
       split: 'train'
       format:
-        prompt_type: plaintext
-        prompt_key: 'question'
-        response_key: 'answer'
+        prompt_type: messages
+        messages_key: 'messages'
 explorer:
-  eval_interval: 5
+  eval_interval: 10
   runner_num: 32
   rollout_model:
     engine_type: vllm_async
-    engine_num: 2
+    engine_num: 4
     tensor_parallel_size: 1
     enable_prefix_caching: false
     enforce_eager: true
@@ -71,8 +67,8 @@ explorer:
 synchronizer:
   sync_method: 'nccl'
   sync_interval: 1
-  sync_timeout: 1200
+  sync_timeout: 2400
 trainer:
   trainer_type: 'verl'
-  trainer_config_path: 'examples/grpo_gsm8k/train_gsm8k.yaml'
-  save_interval: 10
+  trainer_config_path: 'examples/grpo_math/train_math.yaml'
+  save_interval: 50

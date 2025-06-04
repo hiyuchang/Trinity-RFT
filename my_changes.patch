@@ -1,0 +1,660 @@
+diff --git a/examples/grpo_gsm8k/gsm8k.yaml b/examples/grpo_gsm8k/gsm8k.yaml
+index 2a87ef2..53f7006 100644
+--- a/examples/grpo_gsm8k/gsm8k.yaml
++++ b/examples/grpo_gsm8k/gsm8k.yaml
+@@ -1,25 +1,12 @@
+-project: "Trinity-RFT-gsm8k"
+-name: "qwen2.5-1.5B-gsm8k"
+-checkpoint_root_dir: /PATH/TO/CHECKPOINT/
++project: "rft_sft_mixed"
++name: "gsm8k_rft_sft_ratio4"
++checkpoint_root_dir: /mnt/data/yuchang/checkpoints/
+ algorithm:
+   algorithm_type: grpo
+   repeat_times: 8
+-data_processor:
+-  # basic info
+-  source_data_path: 'openai/gsm8k'
+-  # data active iterator related
+-  dj_process_desc: 'Please compute difficulty scores for these math questions.'
+-  agent_model_name: 'qwen-max'
+-  agent_model_config:
+-    config_name: 'my-qwen-instruction'
+-    model_type: 'dashscope_chat'
+-    model_name: 'qwen2.5-72b-instruct'
+-  clean_strategy: 'iterative'
+-  # db related
+-  db_url: ''
+-
++  rft_sft_mix_ratio: 4
+ model:
+-  model_path: /PATH/TO/MODEL/
++  model_path: /cpfs/data/xielipeng.xlp/models/Qwen2.5-1.5B-Instruct
+   max_prompt_tokens: 256
+   max_response_tokens: 1024
+ cluster:
+@@ -34,7 +21,7 @@ buffer:
+     taskset:
+       name: gsm8k
+       storage_type: file
+-      path: 'openai/gsm8k'
++      path: /mnt/data/yuchang/datasets/gsm8k
+       subset_name: 'main'
+       split: 'train'
+       format:
+@@ -47,7 +34,7 @@ buffer:
+     eval_tasksets:
+     - name: gsm8k-eval
+       storage_type: file
+-      path: 'openai/gsm8k'
++      path: /mnt/data/yuchang/datasets/gsm8k
+       subset_name: 'main'
+       split: 'test'
+       format:
+@@ -58,14 +45,20 @@ buffer:
+     experience_buffer:
+       name: gsm8k_buffer
+       storage_type: queue
+-      path: 'sqlite:///gsm8k.db'
+-    # sft_warmup_steps: 0
+-    # sft_warmup_dataset: # Uncomment these to enable sft warmup
+-    #   name: warmup_data
+-    #   storage_type: file
+-    #   path: '/PATH/TO/WARMUP_DATA/'
++      path: 'sqlite:////mnt/data/yuchang/checkpoints/${project}/${name}/gsm8k.db'
++    sft_warmup_steps: 1
++    sft_warmup_dataset:
++      name: sft_data
++      storage_type: file
++      path: /mnt/data/yuchang/datasets/gsm8k
++      subset_name: 'main'
++      split: 'train'
++      format:
++        prompt_type: plaintext
++        prompt_key: 'question'
++        response_key: 'answer'
+ explorer:
+-  eval_interval: 50
++  eval_interval: 5
+   runner_num: 32
+   rollout_model:
+     engine_type: vllm_async
+@@ -82,4 +75,4 @@ synchronizer:
+ trainer:
+   trainer_type: 'verl'
+   trainer_config_path: 'examples/grpo_gsm8k/train_gsm8k.yaml'
+-  save_interval: 100
++  save_interval: 10
+diff --git a/examples/grpo_math/math.yaml b/examples/grpo_math/math.yaml
+index 5d3b16c..f2e8b2a 100644
+--- a/examples/grpo_math/math.yaml
++++ b/examples/grpo_math/math.yaml
+@@ -1,49 +1,59 @@
+-project: grpo_math
+-name: grpo_math_example
+-checkpoint_root_dir: /PATH/TO/CHECKPOINT/
+-model:
+-  model_path: /PATH/TO/MODEL/
++project: "rft_sft_mixed"
++name: "openr1_only_rft"
++checkpoint_root_dir: /mnt/data/yuchang/checkpoints/
+ algorithm:
+   algorithm_type: grpo
+   repeat_times: 8
++model:
++  model_path: /cpfs/data/xielipeng.xlp/models/Qwen2.5-7B-Instruct
++  max_prompt_tokens: 1024
++  max_response_tokens: 16392
+ cluster:
+   node_num: 1
+   gpu_per_node: 8
+ buffer:
+-  total_epochs: 20
+-  batch_size: 288
++  total_epochs: 1
++  batch_size: 64
+   max_retry_times: 3
+   max_retry_interval: 1
+   explorer_input:
+     taskset:
+-      name: math
++      name: openr1
+       storage_type: file
+-      path: /PATH/TO/DATASET/
++      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int
++      split: 'train'
+       format:
+-        prompt_key: 'question'
+-        response_key: 'gt_answer'
++        prompt_key: 'problem'
++        response_key: 'answer'
+       rollout_args:
+         n: 8
+         temperature: 1.0
+         logprobs: 0
+-    default_workflow_type: 'math_workflow'
++    eval_tasksets:
++    - name: openr1
++      storage_type: file
++      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int
++      split: 'test'
++      format:
++        prompt_key: 'problem'
++        response_key: 'answer'
++    default_workflow_type: 'math_r1_workflow'
+   trainer_input:
+     experience_buffer:
+-      name: math_buffer
++      name: openr1_buffer
+       storage_type: queue
+-      path: 'sqlite:///math.db'
++      path: 'sqlite:////mnt/data/yuchang/checkpoints/${project}/${name}/openr1.db'
++    sft_warmup_steps: 0
+ explorer:
+   eval_interval: 10
+   runner_num: 32
+   rollout_model:
+     engine_type: vllm_async
+-    engine_num: 2
++    engine_num: 4
+     tensor_parallel_size: 1
+     enable_prefix_caching: false
+     enforce_eager: true
+     dtype: bfloat16
+-    max_prompt_tokens: 1024
+-    max_response_tokens: 3072
+     seed: 42
+ synchronizer:
+   sync_method: 'nccl'
+@@ -52,4 +62,4 @@ synchronizer:
+ trainer:
+   trainer_type: 'verl'
+   trainer_config_path: 'examples/grpo_math/train_math.yaml'
+-  save_interval: 100
++  save_interval: 50
+diff --git a/examples/grpo_math/train_math.yaml b/examples/grpo_math/train_math.yaml
+index 78bcb86..7b14a87 100644
+--- a/examples/grpo_math/train_math.yaml
++++ b/examples/grpo_math/train_math.yaml
+@@ -10,7 +10,7 @@ actor_rollout_ref:
+     ppo_mini_batch_size: 128
+     ppo_micro_batch_size_per_gpu: 4
+     use_dynamic_bsz: True # False
+-    ppo_max_token_len_per_gpu: 16384 # n * ${data.max_prompt_length} + ${data.max_response_length}
++    ppo_max_token_len_per_gpu: 25600 # n * ${data.max_prompt_length} + ${data.max_response_length}
+     grad_clip: 1.0
+     clip_ratio: 0.2
+     entropy_coeff: 0.001
+@@ -21,7 +21,7 @@ actor_rollout_ref:
+     shuffle: False
+     ulysses_sequence_parallel_size: 1 # sp size
+     optim:
+-      lr: 5e-7
++      lr: 1e-6
+       lr_warmup_steps_ratio: 0.  # the total steps will be injected during runtime
+       # min_lr_ratio: null   # only useful for warmup with cosine
+       warmup_style: constant  # select from constant/cosine
+diff --git a/pyproject.toml b/pyproject.toml
+index dcf86f8..ea870de 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -23,7 +23,7 @@ requires-python = ">=3.10"
+ dependencies = [
+     "verl==0.3.0.post1",
+     "ray[default]>=2.45.0",
+-    "vllm>=0.8.5",
++    "vllm>=0.8.5.post1",
+     "tensordict==0.6.2",
+     "wandb",
+     "omegaconf",
+diff --git a/trinity/cli/launcher.py b/trinity/cli/launcher.py
+index 9dfe4df..9ba9b4e 100644
+--- a/trinity/cli/launcher.py
++++ b/trinity/cli/launcher.py
+@@ -93,7 +93,10 @@ def both(config: Config) -> None:
+     # sync weight before training start
+     ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
+ 
+-    if config.buffer.trainer_input.sft_warmup_steps > 0:
++    if (
++        config.buffer.trainer_input.sft_warmup_steps > 0
++        and config.algorithm.rft_sft_mix_ratio <= 0
++    ):
+         while True:
+             train_continue, train_step_num = ray.get(
+                 trainer.train_one_period.remote(AlgorithmType.SFT)
+@@ -106,8 +109,26 @@ def both(config: Config) -> None:
+         ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
+ 
+     algo_type = config.algorithm.algorithm_type
++    train_step_num = ray.get(trainer.get_current_step.remote()) # begins with 1 + sft_warmup_steps
++    explore_step_num = ray.get(explorer.get_current_step.remote())
++    stage_num = 0
++    real_step = 0 # For debug
+     while True:
+         try:
++            if (
++                config.algorithm.rft_sft_mix_ratio > 0
++                and (train_step_num - 1) % config.algorithm.rft_sft_mix_ratio == 0
++            ):
++                logger.info(f"In stage {stage_num}, SFT started.") # debug
++                ref_train = trainer.train_one_period.remote(AlgorithmType.SFT)
++                train_continue, train_step_num = ray.get(ref_train)
++                ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
++
++                logger.info(f"In stage {stage_num}, SFT has finished.") # debug
++                logger.info(f"{train_step_num=}, {explore_step_num=}, {real_step=}") # debug
++                stage_num += 1
++                real_step += 1
++            
+             ref_explore = explorer.explore_one_period.remote()
+             ref_train = trainer.train_one_period.remote(algo_type)
+             explore_continue, explore_step_num = ray.get(ref_explore)
+@@ -124,11 +145,13 @@ def both(config: Config) -> None:
+                 break
+             ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
+             logger.info("Model weight synchronized.")
++            logger.info(f"{train_step_num=}, {explore_step_num=}, {real_step=}")
++            real_step += 1
+         except Exception as e:
+             logger.error(e)
+             logger.error("Training stopped due to exception.")
+             raise e
+-        if explore_step_num % config.explorer.eval_interval == 0:
++        if train_step_num % config.explorer.eval_interval == 0:
+             try:
+                 ray.get(explorer.eval.remote())
+                 logger.info("Evaluation finished.")
+diff --git a/trinity/common/config.py b/trinity/common/config.py
+index e0660ab..e63cbed 100644
+--- a/trinity/common/config.py
++++ b/trinity/common/config.py
+@@ -177,6 +177,9 @@ class AlgorithmConfig:
+     lam: Optional[float] = None
+     # TODO: add more algorithm params here
+ 
++    rft_sft_mix_ratio: Optional[int] = 0
++    use_gradient_surgery: Optional[bool] = False
++
+ 
+ @dataclass
+ class ClusterConfig:
+diff --git a/trinity/common/rewards/reward_fn.py b/trinity/common/rewards/reward_fn.py
+index 1b5906b..18dfa53 100644
+--- a/trinity/common/rewards/reward_fn.py
++++ b/trinity/common/rewards/reward_fn.py
+@@ -13,6 +13,7 @@ from trinity.utils.eval_utils import (
+     extract_solution,
+     simple_answer_parser,
+     validate_equation,
++    find_boxed_answer,
+ )
+ from trinity.utils.log import get_logger
+ from trinity.utils.registry import Registry
+@@ -195,3 +196,45 @@ class CountDownRewardFn(RewardFn):
+                 return format_score
+         except Exception as e:  # noqa: F841
+             return format_score
++
++
++@REWARD_FUNCTIONS.register_module("math_box_reward")
++class MyBoxedRewardFn(RewardFn):
++    """My reward function that parse the boxed answer"""
++
++    def __init__(self):
++        pass
++
++    def __call__(  # type: ignore
++        self,
++        response: str,
++        prompt: Optional[str] = None,
++        truth: Optional[str] = None,
++        return_dict: Optional[bool] = False,
++        # have_think_pattern: Optional[bool] = True,
++    ) -> Union[float, dict]:
++        answer = find_boxed_answer(response)
++        if answer is None:
++            if return_dict:
++                return {"accuracy": 0.0, "format_score": -0.1}
++            return -0.1
++
++        try:
++            reward = float(verify(answer, truth))
++        except Exception as e:
++            print(f"verify failed: {e}, answer: {answer}, gold: {truth}")
++            logger.info(f"verify failed: {e}, answer: {answer}, gold: {truth}")
++            reward = 0.0
++
++        # if have_think_pattern:
++        #     if validate_think_pattern(response):
++        #         reward += 0.0
++        #     else:
++        #         reward -= 0.1
++
++        if return_dict:
++            return {
++                "accuracy": 1.0 if reward > 0.9 else 0.0,
++                "format_score": 0.0 if reward >= 0.0 else -0.1,
++            }
++        return reward
+diff --git a/trinity/common/verl_config.py b/trinity/common/verl_config.py
+index e5d0d9d..fd27f88 100644
+--- a/trinity/common/verl_config.py
++++ b/trinity/common/verl_config.py
+@@ -219,6 +219,9 @@ class Trainer:
+     max_actor_ckpt_to_keep: Optional[int] = None
+     max_critic_ckpt_to_keep: Optional[int] = None
+ 
++    # algorithm
++    rft_sft_mix_ratio: Optional[int] = 0
++
+ 
+ @dataclass
+ class veRLConfig:
+@@ -276,6 +279,8 @@ class veRLConfig:
+         self.trainer.experiment_name = config.name
+         self.trainer.default_local_dir = config.checkpoint_job_dir
+         self.trainer.sft_warmup_steps = config.buffer.trainer_input.sft_warmup_steps
++        self.trainer.rft_sft_mix_ratio = config.algorithm.rft_sft_mix_ratio
++        # self.trainer.use_gradient_surgery = config.algorithm.use_gradient_surgery
+ 
+         self.buffer = config.buffer
+         # TODO: use dynamic read_batch_size to support multi-round scenarios
+diff --git a/trinity/common/workflows/workflow.py b/trinity/common/workflows/workflow.py
+index 9786bd6..a962ae7 100644
+--- a/trinity/common/workflows/workflow.py
++++ b/trinity/common/workflows/workflow.py
+@@ -13,9 +13,10 @@ import torch
+ from trinity.common.config import FormatConfig, GenerationConfig
+ from trinity.common.experience import Experience
+ from trinity.common.models.model import ModelWrapper
+-from trinity.common.rewards.reward_fn import MathRewardFn, RewardFn
++from trinity.common.rewards.reward_fn import MathRewardFn, RewardFn, MyBoxedRewardFn
+ from trinity.utils.log import get_logger
+ from trinity.utils.registry import Registry
++from trinity.utils.eval_utils import compute_response_metrics
+ 
+ logger = get_logger(__name__)
+ 
+@@ -243,3 +244,57 @@ class MathWorkflow(SimpleWorkflow):
+ """
+         # call the SimpleWorkflow.reset
+         super().reset(task)
++
++
++@WORKFLOWS.register_module("math_r1_workflow")
++class MathR1Workflow(SimpleWorkflow):
++    """A workflow for math tasks as introduced in DeepSeek-R1."""
++
++    def __init__(
++        self,
++        model: ModelWrapper,
++        task: Task,
++        auxiliary_models: Optional[List[openai.OpenAI]] = None,
++    ):
++        self.reset(task)
++        super().__init__(
++            model=model,
++            task=task,
++            auxiliary_models=auxiliary_models,
++        )
++
++    def reset(self, task: Task):
++        if task.reward_fn is None:
++            task.reward_fn = MyBoxedRewardFn
++        if task.format_args.system_prompt is None:
++            task.format_args.system_prompt = """"You are a helpful assistant that solves MATH problems. You should first thinks about the reasoning process in mind and then provides the user with the answer. You should present your reasoning process using the format: <think>\n ...your reasoning process here... </think>\n first. You should always include your final answer in \\boxed{} as closed-form results."
++            """
++        # call the SimpleWorkflow.reset
++        super().reset(task)
++
++    def run(self) -> List[Experience]:
++        messages = self.format_messages()
++
++        logger.debug("start chat")
++        responses = self.model.chat(messages, **self.rollout_args)
++        for response in responses:
++            reward = self.reward_fn(  # type: ignore [misc]
++                response=response.response_text,  # type: ignore [arg-type]
++                truth=self.truth,
++                return_dict=self.is_eval,
++            )
++            logger.debug(
++                f"self.task_desc: {self.task_desc}, messages: {messages}, response: {response.response_text}, reward: {reward}"
++            )
++            if isinstance(reward, dict):
++                if response.metrics is None:
++                    response.metrics = {}
++                response.metrics.update(reward)
++                reward = sum(reward.values())
++            response.reward = reward
++
++        # compute additional metrics
++        if self.is_eval:
++            responses = compute_response_metrics(responses)
++        return responses
++    
+\ No newline at end of file
+diff --git a/trinity/explorer/explorer.py b/trinity/explorer/explorer.py
+index f5f3466..02e140d 100644
+--- a/trinity/explorer/explorer.py
++++ b/trinity/explorer/explorer.py
+@@ -31,7 +31,9 @@ class Explorer:
+         self.logger = get_logger(__name__)
+         self.cache = CacheManager(config)
+         explorer_meta = self.cache.load_explorer()
+-        self.step_num = explorer_meta.get("latest_iteration", 0)
++        self.step_num = explorer_meta.get(
++            "latest_iteration", config.buffer.trainer_input.sft_warmup_steps
++        )
+         self.config = config
+         self.models, self.auxiliary_models = create_inference_models(config)
+         if self.config.mode != "bench":
+@@ -232,6 +234,7 @@ class Explorer:
+         self.logger.info("Evaluation started.")
+         all_st = time.time()
+         log_metrics = {}
++        accuracy_list = []
+         for eval_taskset in self.eval_tasksets:
+             st = time.time()
+             all_metrics = defaultdict(list)
+@@ -256,6 +259,15 @@ class Explorer:
+             metrics = self.monitor.calculate_metrics(all_metrics, prefix=f"eval/{eval_taskset.name}")  # type: ignore
+             log_metrics.update(metrics)
+             log_metrics[f"eval/{eval_taskset.name}/time"] = time.time() - st
++            
++            acc_key = f"eval/{eval_taskset.name}/accuracy"
++            if acc_key in metrics:
++                accuracy_list.append(metrics[acc_key])
++
++        if len(accuracy_list) > 0:
++            average_accuracy = sum(accuracy_list) / len(accuracy_list)
++            log_metrics["eval/average_accuracy"] = average_accuracy
++
+         log_metrics["eval/total_time"] = time.time() - all_st
+         self.monitor.log(log_metrics, step=self.step_num)  # type: ignore
+         return True, self.step_num
+@@ -297,3 +309,6 @@ class Explorer:
+ 
+     def shutdown(self) -> None:
+         self.monitor.close()
++
++    def get_current_step(self) -> int:
++        return self.step_num
+diff --git a/trinity/trainer/trainer.py b/trinity/trainer/trainer.py
+index 36d23e7..16a179c 100644
+--- a/trinity/trainer/trainer.py
++++ b/trinity/trainer/trainer.py
+@@ -127,6 +127,9 @@ class Trainer:
+         if not os.path.isdir(path) or len(os.listdir(path)) == 0:
+             self.engine.save_checkpoint()
+         self.engine.logger.close()
++    
++    def get_current_step(self) -> int:
++        return self.engine.global_steps
+ 
+ 
+ class TrainEngineWrapper(ABC):
+diff --git a/trinity/trainer/verl_trainer.py b/trinity/trainer/verl_trainer.py
+index 7590d60..0a77a64 100644
+--- a/trinity/trainer/verl_trainer.py
++++ b/trinity/trainer/verl_trainer.py
+@@ -247,8 +247,8 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+         return True, self.global_steps - 1
+ 
+     def train_sft_step(self, experiences: Experiences) -> Tuple[bool, int]:
+-        if self.sft_warmup_step_num >= self.config.trainer.sft_warmup_steps:
+-            return False, self.global_steps - 1
++        # if self.sft_warmup_step_num >= self.config.trainer.sft_warmup_steps:
++        #     return False, self.global_steps - 1
+         metrics = {}
+         timing_raw = {}
+ 
+@@ -299,13 +299,23 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+ 
+         # TODO: log as sft metrics
+         self.logger.log(data=metrics, step=self.global_steps)
++        self.logger.log(data={"sft_or_rft": 0}, step=self.global_steps)
+         self.sft_warmup_step_num += 1
+         self.global_steps += 1
+-        if self.sft_warmup_step_num == self.config.trainer.sft_warmup_steps:
+-            self.logger.log(
+-                data={"sft_warmup_steps": self.sft_warmup_step_num},
+-                step=self.global_steps - 1,
+-            )
++        # if self.sft_warmup_step_num == self.config.trainer.sft_warmup_steps:
++        #     self.logger.log(
++        #         data={"sft_warmup_steps": self.sft_warmup_step_num},
++        #         step=self.global_steps - 1,
++        #     )
++        if (
++            self.config.trainer.rft_sft_mix_ratio <= 0
++            and self.sft_warmup_step_num == self.config.trainer.sft_warmup_steps
++        ) or (
++            self.config.trainer.rft_sft_mix_ratio > 0
++            and self.sft_warmup_step_num >= self.config.trainer.sft_warmup_steps
++        ):
++            # 1) warmup stage;
++            # 2) mix training stage
+             with _timer("save_checkpoint", timing_raw):
+                 self._save_checkpoint()
+             return False, self.global_steps - 1
+@@ -419,6 +429,10 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+             if (
+                 self.config.trainer.save_freq > 0
+                 and self.global_steps % self.config.trainer.save_freq == 0
++            ) or (
++                self.config.trainer.rft_sft_mix_ratio > 0
++                and self.global_steps % (self.config.trainer.rft_sft_mix_ratio + 1)
++                == 0  # when steps=r+1, 2(r+1)
+             ):
+                 with _timer("save_checkpoint", timing_raw):
+                     self._save_checkpoint()
+@@ -435,6 +449,7 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+             self._log_experiences(experiences)
+ 
+         # TODO: make a canonical logger that supports various backend
++        self.logger.log(data={"sft_or_rft": 1}, step=self.global_steps)
+         self.logger.log(data=metrics, step=self.global_steps)
+ 
+         self.global_steps += 1
+@@ -503,6 +518,8 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+         self.actor_rollout_wg.set_mode(algorithm_type)
+         if self.algorithm_type.is_sft() and (not algorithm_type.is_sft()):
+             self.sft_to_rft()
++        elif self.algorithm_type.is_rft() and (not algorithm_type.is_rft()):
++            self.rft_to_sft()
+         self.algorithm_type = algorithm_type
+ 
+     def sft_to_rft(self) -> None:
+@@ -533,12 +550,12 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+                 if not os.path.isabs(global_step_folder):
+                     working_dir = os.getcwd()
+                     global_step_folder = os.path.join(working_dir, global_step_folder)
+-        print(f"Load from checkpoint folder: {global_step_folder}")
++        # print(f"Load from checkpoint folder: {global_step_folder}")
+         # set global step
+         self.global_steps = int(global_step_folder.split("global_step_")[-1])
+ 
+-        print(f"Setting global step to {self.global_steps}")
+-        print(f"Resuming from {global_step_folder}")
++        # print(f"Setting global step to {self.global_steps}")
++        # print(f"Resuming from {global_step_folder}")
+ 
+         actor_path = os.path.join(global_step_folder, "actor")
+         print(f"Loading actor from {actor_path} to ref_policy_wg")
+@@ -548,5 +565,11 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+             self.critic_wg.clear_optimizer_state()
+         print("sft to rft finished")
+ 
++    def rft_to_sft(self) -> None:
++        self.actor_rollout_wg.clear_optimizer_state()
++        if self.use_critic:
++            self.critic_wg.clear_optimizer_state()
++        print("rft to sft finished")
++
+     def shutdown(self) -> None:
+         pass
+diff --git a/trinity/utils/eval_utils.py b/trinity/utils/eval_utils.py
+index e3aa216..01c1097 100644
+--- a/trinity/utils/eval_utils.py
++++ b/trinity/utils/eval_utils.py
+@@ -76,3 +76,58 @@ def evaluate_equation(equation_str):
+         return result
+     except Exception as e:  # noqa: F841
+         return None
++
++
++def compute_response_metrics(responses):
++    if not responses:
++        return responses
++
++    acc_key = next((k for k, v in responses[0].metrics.items() if "accuracy" in k), None)
++    if acc_key is None:
++        raise ValueError("No accuracy metric found in responses.")
++
++    total_response_length = 0
++    total_correct_length = 0
++    total_incorrect_length = 0
++    pass_k_count = 0
++    num_responses = len(responses)
++
++    for response in responses:
++        tokens_length = len(response.tokens) - response.prompt_length
++        is_correct = response.metrics.get(acc_key) == 1.0
++
++        total_response_length += tokens_length
++        if is_correct:
++            pass_k_count += 1
++            total_correct_length += tokens_length
++        else:
++            total_incorrect_length += tokens_length
++
++    avg_response_length = total_response_length / num_responses
++    avg_pass_k = pass_k_count / num_responses
++    avg_correct_length = total_correct_length / pass_k_count if pass_k_count > 0 else None
++    avg_incorrect_length = (
++        total_incorrect_length / (num_responses - pass_k_count)
++        if num_responses > pass_k_count
++        else None
++    )
++
++    metrics = {
++        "response_length": avg_response_length,
++        "pass@k": avg_pass_k,
++        **(
++            {"response_length_correct": avg_correct_length}
++            if avg_correct_length is not None
++            else {}
++        ),
++        **(
++            {"response_length_wrong": avg_incorrect_length}
++            if avg_incorrect_length is not None
++            else {}
++        ),
++    }
++
++    for response in responses:
++        response.metrics.update(metrics)
++
++    return responses

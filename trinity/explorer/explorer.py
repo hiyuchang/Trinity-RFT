@@ -31,7 +31,9 @@ class Explorer:
         self.logger = get_logger(__name__)
         self.cache = CacheManager(config)
         explorer_meta = self.cache.load_explorer()
-        self.step_num = explorer_meta.get("latest_iteration", 0)
+        self.step_num = explorer_meta.get(
+            "latest_iteration", config.buffer.trainer_input.sft_warmup_steps
+        )
         self.config = config
         self.models, self.auxiliary_models = create_inference_models(config)
         if self.config.mode != "bench":
@@ -232,6 +234,7 @@ class Explorer:
         self.logger.info("Evaluation started.")
         all_st = time.time()
         log_metrics = {}
+        accuracy_list = []
         for eval_taskset in self.eval_tasksets:
             st = time.time()
             all_metrics = defaultdict(list)
@@ -256,6 +259,15 @@ class Explorer:
             metrics = self.monitor.calculate_metrics(all_metrics, prefix=f"eval/{eval_taskset.name}")  # type: ignore
             log_metrics.update(metrics)
             log_metrics[f"eval/{eval_taskset.name}/time"] = time.time() - st
+            
+            acc_key = f"eval/{eval_taskset.name}/accuracy"
+            if acc_key in metrics:
+                accuracy_list.append(metrics[acc_key])
+
+        if len(accuracy_list) > 0:
+            average_accuracy = sum(accuracy_list) / len(accuracy_list)
+            log_metrics["eval/average_accuracy"] = average_accuracy
+
         log_metrics["eval/total_time"] = time.time() - all_st
         self.monitor.log(log_metrics, step=self.step_num)  # type: ignore
         return True, self.step_num
@@ -297,3 +309,6 @@ class Explorer:
 
     def shutdown(self) -> None:
         self.monitor.close()
+
+    def get_current_step(self) -> int:
+        return self.step_num

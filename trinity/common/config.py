@@ -177,6 +177,9 @@ class AlgorithmConfig:
     lam: Optional[float] = None
     # TODO: add more algorithm params here
 
+    rft_sft_mix_ratio: Optional[int] = 0
+    use_gradient_surgery: Optional[bool] = False
+
 
 @dataclass
 class ClusterConfig:

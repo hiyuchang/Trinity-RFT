@@ -1,0 +1,115 @@
+project: "rft_sft_mixed"
+name: "openr1_only_rft_7b"
+checkpoint_root_dir: /mnt/data/yuchang/checkpoints/
+algorithm:
+  algorithm_type: grpo
+  repeat_times: 8
+model:
+  model_path: /cpfs/data/xielipeng.xlp/models/Qwen2.5-7B-Instruct
+  max_prompt_tokens: 1024
+  max_response_tokens: 16392
+cluster:
+  node_num: 1
+  gpu_per_node: 8
+buffer:
+  total_epochs: 2
+  batch_size: 32
+  max_retry_times: 3
+  max_retry_interval: 1
+  explorer_input:
+    taskset:
+      name: openr1
+      storage_type: file
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int
+      split: 'train'
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+      rollout_args:
+        temperature: 1.0
+        logprobs: 0
+    default_workflow_type: 'math_r1_workflow'
+    default_reward_fn_type: 'math_box_reward'
+    eval_tasksets:
+    - name: AIME24
+      storage_type: file
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_AIME2024
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+      rollout_args:
+        n: 8
+    - name: AIME25
+      storage_type: file
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_AIME2025
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+      rollout_args:
+        n: 8
+    - name: AMC23
+      storage_type: file
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_AMC23
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+      rollout_args:
+        n: 8
+    - name: MATH500
+      storage_type: file
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_MATH500
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+      rollout_args:
+        n: 1
+    - name: MINERVA
+      storage_type: file
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_MINERVA
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+      rollout_args:
+        n: 1
+    - name: openr1
+      storage_type: file
+      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_OPENR1_VAL
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+      rollout_args:
+        n: 4
+  trainer_input:
+    experience_buffer:
+      name: gsm8k_buffer
+      storage_type: queue
+      path: 'sqlite:////mnt/data/yuchang/checkpoints/${project}/${name}/openr1.db'
+    sft_warmup_steps: 1
+    sft_warmup_dataset:
+      name: openr1_sft
+      storage_type: file
+      path: /mnt/data/yuchang/datasets/openr1_from_wenhao_filter
+      split: 'train'
+      format:
+        prompt_type: messages
+        messages_key: 'messages'
+explorer:
+  eval_interval: 20
+  runner_num: 32
+  rollout_model:
+    engine_type: vllm_async
+    engine_num: 4
+    tensor_parallel_size: 1
+    enable_prefix_caching: false
+    enforce_eager: true
+    dtype: bfloat16
+    seed: 42
+    use_v1: false
+synchronizer:
+  sync_method: 'nccl'
+  sync_interval: 1
+  sync_timeout: 7200
+trainer:
+  trainer_type: 'verl'
+  trainer_config_path: 'examples/grpo_math/train_math_7b.yaml'
+  save_interval: 50
