@@ -8,7 +8,7 @@ algorithm:
 model:
   model_path: /cpfs/data/xielipeng.xlp/models/Qwen2.5-7B-Instruct
   max_prompt_tokens: 1024
-  max_response_tokens: 16392
+  max_response_tokens: 10240
 cluster:
   node_num: 1
   gpu_per_node: 8

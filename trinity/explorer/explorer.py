@@ -256,17 +256,17 @@ class Explorer:
                 self.runner_pool.run_tasks([eval_taskset.read()])  # type: ignore
             while self.runner_pool.has_next():
                 wait()
+            
+            if "accuracy" in metrics:
+                accuracy_list.append(metrics["accuracy"])
+
             metrics = self.monitor.calculate_metrics(all_metrics, prefix=f"eval/{eval_taskset.name}")  # type: ignore
             log_metrics.update(metrics)
             log_metrics[f"eval/{eval_taskset.name}/time"] = time.time() - st
             
-            acc_key = f"eval/{eval_taskset.name}/accuracy"
-            if acc_key in metrics:
-                accuracy_list.append(metrics[acc_key])
-
         if len(accuracy_list) > 0:
             average_accuracy = sum(accuracy_list) / len(accuracy_list)
-            log_metrics["eval/average_accuracy"] = average_accuracy
+            log_metrics["eval/all/accuracy"] = average_accuracy
 
         log_metrics["eval/total_time"] = time.time() - all_st
         self.monitor.log(log_metrics, step=self.step_num)  # type: ignore
