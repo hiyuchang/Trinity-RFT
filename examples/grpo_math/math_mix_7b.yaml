@@ -34,15 +34,8 @@ buffer:
     eval_tasksets:
     - name: AIME24
       storage_type: file
-      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_AIME2024
-      format:
-        prompt_key: 'problem'
-        response_key: 'answer'
-      rollout_args:
-        n: 8
-    - name: AIME25
-      storage_type: file
-      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_AIME2025
+      path: /mnt/data/yuchang/datasets/openr1_eval/AIME2024
+      split: 'test'
       format:
         prompt_key: 'problem'
         response_key: 'answer'
@@ -50,7 +43,8 @@ buffer:
         n: 8
     - name: AMC23
       storage_type: file
-      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_AMC23
+      path: /mnt/data/yuchang/datasets/openr1_eval/AMC23
+      split: 'test'
       format:
         prompt_key: 'problem'
         response_key: 'answer'
@@ -58,7 +52,8 @@ buffer:
         n: 8
     - name: MATH500
       storage_type: file
-      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_MATH500
+      path: /mnt/data/yuchang/datasets/openr1_eval/MATH500
+      split: 'test'
       format:
         prompt_key: 'problem'
         response_key: 'answer'
@@ -66,7 +61,8 @@ buffer:
         n: 1
     - name: MINERVA
       storage_type: file
-      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_MINERVA
+      path: /mnt/data/yuchang/datasets/openr1_eval/MINERVA
+      split: 'test'
       format:
         prompt_key: 'problem'
         response_key: 'answer'
@@ -74,7 +70,8 @@ buffer:
         n: 1
     - name: openr1
       storage_type: file
-      path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int_split/test_OPENR1_VAL
+      path: /mnt/data/yuchang/datasets/openr1_eval/OPENR1_VAL
+      split: 'test'
       format:
         prompt_key: 'problem'
         response_key: 'answer'

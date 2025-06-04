@@ -33,7 +33,7 @@ buffer:
     default_workflow_type: 'math_r1_workflow'
     default_reward_fn_type: 'math_box_reward'
     eval_tasksets:
-    - name: openr1
+    - name: all
       storage_type: file
       path: /cpfs/data/zhangwenhao.zwh/sftp/Trinity-RFT/scripts/data_prepare/openr1_data_filtered_int
       split: 'test'
