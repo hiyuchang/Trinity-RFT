@@ -81,6 +81,10 @@ class Trainer:
         try:
             if algo_type.is_sft():
                 exps = self.sft_warmup_buffer.read()
+            elif algo_type.is_mix():
+                print("Mix: read both sft and rft data")
+                exps_sft = self.sft_warmup_buffer.read()
+                exps = self.train_buffer.read()
             else:
                 exps = self.train_buffer.read(strategy=strategy)
         except StopIteration:
@@ -107,6 +111,19 @@ class Trainer:
                     exps,
                     pad_token_id=self.config.buffer.pad_token_id,  # type: ignore
                 )
+            )
+        elif algo_type.is_mix():
+            print("Mix: before training")
+            return self.engine.train_rft_step(
+                Experiences.gather_experiences(
+                    exps,
+                    pad_token_id=self.config.buffer.pad_token_id,  # type: ignore
+                ),
+                auxiliary_experiences = Experiences.gather_experiences(
+                    exps_sft,
+                    pad_token_id=self.config.buffer.pad_token_id,  # type: ignore
+                ),
+                # n_auxiliary_experiences=len(exps_sft),
             )
         else:
             raise ValueError(f"Unsupported algorithm type: {algo_type}")
@@ -137,7 +154,7 @@ class TrainEngineWrapper(ABC):
         """Do some preparation before training started."""
 
     @abstractmethod
-    def train_rft_step(self, experiences) -> Tuple[bool, int]:
+    def train_rft_step(self, experiences, **kwargs) -> Tuple[bool, int]:
         """Train on the RFT data."""
 
     @abstractmethod

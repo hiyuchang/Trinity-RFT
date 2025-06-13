@@ -1,0 +1,75 @@
+project: "rft_sft_mixed"
+name: "openr1_mix_ratio10"
+checkpoint_root_dir: /mnt/yuchang/checkpoints/
+algorithm:
+  algorithm_type: mix
+  mu: 0.1
+  repeat_times: 8
+model:
+  model_path: /mnt/checkpoint/qwen25/Qwen2.5-1.5B-Instruct
+  max_prompt_tokens: 1024
+  max_response_tokens: 16392
+cluster:
+  node_num: 1
+  gpu_per_node: 8
+buffer:
+  total_epochs: 1
+  batch_size: 32
+  sft_batch_size: 8
+  max_retry_times: 3
+  max_retry_interval: 1
+  explorer_input:
+    taskset:
+      name: openr1
+      storage_type: file
+      path: /mnt/yuchang/datasets/openr1_data/openr1_data_filtered_int
+      split: 'train'
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+      rollout_args:
+        temperature: 1.0
+        logprobs: 0
+    eval_tasksets:
+    - name: openr1
+      storage_type: file
+      path: /mnt/yuchang/datasets/openr1_data/openr1_data_filtered_int
+      split: 'test'
+      format:
+        prompt_key: 'problem'
+        response_key: 'answer'
+    default_workflow_type: 'math_r1_workflow'
+    # default_reward_fn_type: 'math_box_reward' # keep same as existing runs
+  trainer_input:
+    experience_buffer:
+      name: openr1_buffer
+      storage_type: queue
+      path: 'sqlite:////mnt/yuchang/checkpoints/${project}/${name}/openr1.db'
+    sft_warmup_steps: 1
+    sft_warmup_dataset:
+      name: openr1_sft
+      storage_type: file
+      path: /mnt/yuchang/datasets/openr1_data_sft
+      split: 'train'
+      format:
+        prompt_type: messages
+        messages_key: 'messages'
+explorer:
+  eval_interval: 10
+  runner_num: 32
+  rollout_model:
+    engine_type: vllm_async
+    engine_num: 4
+    tensor_parallel_size: 1
+    enable_prefix_caching: false
+    enforce_eager: true
+    dtype: bfloat16
+    seed: 42
+synchronizer:
+  sync_method: 'nccl'
+  sync_interval: 1
+  sync_timeout: 1200
+trainer:
+  trainer_type: 'verl'
+  trainer_config_path: 'examples/grpo_math/train_math.yaml'
+  save_interval: 50

@@ -311,9 +311,11 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
             return False, self.global_steps - 1
         return True, self.global_steps - 1
 
-    def train_rft_step(self, experiences: Experiences) -> Tuple[bool, int]:
+    def train_rft_step(self, experiences: Experiences, **kwargs) -> Tuple[bool, int]:
         metrics = {}
         timing_raw = {}
+        auxiliary_experiences = kwargs.get("auxiliary_experiences", None)
+        # n_auxiliary_experiences = kwargs.get("n_auxiliary_experiences", 0)
 
         with _timer("step", timing_raw):
             # Convert rewards to token_level_rewards
@@ -345,6 +347,37 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
                 }
             )
             batch.meta_info["temperature"] = self.config.actor_rollout_ref.rollout.temperature
+
+            algorithm_type = self.config.actor_rollout_ref.actor.get(
+                "algorithm_type", AlgorithmType.PPO
+            )
+            if algorithm_type == AlgorithmType.MIX:
+                print("processing auxiliary experiences")
+                # batch, batch_aux = split_batch(batch, n_auxiliary_experiences)
+                attention_mask = auxiliary_experiences.attention_masks
+                cumsum = torch.cumsum(attention_mask, dim=-1)
+                position_ids = torch.clip(cumsum - 1, 0, None).long()
+                batch_aux = DataProto.from_single_dict(
+                    {
+                        "uid": np.array(auxiliary_experiences.run_ids),
+                        "position_ids": position_ids,
+                        "input_ids": auxiliary_experiences.tokens.long(),
+                        "responses": auxiliary_experiences.tokens[:, auxiliary_experiences.prompt_length :].long(),
+                        "attention_mask": attention_mask.long(),
+                        "response_mask": (
+                            auxiliary_experiences.action_masks[:, auxiliary_experiences.prompt_length :].long()
+                            if hasattr(auxiliary_experiences, "action_masks")
+                            and auxiliary_experiences.action_masks is not None
+                            else attention_mask[:, auxiliary_experiences.prompt_length :].long()
+                        ),
+                    }
+                )
+                batch_aux.meta_info["temperature"] = (
+                    self.config.actor_rollout_ref.rollout.temperature
+                )
+                batch_aux.meta_info["mu"] = self.config.actor_rollout_ref.actor.get("mu", 0.0)
+            else:
+                batch_aux = None
 
             if self.config.trainer.balance_batch:
                 self._balance_batch(batch, metrics=metrics)  # TODO this may affect multi-turn
@@ -409,9 +442,13 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
 
             # implement critic warmup
             if self.config.trainer.critic_warmup <= self.global_steps:
+                # add sft experiences to batch
                 # update actor
                 with _timer("update_actor", timing_raw):
-                    actor_output = self.actor_rollout_wg.update_actor(batch)
+                    if batch_aux is not None:
+                        actor_output = self.actor_rollout_wg.update_actor(batch, batch_aux)
+                    else:
+                        actor_output = self.actor_rollout_wg.update_actor(batch)
                     # TODO add send weight explorer
                 actor_output_metrics = reduce_metrics(actor_output.meta_info["metrics"])
                 metrics.update(actor_output_metrics)

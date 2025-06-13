@@ -240,6 +240,20 @@ def compute_advantage(data: DataProto, **kwargs):
             num_repeat=num_repeat,
         )
 
+    elif algorithm_type.is_mix():
+        adv_estimator = kwargs.get("adv_estimator", None)
+        gamma = kwargs.get("gamma", 1.0)
+        lam = kwargs.get("lam", 1.0)
+        num_repeat = kwargs.get("num_repeat", 1)
+
+        return compute_advantage_ppo(
+            data=data,
+            adv_estimator=adv_estimator,
+            gamma=gamma,
+            lam=lam,
+            num_repeat=num_repeat,
+        )
+
     else:
         raise ValueError(f"Get invalid algorithm_type '{algorithm_type}'.")
 

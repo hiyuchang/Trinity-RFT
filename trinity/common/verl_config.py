@@ -83,6 +83,7 @@ class Actor:
     tau: float = 0.001  # strength of regularization w.r.t. old / ref policy
     opmd_baseline: str = "mean"  # mean / logavgexp, applicable to opmd
     use_uid: bool = False  # True / False, applicable to pairwise_opmd
+    mu: float = 0.1 # for mix training
 
 
 @dataclass
@@ -322,6 +323,10 @@ class veRLConfig:
         elif config.algorithm.algorithm_type == AlgorithmType.GRPO:
             logger.info("Using GRPO `adv_estimator` for GRPO")
             self.algorithm.adv_estimator = AdvantageEstimator.GRPO.value
+        elif config.algorithm.algorithm_type == AlgorithmType.MIX:
+            logger.info("Using GRPO `adv_estimator` for MIX")
+            self.algorithm.adv_estimator = AdvantageEstimator.GRPO.value
+            self.actor_rollout_ref.actor.mu = config.algorithm.mu
 
         if self.actor_rollout_ref.actor.algorithm_type.is_dpo():  # for DPO
             if not self.actor_rollout_ref.actor.use_kl_loss:

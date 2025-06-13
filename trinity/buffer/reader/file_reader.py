@@ -28,7 +28,7 @@ class SFTDataReader(BufferReader):
         self.messages_key = meta.format.messages_key
         self.prompt_key = meta.format.prompt_key
         self.response_key = meta.format.response_key
-        self.read_batch_size = config.read_batch_size
+        self.read_batch_size = config.sft_batch_size
         self.dataset = load_dataset(
             meta.path, name=subset_name, split=self.split
         )  # TODO: support resume

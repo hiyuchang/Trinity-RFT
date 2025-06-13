@@ -13,9 +13,10 @@ import torch
 from trinity.common.config import FormatConfig, GenerationConfig
 from trinity.common.experience import Experience
 from trinity.common.models.model import ModelWrapper
-from trinity.common.rewards.reward_fn import MathRewardFn, RewardFn
+from trinity.common.rewards.reward_fn import MathRewardFn, RewardFn, MyBoxedRewardFn
 from trinity.utils.log import get_logger
 from trinity.utils.registry import Registry
+from trinity.utils.eval_utils import compute_response_metrics
 
 logger = get_logger(__name__)
 
@@ -243,3 +244,57 @@ class MathWorkflow(SimpleWorkflow):
 """
         # call the SimpleWorkflow.reset
         super().reset(task)
+
+
+@WORKFLOWS.register_module("math_r1_workflow")
+class MathR1Workflow(SimpleWorkflow):
+    """A workflow for math tasks as introduced in DeepSeek-R1."""
+
+    def __init__(
+        self,
+        model: ModelWrapper,
+        task: Task,
+        auxiliary_models: Optional[List[openai.OpenAI]] = None,
+    ):
+        self.reset(task)
+        super().__init__(
+            model=model,
+            task=task,
+            auxiliary_models=auxiliary_models,
+        )
+
+    def reset(self, task: Task):
+        if task.reward_fn is None:
+            task.reward_fn = MyBoxedRewardFn
+        if task.format_args.system_prompt is None:
+            task.format_args.system_prompt = """"You are a helpful assistant that solves MATH problems. You should first thinks about the reasoning process in mind and then provides the user with the answer. You should present your reasoning process using the format: <think>\n ...your reasoning process here... </think>\n first. You should always include your final answer in \\boxed{} as closed-form results."
+            """
+        # call the SimpleWorkflow.reset
+        super().reset(task)
+
+    def run(self) -> List[Experience]:
+        messages = self.format_messages()
+
+        logger.debug("start chat")
+        responses = self.model.chat(messages, **self.rollout_args)
+        for response in responses:
+            reward = self.reward_fn(  # type: ignore [misc]
+                response=response.response_text,  # type: ignore [arg-type]
+                truth=self.truth,
+                return_dict=self.is_eval,
+            )
+            logger.debug(
+                f"self.task_desc: {self.task_desc}, messages: {messages}, response: {response.response_text}, reward: {reward}"
+            )
+            if isinstance(reward, dict):
+                if response.metrics is None:
+                    response.metrics = {}
+                response.metrics.update(reward)
+                reward = sum(reward.values())
+            response.reward = reward
+
+        # compute additional metrics
+        if self.is_eval:
+            responses = compute_response_metrics(responses)
+        return responses
+    

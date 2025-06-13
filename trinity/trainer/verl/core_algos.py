@@ -381,7 +381,7 @@ def compute_policy_loss(old_log_prob, log_prob, eos_mask, **kwargs):
             tau=tau,
         )
 
-    elif algorithm_type.is_rft():
+    elif algorithm_type.is_rft() or algorithm_type.is_mix():
         advantages = kwargs.get("advantages")
         cliprange = kwargs.get("cliprange")
         return compute_policy_loss_ppo(

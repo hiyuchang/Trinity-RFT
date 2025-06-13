@@ -71,6 +71,7 @@ class AlgorithmType(CaseInsensitiveEnum):
     OPMD = "opmd"
     PAIRWISE_OPMD = "pairwise_opmd"
     DPO = "dpo"
+    MIX = "mix"
 
     def is_rft(self) -> bool:
         """Check if the algorithm is RFT."""
@@ -88,6 +89,10 @@ class AlgorithmType(CaseInsensitiveEnum):
     def is_dpo(self) -> bool:
         """Check if the algorithm is DPO."""
         return self == AlgorithmType.DPO
+
+    def is_mix(self) -> bool:
+        """Check if the algorithm is MIX."""
+        return self == AlgorithmType.MIX
 
 
 class MonitorType(CaseInsensitiveEnum):

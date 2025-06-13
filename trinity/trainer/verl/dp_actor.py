@@ -301,7 +301,7 @@ class DataParallelPPOActor(BasePPOActor):
 
         return log_probs
 
-    def update_policy(self, data: DataProto):  # noqa: C901
+    def update_policy(self, data: DataProto, data_aux: DataProto = None):  # noqa: C901
         # make sure we are in training mode
         self.actor_module.train()
 
@@ -310,7 +310,7 @@ class DataParallelPPOActor(BasePPOActor):
         ]  # temperature must be in the data.meta_info to avoid slient error
 
         algorithm_type: AlgorithmType = self.config.get("algorithm_type", AlgorithmType.PPO)
-        if self.algorithm_type.is_rft():
+        if self.algorithm_type.is_rft() or self.algorithm_type.is_mix():
             select_keys = [
                 "responses",
                 "input_ids",
@@ -368,9 +368,27 @@ class DataParallelPPOActor(BasePPOActor):
         # (at which level pairwise loss is computed)?
         # (In comparison, advantage is computed at the level of batch, same for opmd, grpo, etc.)
 
+        if self.algorithm_type.is_mix():
+            select_keys = [
+                "attention_mask",
+                "input_ids",
+                "position_ids",
+                "response_mask",
+                "responses",
+            ]
+            batch_aux = data_aux.select(batch_keys=select_keys).batch
+            mu = data_aux.meta_info["mu"]
+
+            num_rft_mb = len(dataloader)  # To keep the same num of batches with dataloader
+            sft_mini_batch_size = batch_aux.batch_size[0] // num_rft_mb
+            dataloader_aux = batch_aux.split(sft_mini_batch_size)
+            assert len(dataloader_aux) == len(dataloader), "len(dataloader_aux) != len(dataloader)"
+        else:
+            dataloader_aux = [None] * len(dataloader)
+
         metrics = {}
         for epoch in range(self.config.ppo_epochs):
-            for batch_idx, data in enumerate(dataloader):
+            for batch_idx, (data, data_aux) in enumerate(zip(dataloader, dataloader_aux)):
                 # split batch into micro_batches
                 mini_batch = data
                 if has_multi_modal_inputs or (
@@ -442,7 +460,7 @@ class DataParallelPPOActor(BasePPOActor):
                             # label_smoothing=self.config.label_smoothing # TODO: add configs for dpo
                         )
 
-                    else:  # rft
+                    else:  # rft or mix
                         responses = data["responses"]
                         response_length = responses.size(1)
                         attention_mask = data["attention_mask"]
@@ -507,7 +525,7 @@ class DataParallelPPOActor(BasePPOActor):
                         loss = policy_loss / self.gradient_accumulation
                     loss.backward()
 
-                    if self.algorithm_type.is_rft():
+                    if self.algorithm_type.is_rft() or self.algorithm_type.is_mix():
                         data = {
                             "actor/entropy_loss": entropy_loss.detach().item(),
                             "actor/pg_loss": pg_loss.detach().item(),
@@ -530,6 +548,47 @@ class DataParallelPPOActor(BasePPOActor):
                             "sft/loss": loss.detach().item(),
                         }
                     append_to_dict(metrics, data)
+
+                if self.algorithm_type.is_mix():
+                    if self.config.use_dynamic_bsz:
+                        micro_batches_aux, _ = rearrange_micro_batches(
+                            batch=data_aux, max_token_len=max_token_len
+                        )
+                        scale = len(data_aux) / sft_mini_batch_size
+                    else:
+                        micro_batches_aux = data_aux.split(sft_mini_batch_size)
+                        scale = 1.0 / self.gradient_accumulation
+
+                    for data_aux in micro_batches_aux:
+                        # Support all hardwares
+                        if isinstance(data_aux, DataProto):
+                            data_aux = {
+                                **data_aux.batch.to(torch.cuda.current_device()),
+                                **data_aux.non_tensor_batch,
+                            }
+                        else:
+                            data_aux = data_aux.to(
+                                torch.cuda.current_device()
+                            )  # actor device is cpu when using offload
+
+                        # get sft logprobs before rft
+                        print("Mix: get sft logprobs before rft")
+                        response_mask = data_aux["response_mask"]
+                        _, log_prob_sft = self._forward_micro_batch(
+                            micro_batch=data_aux, temperature=temperature
+                        )
+                        sft_loss, pg_clipfrac, ppo_kl = core_algos.compute_policy_loss_sft(
+                            log_prob=log_prob_sft, eos_mask=response_mask
+                        )
+
+                        (mu * scale * sft_loss).backward()
+
+                        data = {
+                            "actor/sft_loss": sft_loss.detach().item(),
+                            "actor/loss_mean": loss.detach().item()
+                            + mu * scale * sft_loss.detach().item(),
+                        }
+                        append_to_dict(metrics, data)
 
                 grad_norm = self._optimizer_step()
                 data = {"actor/grad_norm": grad_norm.detach().item()}

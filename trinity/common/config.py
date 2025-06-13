@@ -176,7 +176,7 @@ class AlgorithmConfig:
     gamma: Optional[float] = None
     lam: Optional[float] = None
     # TODO: add more algorithm params here
-
+    mu: float = 0.1  # for mix training
 
 @dataclass
 class ClusterConfig:
@@ -215,6 +215,7 @@ class BufferConfig:
 
     batch_size: int = 1
     total_epochs: int = 1
+    sft_batch_size: int = 32
 
     # for explorer
     explorer_input: ExplorerInput = field(default_factory=ExplorerInput)

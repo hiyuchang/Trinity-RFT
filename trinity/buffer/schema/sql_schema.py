@@ -132,6 +132,7 @@ SCHEMA_MAPPING = {
     AlgorithmType.GRPO: ExperienceModel,
     AlgorithmType.OPMD: ExperienceModel,
     AlgorithmType.DPO: DPODataModel,
+    AlgorithmType.MIX: ExperienceModel,
 }
 
 

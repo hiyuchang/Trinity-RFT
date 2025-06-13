@@ -25,6 +25,7 @@ import torch.distributed
 import verl.utils.torch_functional as verl_F
 from codetiming import Timer
 from omegaconf import DictConfig, open_dict
+from typing import Optional
 from torch.distributed.device_mesh import init_device_mesh
 from torch.distributed.fsdp import FlatParameter
 from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
@@ -627,7 +628,7 @@ class ActorRolloutRefWorker(Worker):
         self.actor.set_mode(algo_type)
 
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
-    def update_actor(self, data: DataProto):
+    def update_actor(self, data: DataProto, data_aux: Optional[DataProto] = None):
         # Support all hardwares
         data = data.to(torch.cuda.current_device())
 
@@ -643,9 +644,11 @@ class ActorRolloutRefWorker(Worker):
 
         with self.ulysses_sharding_manager:
             data = self.ulysses_sharding_manager.preprocess_data(data=data)
+            if data_aux is not None:
+                data_aux = self.ulysses_sharding_manager.preprocess_data(data=data_aux)
             # perform training
             with Timer(name="update_policy", logger=None) as timer:
-                metrics = self.actor.update_policy(data=data)
+                metrics = self.actor.update_policy(data=data, data_aux=data_aux)
             delta_time = timer.last
             global_num_tokens = data.meta_info["global_token_num"]
             estimated_flops, promised_flops = self.flops_counter.estimate_flops(

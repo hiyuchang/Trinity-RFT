@@ -13,6 +13,7 @@ from trinity.utils.eval_utils import (
     extract_solution,
     simple_answer_parser,
     validate_equation,
+    find_boxed_answer,
 )
 from trinity.utils.log import get_logger
 from trinity.utils.registry import Registry
@@ -195,3 +196,45 @@ class CountDownRewardFn(RewardFn):
                 return format_score
         except Exception as e:  # noqa: F841
             return format_score
+
+
+@REWARD_FUNCTIONS.register_module("math_box_reward")
+class MyBoxedRewardFn(RewardFn):
+    """My reward function that parse the boxed answer"""
+
+    def __init__(self):
+        pass
+
+    def __call__(  # type: ignore
+        self,
+        response: str,
+        prompt: Optional[str] = None,
+        truth: Optional[str] = None,
+        return_dict: Optional[bool] = False,
+        # have_think_pattern: Optional[bool] = True,
+    ) -> Union[float, dict]:
+        answer = find_boxed_answer(response)
+        if answer is None:
+            if return_dict:
+                return {"accuracy": 0.0, "format_score": -0.1}
+            return -0.1
+
+        try:
+            reward = float(verify(answer, truth))
+        except Exception as e:
+            print(f"verify failed: {e}, answer: {answer}, gold: {truth}")
+            logger.info(f"verify failed: {e}, answer: {answer}, gold: {truth}")
+            reward = 0.0
+
+        # if have_think_pattern:
+        #     if validate_think_pattern(response):
+        #         reward += 0.0
+        #     else:
+        #         reward -= 0.1
+
+        if return_dict:
+            return {
+                "accuracy": 1.0 if reward > 0.9 else 0.0,
+                "format_score": 0.0 if reward >= 0.0 else -0.1,
+            }
+        return reward

@@ -93,7 +93,9 @@ def both(config: Config) -> None:
     # sync weight before training start
     ray.get([explorer.sync_weight.remote(), trainer.sync_weight.remote()])
 
-    if config.buffer.trainer_input.sft_warmup_steps > 0:
+    if (
+        config.buffer.trainer_input.sft_warmup_steps > 1
+    ):  # TODO: sft_warmup_steps>0 activates the sft_data_buffer, but now we do not need warmup
         while True:
             train_continue, train_step_num = ray.get(
                 trainer.train_one_period.remote(AlgorithmType.SFT)
