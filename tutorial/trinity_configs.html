@@ -76,6 +76,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="example_mix_algo.html">Algorithm Development</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">FAQ</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../build_api/trinity.buffer.html">trinity.buffer</a></li>
@@ -290,6 +294,7 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: Number of tasks used per training step. <em>Please do not multiply this value by the <code class="docutils literal notranslate"><span class="pre">algorithm.repeat_times</span></code> manually</em>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">total_epochs</span></code>: Total number of training epochs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">total_steps</span></code>: Optional. The total number of training steps. If specified, <code class="docutils literal notranslate"><span class="pre">total_epochs</span></code> will be ignored.</p></li>
 </ul>
 <section id="explorer-input">
 <h3>Explorer Input<a class="headerlink" href="#explorer-input" title="Link to this heading"></a></h3>
@@ -366,9 +371,10 @@
 <section id="explorer-output">
 <h3>Explorer Output<a class="headerlink" href="#explorer-output" title="Link to this heading"></a></h3>
 <p>In <a class="reference internal" href="#global-configuration"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">explore</span></code> mode</span></a>, since there is no trainer, users can configure an experience buffer via <code class="docutils literal notranslate"><span class="pre">buffer.explorer_output</span></code>, rather than using <code class="docutils literal notranslate"><span class="pre">buffer.trainer_input</span></code>, which will be introduced in the next section.</p>
-<blockquote>
-<div><p>For <code class="docutils literal notranslate"><span class="pre">both</span></code> and <code class="docutils literal notranslate"><span class="pre">train</span></code> modes, users should use <code class="docutils literal notranslate"><span class="pre">buffer.trainer_input</span></code> instead of <code class="docutils literal notranslate"><span class="pre">buffer.explorer_output</span></code>.</p>
-</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">both</span></code> and <code class="docutils literal notranslate"><span class="pre">train</span></code> modes, users should use <code class="docutils literal notranslate"><span class="pre">buffer.trainer_input.experience_buffer</span></code> instead of <code class="docutils literal notranslate"><span class="pre">buffer.explorer_output</span></code>.</p>
+</div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">buffer</span><span class="p">:</span>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">explorer_output</span><span class="p p-Indicator">:</span>
@@ -376,6 +382,7 @@
 <span class="w">    </span><span class="nt">storage_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">queue</span>
 <span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sqlite:///countdown_buffer.db</span>
 <span class="w">    </span><span class="nt">wrap_in_ray</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">max_read_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1800</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -395,6 +402,7 @@
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wrap_in_ray</span></code>: Whether to wrap the experience buffer in a Ray actor. Only take effect when <code class="docutils literal notranslate"><span class="pre">storage_type</span></code> is <code class="docutils literal notranslate"><span class="pre">sql</span></code> or <code class="docutils literal notranslate"><span class="pre">file</span></code>. The <code class="docutils literal notranslate"><span class="pre">queue</span></code> storage always uses a Ray actor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_read_timeout</span></code>: The maximum waiting time (in seconds) to read new experience data. If exceeded, an incomplete batch will be returned directly. Only take effect when <code class="docutils literal notranslate"><span class="pre">storage_type</span></code> is <code class="docutils literal notranslate"><span class="pre">queue</span></code>. Default is 1800 seconds (30 minutes).</p></li>
 </ul>
 </section>
 <section id="trainer-input">
@@ -433,6 +441,9 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">explorer</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">explorer</span>
 <span class="w">  </span><span class="nt">runner_num</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">  </span><span class="nt">max_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">900</span>
+<span class="w">  </span><span class="nt">max_retry_times</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">env_vars</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
 <span class="w">  </span><span class="nt">rollout_model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">engine_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm_async</span>
 <span class="w">    </span><span class="nt">engine_num</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
@@ -445,6 +456,9 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: Name of the explorer. This name will be used as the Ray actor’s name, so it must be unique.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">runner_num</span></code>: Number of parallel workflow runners.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_timeout</span></code>: Maximum time (in seconds) for a workflow to complete.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_retry_times</span></code>: Maximum number of retries for a workflow.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">env_vars</span></code>: Environment variables to be set for every workflow runners.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.engine_type</span></code>: Type of inference engine. Options: <code class="docutils literal notranslate"><span class="pre">vllm_async</span></code> (recommended), <code class="docutils literal notranslate"><span class="pre">vllm</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.engine_num</span></code>: Number of inference engines.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.tensor_parallel_size</span></code>: Degree of tensor parallelism.</p></li>
@@ -523,7 +537,7 @@
 <h2>veRL Trainer Configuration (Advanced)<a class="headerlink" href="#verl-trainer-configuration-advanced" title="Link to this heading"></a></h2>
 <p>For advanced users working with the <code class="docutils literal notranslate"><span class="pre">verl</span></code> trainer backend. This includes fine-grained settings for actor/critic models, optimizer parameters, and training loops.</p>
 <blockquote>
-<div><p>For full parameter meanings, refer to the <a class="reference external" href="https://github.com/volcengine/verl/blob/v0.3.0.post1/docs/examples/config.rst">veRL documentation</a>.</p>
+<div><p>For full parameter meanings, refer to the <a class="reference external" href="https://verl.readthedocs.io/en/latest/examples/config.html">veRL documentation</a>.</p>
 </div></blockquote>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">actor_rollout_ref</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">hybrid_engine</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
