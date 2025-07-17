@@ -219,6 +219,8 @@
 </li>
         <li><a href="build_api/trinity.buffer.reader.html#trinity.buffer.reader.file_reader.DPODataReader.__init__">(trinity.buffer.reader.file_reader.DPODataReader method)</a>
 </li>
+        <li><a href="build_api/trinity.buffer.reader.html#trinity.buffer.reader.file_reader.DummyProgressBar.__init__">(trinity.buffer.reader.file_reader.DummyProgressBar method)</a>
+</li>
         <li><a href="build_api/trinity.buffer.reader.html#trinity.buffer.reader.file_reader.RawDataReader.__init__">(trinity.buffer.reader.file_reader.RawDataReader method)</a>
 </li>
         <li><a href="build_api/trinity.buffer.reader.html#trinity.buffer.reader.file_reader.RolloutDataReader.__init__">(trinity.buffer.reader.file_reader.RolloutDataReader method)</a>
@@ -291,6 +293,8 @@
 </li>
         <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.CountDownRewardFn.__init__">(trinity.common.rewards.CountDownRewardFn method)</a>
 </li>
+        <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.dapo_reward.MathDAPORewardFn.__init__">(trinity.common.rewards.dapo_reward.MathDAPORewardFn method)</a>
+</li>
         <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.format_reward.FormatReward.__init__">(trinity.common.rewards.format_reward.FormatReward method)</a>
 </li>
         <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.FormatReward.__init__">(trinity.common.rewards.FormatReward method)</a>
@@ -300,6 +304,8 @@
         <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.math_reward.MathRewardFn.__init__">(trinity.common.rewards.math_reward.MathRewardFn method)</a>
 </li>
         <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.MathBoxedRewardFn.__init__">(trinity.common.rewards.MathBoxedRewardFn method)</a>
+</li>
+        <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.MathDAPORewardFn.__init__">(trinity.common.rewards.MathDAPORewardFn method)</a>
 </li>
         <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.MathRewardFn.__init__">(trinity.common.rewards.MathRewardFn method)</a>
 </li>
@@ -706,10 +712,10 @@
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Checkpoint">Checkpoint (class in trinity.common.verl_config)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.html#trinity.common.constants.SyncMethod.CHECKPOINT">CHECKPOINT (trinity.common.constants.SyncMethod attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Actor.checkpoint">checkpoint (trinity.common.verl_config.Actor attribute)</a>
 
       <ul>
@@ -740,9 +746,11 @@
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.verl_config.Critic.cliprange_value">cliprange_value (trinity.common.verl_config.Critic attribute)</a>
 </li>
-      <li><a href="build_api/trinity.utils.html#trinity.utils.monitor.Monitor.close">close() (trinity.utils.monitor.Monitor method)</a>
+      <li><a href="build_api/trinity.buffer.reader.html#trinity.buffer.reader.file_reader.DummyProgressBar.close">close() (trinity.buffer.reader.file_reader.DummyProgressBar method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.utils.html#trinity.utils.monitor.Monitor.close">(trinity.utils.monitor.Monitor method)</a>
+</li>
         <li><a href="build_api/trinity.utils.html#trinity.utils.monitor.TensorboardMonitor.close">(trinity.utils.monitor.TensorboardMonitor method)</a>
 </li>
         <li><a href="build_api/trinity.utils.html#trinity.utils.monitor.WandbMonitor.close">(trinity.utils.monitor.WandbMonitor method)</a>
@@ -758,6 +766,12 @@
 
       <ul>
         <li><a href="build_api/trinity.trainer.verl.html#trinity.trainer.verl.fsdp_workers.ActorRolloutRefWorker.compute_log_prob">(trinity.trainer.verl.fsdp_workers.ActorRolloutRefWorker method)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.dapo_reward.MathDAPORewardFn.compute_overlong_penalty">compute_overlong_penalty() (trinity.common.rewards.dapo_reward.MathDAPORewardFn method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.MathDAPORewardFn.compute_overlong_penalty">(trinity.common.rewards.MathDAPORewardFn method)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.trainer.verl.html#trinity.trainer.verl.fsdp_workers.ActorRolloutRefWorker.compute_ref_log_prob">compute_ref_log_prob() (trinity.trainer.verl.fsdp_workers.ActorRolloutRefWorker method)</a>
@@ -1036,6 +1050,8 @@
 </li>
       <li><a href="build_api/trinity.algorithm.kl_fn.html#trinity.algorithm.kl_fn.kl_fn.DummyKLFn">DummyKLFn (class in trinity.algorithm.kl_fn.kl_fn)</a>
 </li>
+      <li><a href="build_api/trinity.buffer.reader.html#trinity.buffer.reader.file_reader.DummyProgressBar">DummyProgressBar (class in trinity.buffer.reader.file_reader)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1064,6 +1080,8 @@
         <li><a href="build_api/trinity.common.html#trinity.common.verl_config.veRLConfig.enable_preview">(trinity.common.verl_config.veRLConfig attribute)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.html#trinity.common.config.StorageConfig.enable_progress_bar">enable_progress_bar (trinity.common.config.StorageConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.MonitorConfig.enable_ray_timeline">enable_ray_timeline (trinity.common.config.MonitorConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.InferenceModelConfig.enable_thinking">enable_thinking (trinity.common.config.InferenceModelConfig attribute)</a>
@@ -1102,10 +1120,10 @@
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.config.ExplorerConfig.eval_on_startup">eval_on_startup (trinity.common.config.ExplorerConfig attribute)</a>
 </li>
-      <li><a href="build_api/trinity.common.html#trinity.common.config.ExplorerInput.eval_tasksets">eval_tasksets (trinity.common.config.ExplorerInput attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="build_api/trinity.common.html#trinity.common.config.ExplorerInput.eval_tasksets">eval_tasksets (trinity.common.config.ExplorerInput attribute)</a>
+</li>
       <li><a href="build_api/trinity.utils.html#trinity.utils.eval_utils.evaluate_equation">evaluate_equation() (in module trinity.utils.eval_utils)</a>
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.experience.Experience">Experience (class in trinity.common.experience)</a>
@@ -1700,6 +1718,12 @@
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.customized_math_workflows.MathBoxedWorkflow">(class in trinity.common.workflows.customized_math_workflows)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.MathDAPORewardFn">MathDAPORewardFn (class in trinity.common.rewards)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.dapo_reward.MathDAPORewardFn">(class in trinity.common.rewards.dapo_reward)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.MathRewardFn">MathRewardFn (class in trinity.common.rewards)</a>
 
       <ul>
@@ -1945,6 +1969,8 @@
         <li><a href="build_api/trinity.common.rewards.html#module-trinity.common.rewards.agents_reward">trinity.common.rewards.agents_reward</a>
 </li>
         <li><a href="build_api/trinity.common.rewards.html#module-trinity.common.rewards.countdown_reward">trinity.common.rewards.countdown_reward</a>
+</li>
+        <li><a href="build_api/trinity.common.rewards.html#module-trinity.common.rewards.dapo_reward">trinity.common.rewards.dapo_reward</a>
 </li>
         <li><a href="build_api/trinity.common.rewards.html#module-trinity.common.rewards.format_reward">trinity.common.rewards.format_reward</a>
 </li>
@@ -3627,8 +3653,6 @@
         <li><a href="build_api/trinity.buffer.html#module-trinity.buffer.buffer_reader">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     trinity.buffer.buffer_writer
 
@@ -3636,6 +3660,8 @@
         <li><a href="build_api/trinity.buffer.html#module-trinity.buffer.buffer_writer">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     trinity.buffer.priority_queue
 
@@ -3837,6 +3863,13 @@
 
       <ul>
         <li><a href="build_api/trinity.common.rewards.html#module-trinity.common.rewards.countdown_reward">module</a>
+</li>
+      </ul></li>
+      <li>
+    trinity.common.rewards.dapo_reward
+
+      <ul>
+        <li><a href="build_api/trinity.common.rewards.html#module-trinity.common.rewards.dapo_reward">module</a>
 </li>
       </ul></li>
       <li>
@@ -4153,6 +4186,8 @@
       <li><a href="build_api/trinity.common.html#trinity.common.experience.Experience.unique_id">unique_id (trinity.common.experience.Experience attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.html#trinity.common.experience.Experiences.unique_ids">unique_ids (trinity.common.experience.Experiences attribute)</a>
+</li>
+      <li><a href="build_api/trinity.buffer.reader.html#trinity.buffer.reader.file_reader.DummyProgressBar.update">update() (trinity.buffer.reader.file_reader.DummyProgressBar method)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl.html#trinity.trainer.verl.fsdp_workers.ActorRolloutRefWorker.update_actor">update_actor() (trinity.trainer.verl.fsdp_workers.ActorRolloutRefWorker method)</a>
 </li>
