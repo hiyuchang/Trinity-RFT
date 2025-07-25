@@ -265,6 +265,7 @@ class AlfworldWorkflowV2(RewardPropagationWorkflow):
         # Get action from the model
         responses = self.model.chat(self.memory)
         response_text = responses[0].response_text
+        self.memory.append({"role": "assistant", "content": response_text})
         action = parse_action(response_text)
 
         # Execute action in the environment

@@ -5,7 +5,7 @@ algorithm:
   algorithm_type: grpo
   repeat_times: 8
 model:
-  model_path: /mnt/checkpoint/qwen25/Qwen2.5-1.5B-Instruct
+  model_path: /mnt/checkpoint/qwen25/Qwen2.5-3B-Instruct
   max_prompt_tokens: 4096
   max_response_tokens: 16384
 cluster:
@@ -23,41 +23,17 @@ buffer:
       path: 'examples/grpo_alfworld/alfworld_data'
       format:
         prompt_key: 'game_file'
-        system_prompt: |-
-          You are an agent interacting with a virtual test-based environments.
-
-          ## Notes:
-          At each step, you should first think then perform action to fulfill the instruction. You should ALWAYS wrap your thinking with the <think> </think> tag and wrap your action with the <action> </action> tag.
-          You should ALWAYS take one action each step.
-          DONOT try to interact with the user at anytime. Finish the task and buy the item by yourself.
-
-          ## Action Format:
-          Below are the available commands you can use:
-            look:                             look around your current location
-            inventory:                        check your current inventory(you can only have 1 item in your inventory)
-            go to (receptacle):               move to a receptacle
-            open (receptacle):                open a receptacle
-            close (receptacle):               close a receptacle
-            take (object) from (receptacle):  take an object from a receptacle
-            move (object) to (receptacle):  place an object in or on a receptacle
-            examine (something):              examine a receptacle or an object
-            use (object):                     use an object
-            heat (object) with (receptacle):  heat an object using a receptacle
-            clean (object) with (receptacle): clean an object using a receptacle
-            cool (object) with (receptacle):  cool an object using a receptacle
-            slice (object) with (object):     slice an object using a sharp object
-
-          For example your output should be like this:
-          <think> To solve the task, I need first to ... </think><action>go to cabinet 1</action>
       rollout_args:
         temperature: 1.0
         logprobs: 0
+      enable_progress_bar: false
     default_workflow_type: 'alfworld_workflow_v2'
   trainer_input:
     experience_buffer:
       name: alfworld_buffer
       storage_type: queue
       # path: 'sqlite:///alfworld.db'
+    sft_warmup_steps: 20  # 433
     sft_warmup_dataset:
       name: sft_warmup_data
       storage_type: file
@@ -65,6 +41,7 @@ buffer:
       format:
         prompt_type: messages
         messages_key: messages
+      enable_progress_bar: false
 explorer:
   runner_num: 32
   max_timeout: 3600
