@@ -77,7 +77,7 @@ class RewardPropagationWorkflow(Workflow):
             "set `explorer.rollout_model.enable_history` to `True` in your config."
         )
         # use the rollout model's OpenAI client to write your agent application
-        self.client: openai.OpenAI = model.get_openai_client()
+        # self.client: openai.OpenAI = model.get_openai_client(). # TODO: uncomment this line
 
     def run(self) -> list[Experience]:
         """Run the workflow and return a list of experiences with step-wise rewards."""

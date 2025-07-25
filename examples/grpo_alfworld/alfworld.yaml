@@ -1,11 +1,11 @@
 project: "ALFWORLD"
 name: "ALFWORLD_RFT"
-checkpoint_root_dir: /PATH/TO/CHECKPOINT/ALFWORLD_RFT/
+checkpoint_root_dir: /mnt/yuchang/checkpoints
 algorithm:
   algorithm_type: grpo
   repeat_times: 8
 model:
-  model_path: /PATH/TO/MODEL/
+  model_path: /mnt/checkpoint/qwen25/Qwen2.5-1.5B-Instruct
   max_prompt_tokens: 4096
   max_response_tokens: 16384
 cluster:
@@ -31,7 +31,14 @@ buffer:
     experience_buffer:
       name: alfworld_buffer
       storage_type: queue
-      path: 'sqlite:///alfworld.db'
+      # path: 'sqlite:///alfworld.db'
+    sft_warmup_dataset:
+      name: sft_warmup_data
+      storage_type: file
+      path: /mnt/yuchang/datasets/alfworld/sft
+      format:
+        prompt_type: messages
+        messages_key: messages
 explorer:
   runner_num: 32
   max_timeout: 3600
@@ -46,7 +53,7 @@ explorer:
     gpu_memory_utilization: 0.7
     enable_chunked_prefill: true
   env_vars:
-    TMPDIR: /PATH/TO/ALFWORLD_TMP_DIR
+    TMPDIR: /root/alfworld_tmp
 synchronizer:
   sync_method: 'nccl'
   sync_interval: 5

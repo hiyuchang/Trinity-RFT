@@ -2,7 +2,7 @@
 """Workflow module"""
 from .customized_math_workflows import MathBoxedWorkflow
 from .customized_toolcall_workflows import ToolCallWorkflow
-from .envs.alfworld.alfworld_workflow import AlfworldWorkflow
+from .envs.alfworld.alfworld_workflow import AlfworldWorkflow, AlfworldWorkflowV2
 from .envs.sciworld.sciworld_workflow import SciWorldWorkflow
 from .envs.webshop.webshop_workflow import WebShopWorkflow
 from .math_rm_workflow import MathRMWorkflow
@@ -16,6 +16,7 @@ __all__ = [
     "MathWorkflow",
     "WebShopWorkflow",
     "AlfworldWorkflow",
+    "AlfworldWorkflowV2"
     "SciWorldWorkflow",
     "MathBoxedWorkflow",
     "MathRMWorkflow",
