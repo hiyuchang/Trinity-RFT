@@ -62,28 +62,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/faq.html">FAQ</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="trinity.buffer.html">trinity.buffer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="trinity.explorer.html">trinity.explorer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="trinity.trainer.html">trinity.trainer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="trinity.algorithm.html">trinity.algorithm</a></li>
-<li class="toctree-l1"><a class="reference internal" href="trinity.manager.html">trinity.manager</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="trinity.common.html">trinity.common</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="trinity.common.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">trinity.common.models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="trinity.common.rewards.html">trinity.common.rewards</a></li>
-<li class="toctree-l3"><a class="reference internal" href="trinity.common.workflows.html">trinity.common.workflows</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="trinity.common.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trinity.common.html#module-trinity.common.config">trinity.common.config module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trinity.common.html#module-trinity.common.constants">trinity.common.constants module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trinity.common.html#module-trinity.common.experience">trinity.common.experience module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trinity.common.html#module-trinity.common.verl_config">trinity.common.verl_config module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="trinity.common.html#module-trinity.common">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="trinity.utils.html">trinity.utils</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -100,6 +80,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api_reference.html">API Reference</a></li>
           <li class="breadcrumb-item"><a href="trinity.common.html">trinity.common</a></li>
       <li class="breadcrumb-item active">trinity.common.models</li>
       <li class="wy-breadcrumbs-aside">
@@ -261,7 +242,7 @@
 <span id="trinity-common-models-utils-module"></span><h2>trinity.common.models.utils module<a class="headerlink" href="#module-trinity.common.models.utils" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="trinity.common.models.utils.tokenize_and_mask_messages_hf">
-<span class="sig-prename descclassname"><span class="pre">trinity.common.models.utils.</span></span><span class="sig-name descname"><span class="pre">tokenize_and_mask_messages_hf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/trinity/common/models/utils.html#tokenize_and_mask_messages_hf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trinity.common.models.utils.tokenize_and_mask_messages_hf" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">trinity.common.models.utils.</span></span><span class="sig-name descname"><span class="pre">tokenize_and_mask_messages_hf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/trinity/common/models/utils.html#tokenize_and_mask_messages_hf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trinity.common.models.utils.tokenize_and_mask_messages_hf" title="Link to this definition"></a></dt>
 <dd><p>Calculate the assistant token mask with <cite>chat_template</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -273,17 +254,18 @@
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The token_ids (sequence_length)
-and assistant_masks (sequence_length).</p>
+<cite>torch.Tensor</cite>: Assistant_masks (sequence_length).
+<cite>int</cite>: Prompt length.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
+<dd class="field-odd"><p><cite>torch.Tensor</cite></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="trinity.common.models.utils.tokenize_and_mask_messages_default">
-<span class="sig-prename descclassname"><span class="pre">trinity.common.models.utils.</span></span><span class="sig-name descname"><span class="pre">tokenize_and_mask_messages_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/trinity/common/models/utils.html#tokenize_and_mask_messages_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trinity.common.models.utils.tokenize_and_mask_messages_default" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">trinity.common.models.utils.</span></span><span class="sig-name descname"><span class="pre">tokenize_and_mask_messages_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/trinity/common/models/utils.html#tokenize_and_mask_messages_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trinity.common.models.utils.tokenize_and_mask_messages_default" title="Link to this definition"></a></dt>
 <dd><p>Calculate the assistant token mask.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -295,10 +277,11 @@ and assistant_masks (sequence_length).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The token_ids (sequence_length)
-and assistant_masks (sequence_length).</p>
+<cite>torch.Tensor</cite>: Assistant_masks (sequence_length).
+<cite>int</cite>: Prompt length.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
+<dd class="field-odd"><p><cite>torch.Tensor</cite></p>
 </dd>
 </dl>
 <div class="admonition note">
@@ -437,6 +420,14 @@ load the latest checkpoint. Defaults to None.</p></li>
 <dt class="sig sig-object py" id="trinity.common.models.vllm_model.vLLMRolloutModel.logprobs">
 <em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">logprobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../_modules/trinity/common/models/vllm_model.html#vLLMRolloutModel.logprobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trinity.common.models.vllm_model.vLLMRolloutModel.logprobs" title="Link to this definition"></a></dt>
 <dd><p>Calculate the logprobs of the given tokens in async.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>token_ids</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The input token ids (seq_length).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tensor of logprobs (seq_length - 1).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
