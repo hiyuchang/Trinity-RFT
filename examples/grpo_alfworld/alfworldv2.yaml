@@ -1,19 +1,21 @@
 project: "ALFWORLD_TEST"
-name: "v2"
+name: "v2_run_lr5e-6_fromckp"
 checkpoint_root_dir: /mnt/yuchang/checkpoints
 algorithm:
   algorithm_type: grpo
-  repeat_times: 8
+  repeat_times: 16
+  entropy_loss_fn_args:
+    entropy_coef: 0.001
 model:
-  model_path: /mnt/checkpoint/qwen25/Qwen2.5-3B-Instruct
+  model_path: /mnt/yuchang/checkpoints/alfworld_sft
   max_prompt_tokens: 4096
   max_response_tokens: 16384
 cluster:
   node_num: 1
   gpu_per_node: 8
 buffer:
-  total_epochs: 20
-  batch_size: 32
+  total_epochs: 15
+  batch_size: 16
   max_retry_times: 3
   max_retry_interval: 1
   explorer_input:
@@ -33,15 +35,15 @@ buffer:
       name: alfworld_buffer
       storage_type: queue
       # path: 'sqlite:///alfworld.db'
-    sft_warmup_steps: 20  # 433
-    sft_warmup_dataset:
-      name: sft_warmup_data
-      storage_type: file
-      path: /mnt/yuchang/datasets/alfworld/sft
-      format:
-        prompt_type: messages
-        messages_key: messages
-      enable_progress_bar: false
+    # sft_warmup_steps: 16  # 433 samples
+    # sft_warmup_dataset:
+    #   name: sft_warmup_data
+    #   storage_type: file
+    #   path: /mnt/yuchang/datasets/alfworld/sft
+    #   format:
+    #     prompt_type: messages
+    #     messages_key: messages
+    #   enable_progress_bar: false
 explorer:
   runner_num: 32
   max_timeout: 3600
@@ -60,11 +62,11 @@ explorer:
     TMPDIR: /root/alfworld_tmp
 synchronizer:
   sync_method: 'nccl'
-  sync_interval: 5
+  sync_interval: 1
   sync_timeout: 3600
 trainer:
   trainer_type: 'verl'
   trainer_config_path: 'examples/grpo_alfworld/train_alfworld.yaml'
-  save_interval: 10
+  save_interval: 50
 monitor:
   monitor_type: wandb

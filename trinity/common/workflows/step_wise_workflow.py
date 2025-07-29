@@ -87,7 +87,7 @@ class RewardPropagationWorkflow(Workflow):
             continue_run = self.step(step_num=step)
             # Collect experiences data of the current step
             exps = self.model.extract_experience_from_history()
-            # set the step number in each experience
+            # Set the step number in each experience
             for exp in exps:
                 exp.eid.step = step
             # Store the step experiences

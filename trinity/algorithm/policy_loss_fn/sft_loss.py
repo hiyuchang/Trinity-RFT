@@ -13,6 +13,7 @@ class SFTLossFn(PolicyLossFn):
     def __init__(self, backend: str = "verl", use_token_level_loss: bool = True) -> None:
         super().__init__(backend=backend)
         self.use_token_level_loss = use_token_level_loss
+        print(f"{use_token_level_loss=} in SFT loss function")
 
     def __call__(  # type: ignore
         self,
