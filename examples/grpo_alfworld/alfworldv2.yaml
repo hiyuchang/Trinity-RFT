@@ -34,7 +34,11 @@ buffer:
     experience_buffer:
       name: alfworld_buffer
       storage_type: queue
-      # path: 'sqlite:///alfworld.db'
+      path: 'sqlite:///alfworld.db'
+      use_priority_queue: true
+      replay_buffer_kwargs:
+        priority_fn: linear_decay
+        decay: 0.1
     # sft_warmup_steps: 16  # 433 samples
     # sft_warmup_dataset:
     #   name: sft_warmup_data
