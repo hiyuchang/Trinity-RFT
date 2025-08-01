@@ -5,6 +5,7 @@ from .customized_toolcall_workflows import ToolCallWorkflow
 from .envs.alfworld.alfworld_workflow import AlfworldWorkflow, AlfworldWorkflowV2
 from .envs.sciworld.sciworld_workflow import SciWorldWorkflow
 from .envs.webshop.webshop_workflow import WebShopWorkflow
+from .eval_workflow import MathEvalWorkflow
 from .math_rm_workflow import MathRMWorkflow
 from .workflow import WORKFLOWS, MathWorkflow, SimpleWorkflow, Task, Workflow
 
@@ -21,4 +22,5 @@ __all__ = [
     "MathBoxedWorkflow",
     "MathRMWorkflow",
     "ToolCallWorkflow",
+    "MathEvalWorkflow",
 ]
