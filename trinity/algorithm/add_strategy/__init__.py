@@ -5,6 +5,7 @@ from trinity.algorithm.add_strategy.add_strategy import (
     OPMDAddStrategy,
     RewardVarianceAddStrategy,
 )
+from trinity.algorithm.add_strategy.step_wise_add_strategy import StepWiseGRPOStrategy
 from trinity.algorithm.add_strategy.multi_turn_strategy import MultiTurnAddStrategy
 
 __all__ = [
@@ -12,6 +13,7 @@ __all__ = [
     "AddStrategy",
     "GRPOAddStrategy",
     "OPMDAddStrategy",
+    "StepWiseGRPOStrategy",
     "RewardVarianceAddStrategy",
     "MultiTurnAddStrategy",
 ]
