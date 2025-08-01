@@ -1,12 +1,9 @@
 project: "ALFWORLD_TEST"
-name: "v2_test"
-# name: "v2_run_lr5e-6_fromckp"
+name: "v2_read_bs*n_priQ"
 checkpoint_root_dir: /mnt/yuchang/checkpoints
 algorithm:
   algorithm_type: grpo
   repeat_times: 16
-  # entropy_loss_fn_args:
-  #   entropy_coef: 0.001
   add_strategy: multi_turn
 model:
   model_path: /mnt/yuchang/checkpoints/alfworld_sft
@@ -37,7 +34,6 @@ buffer:
       name: alfworld_buffer
       storage_type: queue
       use_priority_queue: true
-      reuse_cooldown_time: 100
       replay_buffer_kwargs:
         priority_fn: linear_decay
         decay: 0.1
@@ -58,8 +54,9 @@ explorer:
   env_vars:
     TMPDIR: /root/alfworld_tmp
 synchronizer:
+  sync_style: dynamic_by_explorer
   sync_method: 'nccl'
-  sync_interval: 1
+  sync_interval: 2
   sync_timeout: 3600
 trainer:
   trainer_type: 'verl'

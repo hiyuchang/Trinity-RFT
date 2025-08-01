@@ -26,26 +26,26 @@ class MultiTurnAddStrategy(GRPOAddStrategy):
         metric_list = []
         metrics = {}
         tasks = []
-        
+
         logger.info(f"debug: begin adding {len(exps)} experiences in step {step}")
         with Timer(metrics, "add_strategy_time"):
             for group_id, group_exps in exp_groups.items():
-                
+
                 # --- Debugging Setup ---
                 original_steps = [exp.eid.step for exp in group_exps]
                 processed_steps = []
                 # -----------------------
 
                 exp_by_steps = group_by(group_exps, id_type="step")
-                sorted_exp_steps = sorted(exp_by_steps.items(), key=lambda x: x[0], reverse=True)
-                
+                sorted_exp_steps = sorted(exp_by_steps.items(), key=lambda x: x[0])
+
                 for step_id, step_exps in sorted_exp_steps:
                     if len(step_exps) < 2:
                         continue
-                    
-                    logger.info(f"Processing group {group_id} step {step_id} with {len(step_exps)} exps")
-                    processed_exps, step_metrics = self.calculate_group_advantage(group_id, step_exps)
-                    logger.info(f"{step_metrics=}")
+
+                    processed_exps, step_metrics = self.calculate_group_advantage(
+                        group_id, step_exps
+                    )
                     metric_list.append(step_metrics)
                     cnt += len(processed_exps)
 
@@ -56,11 +56,11 @@ class MultiTurnAddStrategy(GRPOAddStrategy):
                     if len(processed_exps) > 0:
                         tasks.append(self.writer.write_async(processed_exps))
 
-                logger.info("--- debug ---")
-                logger.info(f"Processing Task ID: {group_id}")
+                # logger.info("--- debug ---")
+                # logger.info(f"Processing Task ID: {group_id}")
                 # logger.info(f"{original_steps=}")
-                logger.info(f"processed_steps={processed_steps}") 
-                logger.info("-------------")
+                # logger.info(f"processed_steps={processed_steps}")
+                # logger.info("-------------")
         logger.info(f"debug: finally adding {cnt} experiences in step {step}")
         if tasks:
             await asyncio.gather(*tasks)
@@ -69,7 +69,7 @@ class MultiTurnAddStrategy(GRPOAddStrategy):
             metrics.update(group_metrics)
         except ValueError:
             pass  # empty metric list causes ValueError, ignore it
-            
+
         return cnt, metrics
 
     @classmethod
