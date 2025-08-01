@@ -1,11 +1,13 @@
 project: "ALFWORLD_TEST"
-name: "v2_run_lr5e-6_fromckp"
+name: "v2_test"
+# name: "v2_run_lr5e-6_fromckp"
 checkpoint_root_dir: /mnt/yuchang/checkpoints
 algorithm:
   algorithm_type: grpo
   repeat_times: 16
-  entropy_loss_fn_args:
-    entropy_coef: 0.001
+  # entropy_loss_fn_args:
+  #   entropy_coef: 0.001
+  add_strategy: multi_turn
 model:
   model_path: /mnt/yuchang/checkpoints/alfworld_sft
   max_prompt_tokens: 4096
@@ -34,22 +36,13 @@ buffer:
     experience_buffer:
       name: alfworld_buffer
       storage_type: queue
-      path: 'sqlite:///alfworld.db'
       use_priority_queue: true
+      reuse_cooldown_time: 100
       replay_buffer_kwargs:
         priority_fn: linear_decay
         decay: 0.1
-    # sft_warmup_steps: 16  # 433 samples
-    # sft_warmup_dataset:
-    #   name: sft_warmup_data
-    #   storage_type: file
-    #   path: /mnt/yuchang/datasets/alfworld/sft
-    #   format:
-    #     prompt_type: messages
-    #     messages_key: messages
-    #   enable_progress_bar: false
 explorer:
-  runner_num: 32
+  max_repeat_times_per_runner: 1
   max_timeout: 3600
   rollout_model:
     enable_history: true
