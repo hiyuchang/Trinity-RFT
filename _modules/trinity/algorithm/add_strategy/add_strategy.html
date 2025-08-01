@@ -234,7 +234,7 @@
                 <span class="n">group_reward_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
                 <span class="n">group_reward_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">rewards</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">exp</span><span class="o">.</span><span class="n">reward</span> <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">])</span>
+                <span class="n">rewards</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">exp</span><span class="o">.</span><span class="n">reward</span> <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
                 <span class="n">group_reward_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
                 <span class="n">group_reward_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">:</span>
@@ -294,7 +294,7 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">group_baseline</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">group_rewards</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">exp</span><span class="o">.</span><span class="n">reward</span> <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">])</span>
+                <span class="n">group_rewards</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">exp</span><span class="o">.</span><span class="n">reward</span> <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">exps</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">opmd_baseline</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
                     <span class="n">group_baseline</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">group_rewards</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -324,7 +324,7 @@
 <div class="viewcode-block" id="RewardVarianceAddStrategy">
 <a class="viewcode-back" href="../../../../build_api/trinity.algorithm.add_strategy.html#trinity.algorithm.RewardVarianceAddStrategy">[docs]</a>
 <span class="nd">@ADD_STRATEGY</span><span class="o">.</span><span class="n">register_module</span><span class="p">(</span><span class="s2">&quot;reward_variance&quot;</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">RewardVarianceAddStrategy</span><span class="p">(</span><span class="n">GRPOAddStrategy</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RewardVarianceAddStrategy</span><span class="p">(</span><span class="n">AddStrategy</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An example AddStrategy that filters experiences based on a reward variance threshold.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RewardVarianceAddStrategy.__init__">
