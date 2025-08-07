@@ -6,6 +6,10 @@ from trinity.common.experience import Experience
 from trinity.common.models.model import ModelWrapper
 from trinity.common.workflows.workflow import Task, Workflow
 
+from trinity.utils.log import get_logger
+
+logger = get_logger(__name__)
+
 
 class StepWiseRewardWorkflow(Workflow):
     """A workflow that implements step-wise rewards for tasks."""
@@ -101,6 +105,9 @@ class RewardPropagationWorkflow(Workflow):
         reward = self.reward(experiences)
         for exp in experiences:
             exp.reward = reward
+            if exp.metrics is None:
+                exp.metrics = {}
+            exp.metrics["actual_env_steps"] = step + 1  # +1 because step starts from 0
         return experiences
 
     @abstractmethod

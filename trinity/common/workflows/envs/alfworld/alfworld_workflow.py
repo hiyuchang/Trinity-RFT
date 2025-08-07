@@ -76,6 +76,9 @@ For example your output should be like this:
 <think> To solve the task, I need first to ... </think><action>go to cabinet 1</action>
 """
 
+from trinity.utils.log import get_logger
+
+logger = get_logger(__name__)
 
 def format_observation(observation: str):
     if "Nothing happens." in observation:
@@ -109,7 +112,7 @@ class AlfworldWorkflow(MultiTurnWorkflow):
         )
         self.task_desc = task.task_desc or "0"
         self.repeat_times = task.repeat_times
-        self.max_env_steps = 30
+        self.max_env_steps = task.workflow_args.get("max_env_steps", 30)
 
     def get_model_response(self, messages):
         responses = self.model.chat(messages, n=1)

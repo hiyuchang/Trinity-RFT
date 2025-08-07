@@ -12,6 +12,9 @@ from trinity.buffer import BufferWriter
 from trinity.common.experience import Experience
 from trinity.utils.monitor import gather_metrics
 
+from trinity.utils.log import get_logger
+
+logger = get_logger(__name__)  # debug
 
 @ADD_STRATEGY.register_module("step_wise_grpo")
 class StepWiseGRPOStrategy(AddStrategy):
@@ -89,6 +92,7 @@ class StepWiseGRPOStrategy(AddStrategy):
         cnt = 0
         tasks = []
         metric_list = []
+        # logger.info(f"!!! begin adding experiences in step {step}")
         # Step 1: split the experiences into sub-groups by task
         task_exps = group_by(exps, "task")
         # Step 2: further split each task's experiences into sub-groups by run
@@ -100,6 +104,7 @@ class StepWiseGRPOStrategy(AddStrategy):
             scores, metrics = self.calculate_group_advantage(last_step_exps)
             metric_list.append(metrics)
 
+            # logger.debug(f"{scores = }.")
             # Step 4: broadcast the advantages to all previous steps
             run_exps = self.broadcast_advantages(run_exps, scores)
             for exps in run_exps.values():
