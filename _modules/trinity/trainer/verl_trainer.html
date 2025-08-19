@@ -55,6 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/trinity_programming_guide.html">Developer Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/trinity_configs.html">Configuration Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/example_mix_algo.html">Algorithm Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/synchronizer.html">Synchronizer in Trinity-RFT</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">FAQ</span></p>
 <ul>
@@ -489,7 +490,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_checkpoint</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">block_until_saved</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">actor_rollout_wg</span><span class="o">.</span><span class="n">wait_on_save_thread</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">use_critic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">use_critic</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">critic_wg</span><span class="o">.</span><span class="n">wait_on_save_thread</span><span class="p">()</span></div>
 
 
