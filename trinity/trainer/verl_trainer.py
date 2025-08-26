@@ -24,7 +24,7 @@ from verl.trainer.ppo.ray_trainer import (
     create_colocated_worker_cls,
     find_latest_ckpt_path,
 )
-from verl.utils import hf_tokenizer
+from verl.utils import hf_processor, hf_tokenizer
 from verl.utils.debug import marked_timer
 from verl.utils.fs import copy_local_path_from_hdfs
 
@@ -80,8 +80,9 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
         local_path = copy_local_path_from_hdfs(config.actor_rollout_ref.model.path)
 
         # instantiate tokenizer
-
         tokenizer = hf_tokenizer(local_path)
+        # processor for multimodal LLM, could be None
+        processor = hf_processor(local_path, use_fast=True)
 
         # define worker classes
         if config.actor_rollout_ref.actor.strategy in ["fsdp", "fsdp2"]:
@@ -142,6 +143,7 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
             role_worker_mapping,
             resource_pool_manager,
             ray_worker_group_cls,
+            processor=processor,
         )
         self.init_workers()
         self.logger = get_logger(__name__, in_ray_actor=True)

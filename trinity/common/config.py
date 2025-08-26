@@ -34,6 +34,7 @@ class FormatConfig:
     response_key: str = "response"
     messages_key: str = "message"
     tools_key: str = "tools"
+    image_key: str = "image"  # used for multi-modal data
     chat_template: str = ""  # deprecated
 
     system_prompt: Optional[str] = None
@@ -75,6 +76,9 @@ class StorageConfig:
     storage_type: StorageType = StorageType.FILE
     path: Optional[str] = None
     repeat_times: Optional[int] = None
+
+    # used for multi-modal data
+    media_io_kwargs = dict = field(default_factory=dict)
 
     # only available for StorageType.FILE. When requiring data processing on raw data, set the raw to True.
     raw: bool = False

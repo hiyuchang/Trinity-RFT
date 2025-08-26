@@ -13,6 +13,7 @@ from vllm.sampling_params import RequestOutputKind
 
 from trinity.common.config import InferenceModelConfig
 from trinity.common.experience import Experience
+from trinity.common.models.mm_utils import build_multi_modal_inputs
 from trinity.common.models.model import InferenceModel
 from trinity.common.models.utils import (
     tokenize_and_mask_messages_default,
@@ -134,7 +135,64 @@ class vLLMRolloutModel(InferenceModel):
             )
         return await self.generate(prompt=prompt, **kwargs)
 
-    async def generate(self, prompt: str, **kwargs) -> Sequence[Experience]:
+    async def chat_mm(self, prompt: str, mm_data: Any = None, **kwargs) -> Sequence[Experience]:
+        """Generate a response from the provided prompt in async.
+
+        Args:
+            prompt (str): The input prompt.
+            kwargs (dict): A dictionary of sampling parameters.
+
+        Returns:
+            A list of experiences.
+        """
+        if self.tokenizer is None:
+            await self._initialize_tokenizer()
+        if mm_data is not None:
+            mm_inputs = build_multi_modal_inputs(
+                prompt=prompt,  # already applied with chat template
+                tokenizer=self.tokenizer,
+                raw_mm_data=mm_data,
+                config=self.config,
+                logger=self.logger,
+                **kwargs,
+            )
+            vllm_inputs = {
+                "prompt": mm_inputs["prompt"],
+                "multi_modal_data": mm_inputs["multi_modal_data"],
+            }
+        else:
+            raise ValueError("Multi-modal data is not provided")
+        output = await self._generate_internal(prompt=vllm_inputs, **kwargs)
+        experiences = [
+            Experience(
+                tokens=torch.cat(
+                    (
+                        torch.tensor(output.prompt_token_ids, dtype=torch.int32),
+                        torch.tensor(output.outputs[i].token_ids, dtype=torch.int32),
+                    )
+                ),
+                logprobs=torch.cat(
+                    (
+                        torch.tensor(
+                            [
+                                list(logprob_dict.values())[0].logprob
+                                for logprob_dict in output.outputs[i].logprobs
+                            ],
+                            dtype=torch.float32,
+                        ),
+                    )
+                ),
+                prompt_length=len(output.prompt_token_ids),
+                prompt_text=output.prompt,
+                response_text=output.outputs[i].text,
+                multi_model_data=mm_inputs["multi_modal_data"],
+                multi_modal_inputs=mm_inputs["multi_modal_inputs"],
+            )
+            for i in range(len(output.outputs))
+        ]
+        return experiences
+
+    async def generate(self, prompt: str, mm_data: Any = None, **kwargs) -> Sequence[Experience]:
         """Generate a response from the provided prompt in async.
 
         Args:

@@ -43,6 +43,9 @@ def to_data_proto(experiences: Experiences) -> DataProto:
         batch_dict["advantages"] = experiences.advantages
     if experiences.returns is not None:
         batch_dict["returns"] = experiences.returns
+    if experiences.multi_modal_data is not None:
+        batch_dict["multi_modal_inputs"] = experiences.multi_modal_data
+
     if experiences.custom_fields:
         for field in experiences.custom_fields:
             if hasattr(experiences, field):

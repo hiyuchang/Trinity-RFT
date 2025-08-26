@@ -5,7 +5,7 @@ from __future__ import annotations
 import pickle
 import uuid
 from dataclasses import asdict, dataclass, field, fields
-from typing import Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 import torch
 from datasets import Dataset
@@ -126,6 +126,10 @@ class Experience:
     chosen_text: Optional[str] = None  # Text of the chosen response
     rejected_text: Optional[str] = None  # Text of the rejected response
 
+    # for multi-modal data
+    multi_modal_data: Optional[Dict[str, Any]] = None
+    nulti_modal_tensors: Optional[Dict[str, torch.Tensor]] = None
+
     def __init__(  # noqa: C901
         self,
         *,
@@ -147,6 +151,7 @@ class Experience:
         rejected=None,
         chosen_text=None,
         rejected_text=None,
+        multi_modal_inputs=None,
     ):
         if action_mask is not None:
             experience_type = "multi_turn"
@@ -214,6 +219,10 @@ class Experience:
             self.chosen = torch.tensor(self.chosen)
         if self.rejected is not None and not isinstance(self.rejected, Tensor):
             self.rejected = torch.tensor(self.rejected)
+        if self.multi_modal_inputs is not None:
+            self.multi_modal_inputs = {
+                k: torch.tensor(v) for k, v in self.multi_modal_inputs.items()
+            }  # TODO: check if this is correct
 
     def serialize(self) -> bytes:
         """Serialize the experience to bytes."""
