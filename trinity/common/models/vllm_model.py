@@ -179,7 +179,7 @@ class vLLMRolloutModel(InferenceModel):
         return experiences
 
     async def chat_mm(
-        self, messages: List[Dict], raw_mm_data: dict = None, **kwargs
+        self, messages: List[Dict], raw_mm_data: Dict, **kwargs
     ) -> Sequence[Experience]:
         """Chat with the model with a list of messages in async.
 
@@ -193,30 +193,46 @@ class vLLMRolloutModel(InferenceModel):
         """
         if self.tokenizer is None:
             await self._initialize_tokenizer()
-        if raw_mm_data is not None:
-            # TODO: what is only some tasks have multi-modal data?
-            raise ValueError("Multi-modal data is not provided")
+        if self.chat_template is None:
+            self.chat_template = self.tokenizer.get_chat_template()
+        if messages[-1]["role"] == "assistant":
+            prompt = self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                continue_final_message=True,
+                chat_template=self.chat_template,
+            )
+        else:
+            prompt = self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+                chat_template=self.chat_template,
+                enable_thinking=self.enable_thinking,
+            )
+        
         mm_inputs = build_multi_modal_inputs(
             tokenizer=self.tokenizer,
             raw_mm_data=raw_mm_data,
             config=self.config,
             logger=self.logger,
             messages=messages,
+            prompt=prompt,
             **kwargs,
         )
-
         return await self.generate_mm(mm_inputs=mm_inputs, **kwargs)
-    
+
     async def generate_mm(
         self, prompt: str, raw_mm_data: Dict = None, mm_inputs: Dict = None, **kwargs
     ) -> Sequence[Experience]:
-        
+
         """Generate a response from the provided prompt in async.
 
         Args:
             prompt (str): The input prompt.
             raw_mm_data (dict): The raw multi-modal data.
-            mm_inputs (dict): The multi-modal inputs, already processed.
+            mm_inputs (dict): The multi-modal inputs, already processed. 
+                - keys: "prompt", "multi_modal_data", "multi_modal_inputs".
             kwargs (dict): A dictionary of sampling parameters.
 
         Returns:
@@ -265,7 +281,7 @@ class vLLMRolloutModel(InferenceModel):
             for i in range(len(output.outputs))
         ]
         return experiences
-    
+
     async def logprobs(self, token_ids: List[int]) -> torch.Tensor:
         """Calculate the logprobs of the given tokens in async. Please slice the result carefully
         to align with the actual response length.

@@ -24,7 +24,7 @@ class SimpleMMWorkflow(SimpleWorkflow):
             model=model,
             auxiliary_models=auxiliary_models,
         )
-    
+
     def reset(self, task: Task):
         self.format_args = task.format_args
         self.system_prompt = task.format_args.system_prompt
@@ -49,7 +49,10 @@ class SimpleMMWorkflow(SimpleWorkflow):
         messages = self.format_messages()
 
         self.logger.debug("start chat")
-        responses = self.model.chat_mm(messages, self.raw_mm_data, **self.rollout_args)
+        if self.raw_mm_data is not None:
+            responses = self.model.chat_mm(messages, self.raw_mm_data, **self.rollout_args)
+        else:
+            responses = self.model.chat(messages, **self.rollout_args)
         for i, response in enumerate(responses):
             reward_dict = self.reward_fn(  # type: ignore [misc]
                 response=response.response_text,  # type: ignore [arg-type]
