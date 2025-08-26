@@ -212,12 +212,9 @@ class vLLMRolloutModel(InferenceModel):
             )
         
         mm_inputs = build_multi_modal_inputs(
-            tokenizer=self.tokenizer,
+            prompt=prompt,
             raw_mm_data=raw_mm_data,
             config=self.config,
-            logger=self.logger,
-            messages=messages,
-            prompt=prompt,
             **kwargs,
         )
         return await self.generate_mm(mm_inputs=mm_inputs, **kwargs)
@@ -240,12 +237,11 @@ class vLLMRolloutModel(InferenceModel):
         """
         if mm_inputs is None:
             mm_inputs = build_multi_modal_inputs(
-                tokenizer=self.tokenizer,
-                raw_mm_data=raw_mm_data,
-                config=self.config,
-                logger=self.logger,
-                prompt=prompt,
-            )
+            prompt=prompt,
+            raw_mm_data=raw_mm_data,
+            config=self.config,
+            **kwargs,
+        )
 
         vllm_inputs = {
             "prompt": mm_inputs["prompt"],

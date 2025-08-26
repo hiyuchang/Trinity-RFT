@@ -21,7 +21,7 @@ buffer:
       name: gsm8k
       storage_type: file
       path: /mnt/yuchang/datasets/geometry3k
-      subset_name: 'main'
+      subset_name: 'default'
       split: 'train'
       format:
         prompt_key: 'question'
