@@ -1,44 +1,53 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from verl.utils import hf_processor
 from verl.utils.fs import copy_local_path_from_hdfs
-from verl.utils.dataset.vision_utils import preprocess, process_image, process_video, process_minicpmo_data, init_minicpmo_config
+from verl.utils.dataset.vision_utils import (
+    preprocess,
+    process_image,
+    process_video,
+    init_minicpmo_config,
+)
 
 
 def build_multi_modal_inputs(
-    prompt: str,
     tokenizer: Any,
     raw_mm_data: Optional[Dict[str, Any]],
     config: Dict[str, Any],
     logger: Any,
+    prompt: str = None,
+    messages: List[Dict[str, Any]] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     """
-    Args:
-        prompt: input text which is already applied with chat template
-        TODO
+    Build multi-modal inputs for model
+    Adapted from: verl/utils/dataset/rl_dataset.py
     """
     local_path = copy_local_path_from_hdfs(config.model.path)
     processor = hf_processor(local_path, use_fast=True)
+    processor_type = processor.image_processor.__class__.__name__ if processor is not None else None
 
-    if processor.__class__.__name__ == "MiniCPMVImageProcessor":
+    if processor_type == "MiniCPMVImageProcessor":
         if kwargs.get("minicpmo_config") is None:
             logger.warning("minicpmo_config is not provided, using default config")
 
         minicpmo_config = init_minicpmo_config(processor, kwargs.get("minicpmo_config"))
-        
+
         model_inputs, multi_modal_data, prompt = process_minicpmo_data(
-            mm_data=raw_mm_data, 
-            messages=prompt, # TODO: check this
-            tokenizer=tokenizer, 
-            minicpmo_config=minicpmo_config, 
+            raw_mm_data=raw_mm_data,
+            messages=messages,
+            tokenizer=tokenizer,
+            minicpmo_config=minicpmo_config,
             max_prompt_length=config.get("max_prompt_length"),
-            truncation=True, 
-            logger=logger
+            truncation=True,
+            logger=logger,
         )
     else:
+        if prompt is None:
+            raise ValueError("Prompt is required for multi-modal model")
+
         raw_images, raw_videos = raw_mm_data["image"], raw_mm_data["video"]
-        
+
         multi_modal_data = {}
         images = [process_image(image) for image in raw_images]
         multi_modal_data["image"] = images
@@ -48,8 +57,8 @@ def build_multi_modal_inputs(
 
         model_inputs = processor(text=[prompt], images=images, videos=videos, return_tensors="pt")
 
-    input_ids = model_inputs.pop("input_ids")
-    attention_mask = model_inputs.pop("attention_mask")
+    model_inputs.pop("input_ids")  # TODO: check
+    model_inputs.pop("attention_mask")
 
     if "second_per_grid_ts" in model_inputs:
         model_inputs.pop("second_per_grid_ts")
@@ -59,7 +68,11 @@ def build_multi_modal_inputs(
     # second_per_grid_ts isn't used for training, just for mrope
     multi_modal_inputs.pop("second_per_grid_ts", None)
 
-    return {"multi_modal_inputs": multi_modal_inputs, "multi_modal_data": multi_modal_data, "prompt": prompt, "input_ids": input_ids, "attention_mask": attention_mask}
+    return {
+        "prompt": prompt,
+        "multi_modal_inputs": multi_modal_inputs,
+        "multi_modal_data": multi_modal_data,
+    }
 
 
 def process_minicpmo_data(raw_mm_data, messages, tokenizer, minicpmo_config, max_prompt_length, truncation, logger):

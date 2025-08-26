@@ -135,63 +135,6 @@ class vLLMRolloutModel(InferenceModel):
             )
         return await self.generate(prompt=prompt, **kwargs)
 
-    async def chat_mm(self, prompt: str, mm_data: Any = None, **kwargs) -> Sequence[Experience]:
-        """Generate a response from the provided prompt in async.
-
-        Args:
-            prompt (str): The input prompt.
-            kwargs (dict): A dictionary of sampling parameters.
-
-        Returns:
-            A list of experiences.
-        """
-        if self.tokenizer is None:
-            await self._initialize_tokenizer()
-        if mm_data is not None:
-            mm_inputs = build_multi_modal_inputs(
-                prompt=prompt,  # already applied with chat template
-                tokenizer=self.tokenizer,
-                raw_mm_data=mm_data,
-                config=self.config,
-                logger=self.logger,
-                **kwargs,
-            )
-            vllm_inputs = {
-                "prompt": mm_inputs["prompt"],
-                "multi_modal_data": mm_inputs["multi_modal_data"],
-            }
-        else:
-            raise ValueError("Multi-modal data is not provided")
-        output = await self._generate_internal(prompt=vllm_inputs, **kwargs)
-        experiences = [
-            Experience(
-                tokens=torch.cat(
-                    (
-                        torch.tensor(output.prompt_token_ids, dtype=torch.int32),
-                        torch.tensor(output.outputs[i].token_ids, dtype=torch.int32),
-                    )
-                ),
-                logprobs=torch.cat(
-                    (
-                        torch.tensor(
-                            [
-                                list(logprob_dict.values())[0].logprob
-                                for logprob_dict in output.outputs[i].logprobs
-                            ],
-                            dtype=torch.float32,
-                        ),
-                    )
-                ),
-                prompt_length=len(output.prompt_token_ids),
-                prompt_text=output.prompt,
-                response_text=output.outputs[i].text,
-                multi_model_data=mm_inputs["multi_modal_data"],
-                multi_modal_inputs=mm_inputs["multi_modal_inputs"],
-            )
-            for i in range(len(output.outputs))
-        ]
-        return experiences
-
     async def generate(self, prompt: str, mm_data: Any = None, **kwargs) -> Sequence[Experience]:
         """Generate a response from the provided prompt in async.
 
@@ -235,6 +178,94 @@ class vLLMRolloutModel(InferenceModel):
         ]
         return experiences
 
+    async def chat_mm(
+        self, messages: List[Dict], raw_mm_data: dict = None, **kwargs
+    ) -> Sequence[Experience]:
+        """Chat with the model with a list of messages in async.
+
+        Args:
+            messages (List[dict]): The input history messages.
+            raw_mm_data (dict): The raw multi-modal data.
+            kwargs (dict): A dictionary of sampling parameters.
+
+        Returns:
+            A list of experiences.
+        """
+        if self.tokenizer is None:
+            await self._initialize_tokenizer()
+        if raw_mm_data is not None:
+            # TODO: what is only some tasks have multi-modal data?
+            raise ValueError("Multi-modal data is not provided")
+        mm_inputs = build_multi_modal_inputs(
+            tokenizer=self.tokenizer,
+            raw_mm_data=raw_mm_data,
+            config=self.config,
+            logger=self.logger,
+            messages=messages,
+            **kwargs,
+        )
+
+        return await self.generate_mm(mm_inputs=mm_inputs, **kwargs)
+    
+    async def generate_mm(
+        self, prompt: str, raw_mm_data: Dict = None, mm_inputs: Dict = None, **kwargs
+    ) -> Sequence[Experience]:
+        
+        """Generate a response from the provided prompt in async.
+
+        Args:
+            prompt (str): The input prompt.
+            raw_mm_data (dict): The raw multi-modal data.
+            mm_inputs (dict): The multi-modal inputs, already processed.
+            kwargs (dict): A dictionary of sampling parameters.
+
+        Returns:
+            A list of experiences.
+        """
+        if mm_inputs is None:
+            mm_inputs = build_multi_modal_inputs(
+                tokenizer=self.tokenizer,
+                raw_mm_data=raw_mm_data,
+                config=self.config,
+                logger=self.logger,
+                prompt=prompt,
+            )
+
+        vllm_inputs = {
+            "prompt": mm_inputs["prompt"],
+            "multi_modal_data": mm_inputs["multi_modal_data"],
+        }
+
+        output = await self._generate_internal(prompt=vllm_inputs, **kwargs)
+        experiences = [
+            Experience(
+                tokens=torch.cat(
+                    (
+                        torch.tensor(output.prompt_token_ids, dtype=torch.int32),
+                        torch.tensor(output.outputs[i].token_ids, dtype=torch.int32),
+                    )
+                ),
+                logprobs=torch.cat(
+                    (
+                        torch.tensor(
+                            [
+                                list(logprob_dict.values())[0].logprob
+                                for logprob_dict in output.outputs[i].logprobs
+                            ],
+                            dtype=torch.float32,
+                        ),
+                    )
+                ),
+                prompt_length=len(output.prompt_token_ids),
+                prompt_text=output.prompt,
+                response_text=output.outputs[i].text,
+                multi_model_data=mm_inputs["multi_modal_data"],
+                multi_modal_inputs=mm_inputs["multi_modal_inputs"],
+            )
+            for i in range(len(output.outputs))
+        ]
+        return experiences
+    
     async def logprobs(self, token_ids: List[int]) -> torch.Tensor:
         """Calculate the logprobs of the given tokens in async. Please slice the result carefully
         to align with the actual response length.

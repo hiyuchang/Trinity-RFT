@@ -35,6 +35,7 @@ class FormatConfig:
     messages_key: str = "message"
     tools_key: str = "tools"
     image_key: str = "image"  # used for multi-modal data
+    video_key: str = "video"  # used for multi-modal data
     chat_template: str = ""  # deprecated
 
     system_prompt: Optional[str] = None
