@@ -216,7 +216,7 @@ def main() -> None:
     args = parser.parse_args()
     if args.command == "run":
         # TODO: support parse all args from command line
-        run(args.config, args.log_level, args.dlc, args.plugin_dir)
+        run(args.config, args.dlc, args.plugin_dir)
     elif args.command == "studio":
         studio(args.port)
 
