@@ -101,6 +101,18 @@ class ModelWrapper:
         return [exp for exps in results for exp in exps]
 
     @_history_recorder
+    async def generate_mm(
+        self, prompts: List[str], raw_mm_data_list: List[dict], **kwargs
+    ) -> List[Experience]:
+        results = await asyncio.gather(
+            *[
+                self.model.generate_mm.remote(p, m, **kwargs)
+                for p, m in zip(prompts, raw_mm_data_list)
+            ]
+        )
+        return [exp for exps in results for exp in exps]
+
+    @_history_recorder
     def chat(self, messages: List[dict], **kwargs) -> List[Experience]:
         """Generate a list of experiences from a list of messages."""
         return ray.get(self.model.chat.remote(messages, **kwargs))
@@ -109,6 +121,10 @@ class ModelWrapper:
     async def chat_async(self, messages: List[dict], **kwargs) -> List[Experience]:
         """Generate a list of experiences from a list of messages in async."""
         return await self.model.chat.remote(messages, **kwargs)
+
+    @_history_recorder
+    async def chat_mm(self, messages: List[dict], raw_mm_data: dict, **kwargs) -> List[Experience]:
+        return await self.model.chat_mm.remote(messages, raw_mm_data, **kwargs)
 
     def logprobs(self, tokens: List[int]) -> Tensor:
         """Calculate the logprobs of the given tokens."""

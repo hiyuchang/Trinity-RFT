@@ -5,12 +5,12 @@ algorithm:
   algorithm_type: grpo
   repeat_times: 8
 model:
-  model_path: /mnt/checkpoint/qwen25/Qwen2.5-1.5B-Instruct
+  model_path: /mnt/checkpoint/Qwen2.5-VL-3B-Instruct
   max_response_tokens: 1024
   max_model_len: 1280
 cluster:
   node_num: 1
-  gpu_per_node: 8
+  gpu_per_node: 4
 buffer:
   total_epochs: 1
   batch_size: 96
@@ -31,13 +31,12 @@ buffer:
     default_workflow_type: 'simple_mm_workflow'
   trainer_input:
     experience_buffer:
-      name: gsm8k_buffer
+      name: experience_buffer
       storage_type: queue
 explorer:
   eval_interval: 50
   runner_num: 32
   rollout_model:
-    engine_type: vllm_async
     engine_num: 2
     tensor_parallel_size: 1
     enable_prefix_caching: false
