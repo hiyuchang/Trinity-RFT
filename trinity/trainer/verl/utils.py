@@ -43,8 +43,14 @@ def to_data_proto(experiences: Experiences) -> DataProto:
         batch_dict["advantages"] = experiences.advantages
     if experiences.returns is not None:
         batch_dict["returns"] = experiences.returns
-    if experiences.multi_modal_data is not None:
-        batch_dict["multi_modal_inputs"] = experiences.multi_modal_data
+    # if experiences.multi_modal_data is not None:
+    #     batch_dict["multi_modal_data"] = experiences.multi_modal_data
+    if experiences.multi_modal_inputs is not None:
+        batch_dict["multi_modal_inputs"] = np.array(
+            [{key: mm_inputs[i]} for i in range(len(mm_inputs))]
+            for key, mm_inputs in experiences.multi_modal_inputs.items()
+            dtype=object,
+        )
 
     if experiences.custom_fields:
         for field in experiences.custom_fields:

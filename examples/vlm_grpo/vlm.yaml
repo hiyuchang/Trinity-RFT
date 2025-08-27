@@ -1,3 +1,4 @@
+continue_from_checkpoint: False
 project: "Trinity-RFT-MM-Test"
 name: "test"
 checkpoint_root_dir:  /mnt/yuchang/checkpoints
@@ -7,13 +8,13 @@ algorithm:
 model:
   model_path: /mnt/checkpoint/Qwen2.5-VL-3B-Instruct
   max_response_tokens: 1024
-  max_model_len: 1280
+  max_model_len: 20480
 cluster:
   node_num: 1
-  gpu_per_node: 4
+  gpu_per_node: 8
 buffer:
   total_epochs: 1
-  batch_size: 96
+  batch_size: 16
   max_retry_times: 3
   max_retry_interval: 1
   explorer_input:
@@ -24,8 +25,9 @@ buffer:
       subset_name: 'default'
       split: 'train'
       format:
-        prompt_key: 'question'
+        prompt_key: 'problem'
         response_key: 'answer'
+        image_key: 'images'
       rollout_args:
         temperature: 1.0
     default_workflow_type: 'simple_mm_workflow'
@@ -35,9 +37,8 @@ buffer:
       storage_type: queue
 explorer:
   eval_interval: 50
-  runner_num: 32
   rollout_model:
-    engine_num: 2
+    engine_num: 4
     tensor_parallel_size: 1
     enable_prefix_caching: false
     enforce_eager: true
@@ -51,3 +52,5 @@ trainer:
   trainer_type: 'verl'
   trainer_config_path: 'examples/grpo_gsm8k/train_gsm8k.yaml'
   save_interval: 100
+# log:
+#   level: debug

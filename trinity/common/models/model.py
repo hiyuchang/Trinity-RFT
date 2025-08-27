@@ -101,7 +101,20 @@ class ModelWrapper:
         return [exp for exps in results for exp in exps]
 
     @_history_recorder
-    async def generate_mm(
+    def generate_mm(
+        self, prompts: List[str], raw_mm_data_list: List[dict], **kwargs
+    ) -> List[Experience]:
+        """Generate a list of experiences from a list of prompts and raw_mm_data."""
+        results = ray.get(
+            [
+                self.model.generate_mm.remote(prompt, mm_data, **kwargs)
+                for prompt, mm_data in zip(prompts, raw_mm_data_list)
+            ]
+        )
+        return [exp for exps in results for exp in exps]
+
+    @_history_recorder
+    async def generate_mm_async(
         self, prompts: List[str], raw_mm_data_list: List[dict], **kwargs
     ) -> List[Experience]:
         results = await asyncio.gather(
@@ -123,7 +136,13 @@ class ModelWrapper:
         return await self.model.chat.remote(messages, **kwargs)
 
     @_history_recorder
-    async def chat_mm(self, messages: List[dict], raw_mm_data: dict, **kwargs) -> List[Experience]:
+    def chat_mm(self, messages: List[dict], raw_mm_data: dict, **kwargs) -> List[Experience]:
+        return ray.get(self.model.chat_mm.remote(messages, raw_mm_data, **kwargs))
+
+    @_history_recorder
+    async def chat_mm_async(
+        self, messages: List[dict], raw_mm_data: dict, **kwargs
+    ) -> List[Experience]:
         return await self.model.chat_mm.remote(messages, raw_mm_data, **kwargs)
 
     def logprobs(self, tokens: List[int]) -> Tensor:

@@ -128,7 +128,7 @@ class Experience:
 
     # for multi-modal data
     multi_modal_data: Optional[Dict[str, Any]] = None
-    nulti_modal_tensors: Optional[Dict[str, torch.Tensor]] = None
+    multi_modal_inputs: Optional[Dict[str, Any]] = None
 
     def __init__(  # noqa: C901
         self,
@@ -151,6 +151,7 @@ class Experience:
         rejected=None,
         chosen_text=None,
         rejected_text=None,
+        multi_modal_data=None,
         multi_modal_inputs=None,
     ):
         if action_mask is not None:
@@ -208,6 +209,8 @@ class Experience:
         self.rejected = rejected
         self.chosen_text = chosen_text
         self.rejected_text = rejected_text
+        self.multi_modal_data = multi_modal_data
+        self.multi_modal_inputs = multi_modal_inputs
 
         if not isinstance(self.tokens, Tensor):
             self.tokens = torch.tensor(self.tokens)
@@ -219,10 +222,6 @@ class Experience:
             self.chosen = torch.tensor(self.chosen)
         if self.rejected is not None and not isinstance(self.rejected, Tensor):
             self.rejected = torch.tensor(self.rejected)
-        if self.multi_modal_inputs is not None:
-            self.multi_modal_inputs = {
-                k: torch.tensor(v) for k, v in self.multi_modal_inputs.items()
-            }  # TODO: check if this is correct
 
     def serialize(self) -> bytes:
         """Serialize the experience to bytes."""
@@ -310,6 +309,18 @@ class Experience:
         else:
             returns = None
 
+        # # gather multi_modal_data
+        # if all(exp.multi_modal_data is not None for exp in experiences):
+        #     multi_modal_data = gather_multi_modal_data(experiences, max_response_length)
+        # else:
+        #     multi_modal_data = None
+
+        # gather multi_modal_inputs
+        if all(exp.multi_modal_inputs is not None for exp in experiences):
+            multi_modal_inputs = gather_multi_modal_inputs(experiences)
+        else:
+            multi_modal_inputs = None
+
         exps = Experiences(
             eids=eids,
             tokens=tokens,
@@ -320,6 +331,8 @@ class Experience:
             action_masks=action_masks,
             prompt_length=max_prompt_length,
             logprobs=logprobs,
+            # multi_modal_data=multi_modal_data,
+            multi_modal_inputs=multi_modal_inputs,
         )
         if custom_fields is not None:
             for custom_field in custom_fields:
@@ -400,6 +413,8 @@ class Experiences:
     action_masks: Optional[Tensor]  # [batch_size, response_length]
     prompt_length: int
     logprobs: Optional[Tensor]  # [batch_size, response_length]
+    # multi_modal_data: Optional[Any]
+    multi_modal_inputs: Optional[Tensor]
     custom_fields: List[str] = field(
         default_factory=list
     )  # Custom fields to include in the gathered experiences
@@ -443,6 +458,7 @@ def empty_experiences(custom_fields: Optional[List[CustomField]]) -> Experiences
         logprobs=torch.empty(0, dtype=torch.float32),
         prompt_length=torch.empty(0, dtype=torch.int32),
         eids=[],
+        multi_modal_inputs=torch.empty(0, dtype=torch.float32),
     )
     if custom_fields is not None:
         for custom_field in custom_fields:
@@ -569,6 +585,14 @@ def gather_returns(experiences, max_response_length: int) -> Optional[Tensor]:
             for exp in experiences
         ]
     )
+
+
+# def gather_multi_modal_data(experiences) -> Optional[dict[str, Any]]:
+
+
+def gather_multi_modal_inputs(experiences) -> Optional[dict[str, Tensor]]:
+    keys = experiences[0].multi_modal_inputs.keys()
+    return {key: [exp.multi_modal_inputs[key].cpu().numpy() for exp in experiences] for key in keys}
 
 
 def group_by(

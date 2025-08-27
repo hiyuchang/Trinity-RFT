@@ -10,10 +10,11 @@ import ray
 import torch
 import vllm
 from vllm.sampling_params import RequestOutputKind
+from transformers import AutoProcessor
 
 from trinity.common.config import InferenceModelConfig
 from trinity.common.experience import Experience
-from trinity.common.models.mm_utils import build_multi_modal_inputs
+from trinity.common.models.mm_utils import build_multi_modal_inputs, attach_images_to_messages
 from trinity.common.models.model import InferenceModel
 from trinity.common.models.utils import (
     tokenize_and_mask_messages_default,
@@ -80,6 +81,7 @@ class vLLMRolloutModel(InferenceModel):
             # max_num_batched_tokens=256, # you can further set this parameter to reduce the vllm peak memory usage
         )
         self.async_llm = vllm.AsyncLLMEngine.from_engine_args(engine_args)
+        self.processor = None
         self.tokenizer = None
         self.chat_template = None
         if self.config.chat_template:
@@ -101,8 +103,18 @@ class vLLMRolloutModel(InferenceModel):
         self.api_server_port = None
 
     async def _initialize_tokenizer(self):
-        self.tokenizer = await self.async_llm.get_tokenizer()
+        if self.tokenizer is None:
+            if self.processor and hasattr(self.processor, "tokenizer"):
+                self.tokenizer = self.processor.tokenizer
+            else:
+                self.tokenizer = await self.async_llm.get_tokenizer()
         self.tokenizer.truncation_side = "left"
+
+    def _initialize_processor(self):
+        self.processor = AutoProcessor.from_pretrained(
+            self.config.model_path, trust_remote_code=True
+        )
+        self.tokenizer = self.processor.tokenizer
 
     async def chat(self, messages: List[Dict], **kwargs) -> Sequence[Experience]:
         """Chat with the model with a list of messages in async.
@@ -135,7 +147,7 @@ class vLLMRolloutModel(InferenceModel):
             )
         return await self.generate(prompt=prompt, **kwargs)
 
-    async def generate(self, prompt: str, mm_data: Any = None, **kwargs) -> Sequence[Experience]:
+    async def generate(self, prompt: str, **kwargs) -> Sequence[Experience]:
         """Generate a response from the provided prompt in async.
 
         Args:
@@ -191,26 +203,29 @@ class vLLMRolloutModel(InferenceModel):
         Returns:
             A list of experiences.
         """
-        if self.tokenizer is None:
-            await self._initialize_tokenizer()
+        # if self.tokenizer is None:
+        #     await self._initialize_tokenizer()
+        if self.processor is None:
+            self._initialize_processor()
         if self.chat_template is None:
             self.chat_template = self.tokenizer.get_chat_template()
+        messages = attach_images_to_messages(messages, raw_mm_data)
         if messages[-1]["role"] == "assistant":
-            prompt = self.tokenizer.apply_chat_template(
+            prompt = self.processor.apply_chat_template(
                 messages,
                 tokenize=False,
                 continue_final_message=True,
                 chat_template=self.chat_template,
             )
         else:
-            prompt = self.tokenizer.apply_chat_template(
+            prompt = self.processor.apply_chat_template(
                 messages,
                 tokenize=False,
                 add_generation_prompt=True,
                 chat_template=self.chat_template,
                 enable_thinking=self.enable_thinking,
             )
-        
+
         mm_inputs = build_multi_modal_inputs(
             prompt=prompt,
             raw_mm_data=raw_mm_data,
@@ -220,17 +235,18 @@ class vLLMRolloutModel(InferenceModel):
         return await self.generate_mm(mm_inputs=mm_inputs, **kwargs)
 
     async def generate_mm(
-        self, prompt: str, raw_mm_data: Dict = None, mm_inputs: Dict = None, **kwargs
+        self, prompt: str = None, raw_mm_data: Dict = None, mm_inputs: Dict = None, **kwargs
     ) -> Sequence[Experience]:
-
         """Generate a response from the provided prompt in async.
 
         Args:
             prompt (str): The input prompt.
             raw_mm_data (dict): The raw multi-modal data.
-            mm_inputs (dict): The multi-modal inputs, already processed. 
+            mm_inputs (dict): The multi-modal inputs, already processed.
                 - keys: "prompt", "multi_modal_data", "multi_modal_inputs".
             kwargs (dict): A dictionary of sampling parameters.
+
+            Either (`prompt`, rwar_mm_data) or (mm_inputs) should be provided.
 
         Returns:
             A list of experiences.
@@ -271,7 +287,7 @@ class vLLMRolloutModel(InferenceModel):
                 prompt_length=len(output.prompt_token_ids),
                 prompt_text=output.prompt,
                 response_text=output.outputs[i].text,
-                multi_model_data=mm_inputs["multi_modal_data"],
+                multi_modal_data=mm_inputs["multi_modal_data"],
                 multi_modal_inputs=mm_inputs["multi_modal_inputs"],
             )
             for i in range(len(output.outputs))
