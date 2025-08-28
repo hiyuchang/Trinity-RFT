@@ -46,9 +46,13 @@ def to_data_proto(experiences: Experiences) -> DataProto:
     # if experiences.multi_modal_data is not None:
     #     batch_dict["multi_modal_data"] = experiences.multi_modal_data
     if experiences.multi_modal_inputs is not None:
+        # transform to Dict[str, Tensor]
+        batch_size = len(next(iter(experiences.multi_modal_inputs.values())))
         batch_dict["multi_modal_inputs"] = np.array(
-            [{key: mm_inputs[i]} for i in range(len(mm_inputs))]
-            for key, mm_inputs in experiences.multi_modal_inputs.items()
+            [
+                {key: val[i] for key, val in experiences.multi_modal_inputs.items()}
+                for i in range(batch_size)
+            ],
             dtype=object,
         )
 

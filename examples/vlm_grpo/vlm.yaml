@@ -52,5 +52,7 @@ trainer:
   trainer_type: 'verl'
   trainer_config_path: 'examples/grpo_gsm8k/train_gsm8k.yaml'
   save_interval: 100
+monitor:
+  monitor_type: wandb
 # log:
 #   level: debug
