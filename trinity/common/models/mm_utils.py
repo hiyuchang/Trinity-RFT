@@ -12,7 +12,7 @@ def build_multi_modal_inputs(
     **kwargs,
 ) -> Dict[str, Any]:
     """
-    Build multi-modal inputs for model
+    Preprocess multi-modal data and build multi-modal inputs
     Adapted from: verl/utils/dataset/rl_dataset.py
     """
     local_path = copy_local_path_from_hdfs(config.model_path)
@@ -40,9 +40,6 @@ def build_multi_modal_inputs(
 
     model_inputs.pop("input_ids", None)  # TODO: check
     model_inputs.pop("attention_mask", None)
-
-    if "second_per_grid_ts" in model_inputs:
-        model_inputs.pop("second_per_grid_ts")
 
     # There's a trap here, multi_modal_inputs has to be a dict, not BatchFeature
     multi_modal_inputs = dict(model_inputs)

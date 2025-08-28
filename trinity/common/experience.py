@@ -210,9 +210,12 @@ class Experience:
         self.chosen_text = chosen_text
         self.rejected_text = rejected_text
         self.multi_modal_data = multi_modal_data
-        self.multi_modal_inputs = {
-            key: torch.tensor(value) for key, value in multi_modal_inputs.items()
-        }
+        self.multi_modal_inputs = {}
+        for key, value in multi_modal_inputs.items():
+            if not isinstance(value, Tensor):
+                self.multi_modal_inputs[key] = torch.tensor(value)
+            else:
+                self.multi_modal_inputs[key] = value
 
         if not isinstance(self.tokens, Tensor):
             self.tokens = torch.tensor(self.tokens)

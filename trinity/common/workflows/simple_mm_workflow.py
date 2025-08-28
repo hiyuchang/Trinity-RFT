@@ -51,8 +51,6 @@ class SimpleMMWorkflow(SimpleWorkflow):
 
         # TODO: test generate_mm
         self.logger.debug("start chat")
-        # self.logger.debug(f"run messages: {messages}")
-        # self.logger.debug(f"run self.raw_mm_data: {self.raw_mm_data}")
         if self.raw_mm_data is not None:
             responses = self.model.chat_mm(messages, self.raw_mm_data, **self.rollout_args)
         else:
@@ -70,9 +68,7 @@ class SimpleMMWorkflow(SimpleWorkflow):
             response.reward = reward
             response.eid.run = i + self.run_id_base
 
-            self.logger.debug(
-                f"self.task_desc: {self.task_desc},  response: {response.response_text}, reward: {reward}"
-            )
+        self.logger.debug(f"Generated {len(responses)} responses")
         return responses
 
     def compute_reward(self, response, truth) -> dict[str, float]:

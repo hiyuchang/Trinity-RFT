@@ -46,11 +46,10 @@ def to_data_proto(experiences: Experiences) -> DataProto:  # noqa: C901
         batch_dict["returns"] = experiences.returns
 
     if experiences.multi_modal_inputs is not None:
-        # transform to ndarray(object) of Dict[str, Tensor]
-        batch_size = len(next(iter(experiences.multi_modal_inputs.values())))
+        batch_size = len(batch_dict["unique_ids"])
         batch_dict["multi_modal_inputs"] = np.array(
             [
-                {key: val[i] for key, val in experiences.multi_modal_inputs.items()}
+                {k: v[i] for k, v in experiences.multi_modal_inputs.items()}
                 for i in range(batch_size)
             ],
             dtype=object,
