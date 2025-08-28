@@ -2,8 +2,6 @@
 """Constants."""
 from enum import Enum, EnumMeta
 
-from trinity.utils.annotations import Deprecated
-
 # names
 
 EXPLORER_NAME = "explorer"
@@ -46,9 +44,8 @@ class CaseInsensitiveEnum(Enum, metaclass=CaseInsensitiveEnumMeta):
 class PromptType(CaseInsensitiveEnum):
     """Prompt Type."""
 
-    MESSAGES = "messages"  # prompt+response: message list
-    CHATPAIR = "chatpair"  # prompt: message list, response: message list
-    PLAINTEXT = "plaintext"  # prompt: plaintext, response: plaintext
+    MESSAGES = "messages"  # a list of message dict
+    PLAINTEXT = "plaintext"  # user prompt text and assistant response text
 
 
 class TaskType(Enum):
@@ -56,18 +53,6 @@ class TaskType(Enum):
 
     EXPLORE = 0
     EVAL = 1
-
-
-@Deprecated
-class ReadStrategy(CaseInsensitiveEnum):
-    """Pop Strategy."""
-
-    DEFAULT = None
-    FIFO = "fifo"
-    RANDOM = "random"
-    LRU = "lru"
-    LFU = "lfu"
-    PRIORITY = "priority"
 
 
 class StorageType(CaseInsensitiveEnum):

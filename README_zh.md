@@ -25,7 +25,7 @@
 * [2025-08] 🎵 我们推出了 [CHORD](https://github.com/modelscope/Trinity-RFT/tree/main/examples/mix_chord)，一种动态整合 SFT 和 RL 来微调 LLM 的方法（[论文](https://arxiv.org/pdf/2508.11408)）。
 * [2025-08] ✨ 发布 Trinity-RFT v0.2.1 版本！新增功能包括：
   * 智能体 RL：支持通用多轮工作流的训练；请参考 [ALFWorld](./docs/sphinx_doc/source/tutorial/example_step_wise.md) 和 [ReAct](./docs/sphinx_doc/source/tutorial/example_react.md) 例子。
-  * Rollout-Training 调度: 通过引入 Scheduler, [Synchronizer](./docs/sphinx_doc/source/tutorial/synchronizer.html) 以及优先队列类型 Buffer, 支持 RFT 流程中更高效与灵活的调度。
+  * Rollout-Training 调度: 通过引入 Scheduler, [Synchronizer](./docs/sphinx_doc/source/tutorial/synchronizer.md) 以及优先队列类型 Buffer, 支持 RFT 流程中更高效与灵活的调度。
   * [Benchmark 工具](./benchmark)，用于快速验证与实验。
   * RL 算法：实现 [GSPO](https://github.com/modelscope/Trinity-RFT/pull/154), [AsymRE](https://github.com/modelscope/Trinity-RFT/pull/187), [TOPR, CISPO](https://github.com/modelscope/Trinity-RFT/pull/185), [RAFT](https://github.com/modelscope/Trinity-RFT/pull/174) 等算法。
 * [2025-07] 发布 Trinity-RFT v0.2.0 版本，新增了多项功能优化。
@@ -361,8 +361,8 @@ trinity run --config examples/grpo_gsm8k/gsm8k.yaml
 
 + [构建新的 RL 场景](./docs/sphinx_doc/source/tutorial/trinity_programming_guide.md#workflows-for-rl-environment-developers)
 + [实现新的 RL 算法](./docs/sphinx_doc/source/tutorial/trinity_programming_guide.md#algorithms-for-rl-algorithm-developers)
-+ [开发新的数据处理操作](./docs/sphinx_doc/source/tutorial/trinity_programming_guide.html#operators-for-data-developers)
-+ [理解 explorer-trainer 调度逻辑](./docs/sphinx_doc/source/tutorial/synchronizer.html)
++ [开发新的数据处理操作](./docs/sphinx_doc/source/tutorial/trinity_programming_guide.md#operators-for-data-developers)
++ [理解 explorer-trainer 调度逻辑](./docs/sphinx_doc/source/tutorial/synchronizer.md)
 
 
 

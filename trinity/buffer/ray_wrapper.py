@@ -17,7 +17,7 @@ from trinity.buffer.queue import QueueBuffer
 from trinity.buffer.schema import Base, create_dynamic_table
 from trinity.buffer.utils import default_storage_path, retry_session
 from trinity.common.config import BufferConfig, StorageConfig
-from trinity.common.constants import ReadStrategy, StorageType
+from trinity.common.constants import StorageType
 from trinity.common.experience import EID, Experience
 from trinity.common.workflows import Task
 from trinity.utils.log import get_logger
@@ -75,26 +75,11 @@ class DBWrapper:
             experience_models = [self.table_model_cls.from_experience(exp) for exp in data]
             session.add_all(experience_models)
 
-    def read(
-        self, batch_size: Optional[int] = None, strategy: Optional[ReadStrategy] = None
-    ) -> List:
+    def read(self, batch_size: Optional[int] = None) -> List:
         if self.stopped:
             raise StopIteration()
 
-        if strategy is None:
-            strategy = ReadStrategy.LFU
-
-        if strategy == ReadStrategy.LFU:
-            sortOrder = (asc(self.table_model_cls.consumed), desc(self.table_model_cls.id))
-
-        elif strategy == ReadStrategy.LRU:
-            sortOrder = (desc(self.table_model_cls.id),)
-
-        elif strategy == ReadStrategy.PRIORITY:
-            sortOrder = (desc(self.table_model_cls.priority), desc(self.table_model_cls.id))
-
-        else:
-            raise NotImplementedError(f"Unsupported strategy {strategy} by SQLStorage")
+        sortOrder = (asc(self.table_model_cls.consumed), desc(self.table_model_cls.id))
 
         exp_list = []
         batch_size = batch_size or self.batch_size  # type: ignore
