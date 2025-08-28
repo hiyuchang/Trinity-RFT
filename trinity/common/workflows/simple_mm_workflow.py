@@ -1,10 +1,10 @@
-import openai
 from typing import List, Optional
+
+import openai
 
 from trinity.common.experience import Experience
 from trinity.common.models.model import ModelWrapper
-from trinity.common.workflows.workflow import Task, SimpleWorkflow, WORKFLOWS
-from trinity.common.rewards.reward_fn import RewardFn
+from trinity.common.workflows.workflow import WORKFLOWS, SimpleWorkflow, Task
 
 
 @WORKFLOWS.register_module("simple_mm_workflow")
@@ -32,6 +32,7 @@ class SimpleMMWorkflow(SimpleWorkflow):
         self.reward_fn_args = task.reward_fn_args
         self.raw_task = task.raw_task
         self.task_desc = task.task_desc
+        assert task.raw_task is not None
         self.truth = task.raw_task[task.format_args.response_key] or task.truth
 
         # TODO
@@ -69,12 +70,12 @@ class SimpleMMWorkflow(SimpleWorkflow):
             response.reward = reward
             response.eid.run = i + self.run_id_base
 
-            # self.logger.debug(
-            #     f"self.task_desc: {self.task_desc},  response: {response.response_text}, reward: {reward}"
-            # )
+            self.logger.debug(
+                f"self.task_desc: {self.task_desc},  response: {response.response_text}, reward: {reward}"
+            )
         return responses
 
-    def compute_reward(self, response, truth) -> float:
+    def compute_reward(self, response, truth) -> dict[str, float]:
         from mathruler.grader import extract_boxed_content, grade_answer
 
         answer = extract_boxed_content(response)

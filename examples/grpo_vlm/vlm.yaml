@@ -1,12 +1,11 @@
-continue_from_checkpoint: False
-project: "Trinity-RFT-MM-Test"
-name: "test"
-checkpoint_root_dir:  /mnt/yuchang/checkpoints
+project: "Trinity-RFT"
+name: "grpo_vlm"
+checkpoint_root_dir: /PATH/TO/CHECKPOINT/
 algorithm:
   algorithm_type: grpo
   repeat_times: 8
 model:
-  model_path: /mnt/checkpoint/Qwen2.5-VL-3B-Instruct
+  model_path: /PATH/TO/Qwen2.5-VL-3B-Instruct
   max_response_tokens: 1024
   max_model_len: 20480
 cluster:
@@ -14,14 +13,14 @@ cluster:
   gpu_per_node: 8
 buffer:
   total_epochs: 1
-  batch_size: 16
+  batch_size: 32
   max_retry_times: 3
   max_retry_interval: 1
   explorer_input:
     taskset:
       name: gsm8k
       storage_type: file
-      path: /mnt/yuchang/datasets/geometry3k
+      path: hiyouga/geometry3k
       subset_name: 'default'
       split: 'train'
       format:
@@ -50,9 +49,5 @@ synchronizer:
   sync_timeout: 1200
 trainer:
   trainer_type: 'verl'
-  trainer_config_path: 'examples/grpo_gsm8k/train_gsm8k.yaml'
+  trainer_config_path: 'examples/grpo_vlm/train_vlm.yaml'
   save_interval: 100
-monitor:
-  monitor_type: wandb
-# log:
-#   level: debug

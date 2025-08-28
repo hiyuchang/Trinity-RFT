@@ -8,7 +8,7 @@ from verl.trainer.ppo.metric_utils import _compute_response_info
 from trinity.common.experience import Experiences
 
 
-def to_data_proto(experiences: Experiences) -> DataProto:
+def to_data_proto(experiences: Experiences) -> DataProto:  # noqa: C901
     """Convert Experiences to verl DataProto."""
     attention_mask = experiences.attention_masks
     cumsum = torch.cumsum(attention_mask, dim=-1)
@@ -26,6 +26,7 @@ def to_data_proto(experiences: Experiences) -> DataProto:
             else attention_mask[:, experiences.prompt_length :].long()
         ),
     }
+
     if experiences.rewards is not None:
         token_level_rewards = torch.zeros(attention_mask.shape, dtype=experiences.rewards.dtype)
         eos_mask_idx = cumsum.argmax(dim=-1)
@@ -43,10 +44,9 @@ def to_data_proto(experiences: Experiences) -> DataProto:
         batch_dict["advantages"] = experiences.advantages
     if experiences.returns is not None:
         batch_dict["returns"] = experiences.returns
-    # if experiences.multi_modal_data is not None:
-    #     batch_dict["multi_modal_data"] = experiences.multi_modal_data
+
     if experiences.multi_modal_inputs is not None:
-        # transform to Dict[str, Tensor]
+        # transform to ndarray(object) of Dict[str, Tensor]
         batch_size = len(next(iter(experiences.multi_modal_inputs.values())))
         batch_dict["multi_modal_inputs"] = np.array(
             [

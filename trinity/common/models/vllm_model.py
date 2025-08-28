@@ -9,12 +9,15 @@ import aiohttp
 import ray
 import torch
 import vllm
-from vllm.sampling_params import RequestOutputKind
 from transformers import AutoProcessor
+from vllm.sampling_params import RequestOutputKind
 
 from trinity.common.config import InferenceModelConfig
 from trinity.common.experience import Experience
-from trinity.common.models.mm_utils import build_multi_modal_inputs, attach_images_to_messages
+from trinity.common.models.mm_utils import (
+    attach_images_to_messages,
+    build_multi_modal_inputs,
+)
 from trinity.common.models.model import InferenceModel
 from trinity.common.models.utils import (
     tokenize_and_mask_messages_default,
@@ -253,11 +256,11 @@ class vLLMRolloutModel(InferenceModel):
         """
         if mm_inputs is None:
             mm_inputs = build_multi_modal_inputs(
-            prompt=prompt,
-            raw_mm_data=raw_mm_data,
-            config=self.config,
-            **kwargs,
-        )
+                prompt=prompt,
+                raw_mm_data=raw_mm_data,
+                config=self.config,
+                **kwargs,
+            )
 
         vllm_inputs = {
             "prompt": mm_inputs["prompt"],
