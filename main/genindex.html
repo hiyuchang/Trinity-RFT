@@ -47,6 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_multi_turn.html">Concatenated Multi-Turn RFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_step_wise.html">General Multi-Step RFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_react.html">Multi-Step ReAct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/example_search_email.html">Email Search Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_dpo.html">Offline DPO and SFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_data_functionalities.html">Data Processing</a></li>
 </ul>
@@ -123,9 +124,15 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="build_api/trinity.algorithm.advantage_fn.grpo_advantage.html#trinity.algorithm.advantage_fn.grpo_advantage.GRPOAdvantageFn.__init__">__init__() (trinity.algorithm.advantage_fn.grpo_advantage.GRPOAdvantageFn method)</a>
+      <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREAdvantageFn.__init__">__init__() (trinity.algorithm.advantage_fn.asymre_advantage.ASYMREAdvantageFn method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage.__init__">(trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.ASYMREAdvantageFn.__init__">(trinity.algorithm.advantage_fn.ASYMREAdvantageFn method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.grpo_advantage.html#trinity.algorithm.advantage_fn.grpo_advantage.GRPOAdvantageFn.__init__">(trinity.algorithm.advantage_fn.grpo_advantage.GRPOAdvantageFn method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.grpo_advantage.html#trinity.algorithm.advantage_fn.grpo_advantage.GRPOGroupedAdvantage.__init__">(trinity.algorithm.advantage_fn.grpo_advantage.GRPOGroupedAdvantage method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.GRPOAdvantageFn.__init__">(trinity.algorithm.advantage_fn.GRPOAdvantageFn method)</a>
@@ -432,6 +439,8 @@
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.__init__">(trinity.common.workflows.AlfworldWorkflow method)</a>
 </li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.__init__">(trinity.common.workflows.EmailSearchWorkflow method)</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.eval_workflow.html#trinity.common.workflows.eval_workflow.MathEvalWorkflow.__init__">(trinity.common.workflows.eval_workflow.MathEvalWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.math_rm_workflow.html#trinity.common.workflows.math_rm_workflow.MathRMWorkflow.__init__">(trinity.common.workflows.math_rm_workflow.MathRMWorkflow method)</a>
@@ -605,8 +614,6 @@
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.AlgorithmConfig.advantage_fn_args">advantage_fn_args (trinity.common.config.AlgorithmConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.algorithm.html#trinity.algorithm.AdvantageFn">AdvantageFn (class in trinity.algorithm)</a>
 
       <ul>
@@ -615,6 +622,8 @@
         <li><a href="build_api/trinity.algorithm.advantage_fn.advantage_fn.html#trinity.algorithm.advantage_fn.advantage_fn.AdvantageFn">(class in trinity.algorithm.advantage_fn.advantage_fn)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.advantages">advantages (trinity.common.experience.Experience attribute)</a>
 
       <ul>
@@ -662,6 +671,16 @@
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.OperatorConfig.args">args (trinity.common.config.OperatorConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.ASYMREAdvantageFn">ASYMREAdvantageFn (class in trinity.algorithm.advantage_fn)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREAdvantageFn">(class in trinity.algorithm.advantage_fn.asymre_advantage)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm">AsymREAlgorithm (class in trinity.algorithm.algorithm)</a>
+</li>
+      <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage">ASYMREGroupAdvantage (class in trinity.algorithm.advantage_fn.asymre_advantage)</a>
 </li>
       <li><a href="build_api/trinity.buffer.queue.html#trinity.buffer.queue.AsyncPriorityQueue">AsyncPriorityQueue (class in trinity.buffer.queue)</a>
 </li>
@@ -764,6 +783,8 @@
       <li><a href="build_api/trinity.algorithm.advantage_fn.advantage_fn.html#trinity.algorithm.advantage_fn.advantage_fn.GroupAdvantage.calculate_group_advantage">calculate_group_advantage() (trinity.algorithm.advantage_fn.advantage_fn.GroupAdvantage method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage.calculate_group_advantage">(trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.GroupAdvantage.calculate_group_advantage">(trinity.algorithm.advantage_fn.GroupAdvantage method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.grpo_advantage.html#trinity.algorithm.advantage_fn.grpo_advantage.GRPOGroupedAdvantage.calculate_group_advantage">(trinity.algorithm.advantage_fn.grpo_advantage.GRPOGroupedAdvantage method)</a>
@@ -811,9 +832,13 @@
       </ul></li>
       <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.Monitor.calculate_metrics">calculate_metrics() (trinity.utils.monitor.Monitor method)</a>
 </li>
+      <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.calculate_reward">calculate_reward() (trinity.common.workflows.EmailSearchWorkflow method)</a>
+</li>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.can_balance_batch">can_balance_batch (trinity.algorithm.algorithm.AlgorithmType attribute)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm.can_balance_batch">(trinity.algorithm.algorithm.AsymREAlgorithm attribute)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.DPOAlgorithm.can_balance_batch">(trinity.algorithm.algorithm.DPOAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.GRPOAlgorithm.can_balance_batch">(trinity.algorithm.algorithm.GRPOAlgorithm attribute)</a>
@@ -980,6 +1005,8 @@
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.compute_advantage_in_trainer">compute_advantage_in_trainer (trinity.algorithm.algorithm.AlgorithmType attribute)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm.compute_advantage_in_trainer">(trinity.algorithm.algorithm.AsymREAlgorithm attribute)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.DPOAlgorithm.compute_advantage_in_trainer">(trinity.algorithm.algorithm.DPOAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.GRPOAlgorithm.compute_advantage_in_trainer">(trinity.algorithm.algorithm.GRPOAlgorithm attribute)</a>
@@ -1174,6 +1201,12 @@
       <ul>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.AdvantageFn.default_args">(trinity.algorithm.advantage_fn.AdvantageFn class method)</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREAdvantageFn.default_args">(trinity.algorithm.advantage_fn.asymre_advantage.ASYMREAdvantageFn class method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage.default_args">(trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage class method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.ASYMREAdvantageFn.default_args">(trinity.algorithm.advantage_fn.ASYMREAdvantageFn class method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.grpo_advantage.html#trinity.algorithm.advantage_fn.grpo_advantage.GRPOAdvantageFn.default_args">(trinity.algorithm.advantage_fn.grpo_advantage.GRPOAdvantageFn class method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.grpo_advantage.html#trinity.algorithm.advantage_fn.grpo_advantage.GRPOGroupedAdvantage.default_args">(trinity.algorithm.advantage_fn.grpo_advantage.GRPOGroupedAdvantage class method)</a>
@@ -1298,6 +1331,8 @@
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.default_config">default_config() (trinity.algorithm.algorithm.AlgorithmType class method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm.default_config">(trinity.algorithm.algorithm.AsymREAlgorithm class method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.DPOAlgorithm.default_config">(trinity.algorithm.algorithm.DPOAlgorithm class method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.GRPOAlgorithm.default_config">(trinity.algorithm.algorithm.GRPOAlgorithm class method)</a>
@@ -1408,6 +1443,8 @@
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.eid">eid (trinity.common.experience.Experience attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experiences.eids">eids (trinity.common.experience.Experiences attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow">EmailSearchWorkflow (class in trinity.common.workflows)</a>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.empty_experiences">empty_experiences() (in module trinity.common.experience)</a>
 </li>
@@ -1908,6 +1945,8 @@
       <li><a href="build_api/trinity.algorithm.advantage_fn.advantage_fn.html#trinity.algorithm.advantage_fn.advantage_fn.GroupAdvantage.group_experiences">group_experiences() (trinity.algorithm.advantage_fn.advantage_fn.GroupAdvantage method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage.group_experiences">(trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.GroupAdvantage.group_experiences">(trinity.algorithm.advantage_fn.GroupAdvantage method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.grpo_advantage.html#trinity.algorithm.advantage_fn.grpo_advantage.GRPOGroupedAdvantage.group_experiences">(trinity.algorithm.advantage_fn.grpo_advantage.GRPOGroupedAdvantage method)</a>
@@ -2444,6 +2483,8 @@
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#module-trinity.algorithm.advantage_fn">trinity.algorithm.advantage_fn</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.advantage_fn.html#module-trinity.algorithm.advantage_fn.advantage_fn">trinity.algorithm.advantage_fn.advantage_fn</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#module-trinity.algorithm.advantage_fn.asymre_advantage">trinity.algorithm.advantage_fn.asymre_advantage</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.grpo_advantage.html#module-trinity.algorithm.advantage_fn.grpo_advantage">trinity.algorithm.advantage_fn.grpo_advantage</a>
 </li>
@@ -3223,6 +3264,8 @@
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.AgentScopeReactV2MathWorkflow.repeatable">repeatable (trinity.common.workflows.AgentScopeReactV2MathWorkflow property)</a>
 
       <ul>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.repeatable">(trinity.common.workflows.EmailSearchWorkflow property)</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.eval_workflow.html#trinity.common.workflows.eval_workflow.MathEvalWorkflow.repeatable">(trinity.common.workflows.eval_workflow.MathEvalWorkflow property)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.MathEvalWorkflow.repeatable">(trinity.common.workflows.MathEvalWorkflow property)</a>
@@ -3255,6 +3298,8 @@
 </li>
         <li><a href="build_api/trinity.common.workflows.customized_toolcall_workflows.html#trinity.common.workflows.customized_toolcall_workflows.ToolCallWorkflow.reset">(trinity.common.workflows.customized_toolcall_workflows.ToolCallWorkflow method)</a>
 </li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.reset">(trinity.common.workflows.EmailSearchWorkflow method)</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.MathBoxedWorkflow.reset">(trinity.common.workflows.MathBoxedWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.MathWorkflow.reset">(trinity.common.workflows.MathWorkflow method)</a>
@@ -3283,6 +3328,8 @@
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.AgentScopeReactV2MathWorkflow.resettable">resettable (trinity.common.workflows.AgentScopeReactV2MathWorkflow property)</a>
 
       <ul>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.resettable">(trinity.common.workflows.EmailSearchWorkflow property)</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.eval_workflow.html#trinity.common.workflows.eval_workflow.MathEvalWorkflow.resettable">(trinity.common.workflows.eval_workflow.MathEvalWorkflow property)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.MathEvalWorkflow.resettable">(trinity.common.workflows.MathEvalWorkflow property)</a>
@@ -3443,6 +3490,8 @@
 </li>
         <li><a href="build_api/trinity.common.workflows.customized_toolcall_workflows.html#trinity.common.workflows.customized_toolcall_workflows.ToolCallWorkflow.run">(trinity.common.workflows.customized_toolcall_workflows.ToolCallWorkflow method)</a>
 </li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.run">(trinity.common.workflows.EmailSearchWorkflow method)</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.eval_workflow.html#trinity.common.workflows.eval_workflow.MathEvalWorkflow.run">(trinity.common.workflows.eval_workflow.MathEvalWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.math_rm_workflow.html#trinity.common.workflows.math_rm_workflow.MathRMWorkflow.run">(trinity.common.workflows.math_rm_workflow.MathRMWorkflow method)</a>
@@ -3599,6 +3648,8 @@
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.schema">schema (trinity.algorithm.algorithm.AlgorithmType attribute)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm.schema">(trinity.algorithm.algorithm.AsymREAlgorithm attribute)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.DPOAlgorithm.schema">(trinity.algorithm.algorithm.DPOAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.GRPOAlgorithm.schema">(trinity.algorithm.algorithm.GRPOAlgorithm attribute)</a>
@@ -4474,6 +4525,13 @@
 
       <ul>
         <li><a href="build_api/trinity.algorithm.advantage_fn.advantage_fn.html#module-trinity.algorithm.advantage_fn.advantage_fn">module</a>
+</li>
+      </ul></li>
+      <li>
+    trinity.algorithm.advantage_fn.asymre_advantage
+
+      <ul>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#module-trinity.algorithm.advantage_fn.asymre_advantage">module</a>
 </li>
       </ul></li>
       <li>
@@ -5398,6 +5456,8 @@
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.use_critic">use_critic (trinity.algorithm.algorithm.AlgorithmType attribute)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm.use_critic">(trinity.algorithm.algorithm.AsymREAlgorithm attribute)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.DPOAlgorithm.use_critic">(trinity.algorithm.algorithm.DPOAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.GRPOAlgorithm.use_critic">(trinity.algorithm.algorithm.GRPOAlgorithm attribute)</a>
@@ -5442,6 +5502,8 @@
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.use_reference">use_reference (trinity.algorithm.algorithm.AlgorithmType attribute)</a>
 
       <ul>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm.use_reference">(trinity.algorithm.algorithm.AsymREAlgorithm attribute)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.DPOAlgorithm.use_reference">(trinity.algorithm.algorithm.DPOAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.GRPOAlgorithm.use_reference">(trinity.algorithm.algorithm.GRPOAlgorithm attribute)</a>
