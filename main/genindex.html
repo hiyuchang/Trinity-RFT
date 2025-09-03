@@ -43,6 +43,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_reasoning_basic.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_reasoning_advanced.html">Off-Policy RFT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/example_megatron.html">Megatron-LM Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_async_mode.html">Asynchronous RFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_multi_turn.html">Concatenated Multi-Turn RFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_step_wise.html">General Multi-Step RFT</a></li>
@@ -427,7 +428,13 @@
 </li>
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.KL_Ctrl.__init__">(trinity.common.verl_config.KL_Ctrl method)</a>
 </li>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.__init__">(trinity.common.verl_config.MegatronConfig method)</a>
+</li>
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.__init__">(trinity.common.verl_config.Optim method)</a>
+</li>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.OverrideTransformerConfig.__init__">(trinity.common.verl_config.OverrideTransformerConfig method)</a>
+</li>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ProfileConfig.__init__">(trinity.common.verl_config.ProfileConfig method)</a>
 </li>
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref.__init__">(trinity.common.verl_config.Ref method)</a>
 </li>
@@ -466,6 +473,10 @@
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RAFTReflectAlfworldWorkflow.__init__">(trinity.common.workflows.RAFTReflectAlfworldWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SciWorldWorkflow.__init__">(trinity.common.workflows.SciWorldWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow.__init__">(trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleMMWorkflow.__init__">(trinity.common.workflows.SimpleMMWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleWorkflow.__init__">(trinity.common.workflows.SimpleWorkflow method)</a>
 </li>
@@ -686,9 +697,13 @@
 </li>
       <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage">ASYMREGroupAdvantage (class in trinity.algorithm.advantage_fn.asymre_advantage)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Checkpoint.async_save">async_save (trinity.common.verl_config.Checkpoint attribute)</a>
+</li>
       <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.AsyncPriorityQueue">AsyncPriorityQueue (class in trinity.buffer.storage.queue)</a>
 </li>
       <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.AsyncQueue">AsyncQueue (class in trinity.buffer.storage.queue)</a>
+</li>
+      <li><a href="build_api/trinity.common.models.mm_utils.html#trinity.common.models.mm_utils.attach_images_to_messages">attach_images_to_messages() (in module trinity.common.models.mm_utils)</a>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experiences.attention_masks">attention_masks (trinity.common.experience.Experiences attribute)</a>
 </li>
@@ -760,6 +775,8 @@
         <li><a href="build_api/trinity.buffer.buffer_writer.html#trinity.buffer.buffer_writer.BufferWriter">(class in trinity.buffer.buffer_writer)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.models.mm_utils.html#trinity.common.models.mm_utils.build_multi_modal_inputs">build_multi_modal_inputs() (in module trinity.common.models.mm_utils)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.bundle_indices">bundle_indices (trinity.common.config.InferenceModelConfig attribute)</a>
 </li>
   </ul></td>
@@ -888,6 +905,14 @@
       </ul></li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.chat_async">chat_async() (trinity.common.models.model.ModelWrapper method)</a>
 </li>
+      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.chat_mm">chat_mm() (trinity.common.models.model.ModelWrapper method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.vllm_model.html#trinity.common.models.vllm_model.vLLMRolloutModel.chat_mm">(trinity.common.models.vllm_model.vLLMRolloutModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.chat_mm_async">chat_mm_async() (trinity.common.models.model.ModelWrapper method)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.FormatConfig.chat_template">chat_template (trinity.common.config.FormatConfig attribute)</a>
 
       <ul>
@@ -960,7 +985,15 @@
         <li><a href="build_api/trinity.trainer.verl.fsdp_workers.html#trinity.trainer.verl.fsdp_workers.CriticWorker.clear_optimizer_state">(trinity.trainer.verl.fsdp_workers.CriticWorker method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.clip_grad">clip_grad (trinity.common.verl_config.Optim attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.clip_ratio">clip_ratio (trinity.common.verl_config.Actor attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.clip_ratio_high">clip_ratio_high (trinity.common.verl_config.Actor attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.clip_ratio_low">clip_ratio_low (trinity.common.verl_config.Actor attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.cliprange_value">cliprange_value (trinity.common.verl_config.Critic attribute)</a>
 </li>
@@ -1002,8 +1035,6 @@
         <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.WandbMonitor.close">(trinity.utils.monitor.WandbMonitor method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.cluster">cluster (trinity.common.config.Config attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ClusterConfig">ClusterConfig (class in trinity.common.config)</a>
@@ -1088,6 +1119,8 @@
 </li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RAFTReflectAlfworldWorkflow.construct_sft_data">construct_sft_data() (trinity.common.workflows.RAFTReflectAlfworldWorkflow method)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.context_parallel_size">context_parallel_size (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.continue_from_checkpoint">continue_from_checkpoint (trinity.common.config.Config attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.convert_api_output_to_experience">convert_api_output_to_experience() (in module trinity.common.models.model)</a>
@@ -1164,6 +1197,12 @@
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ServiceConfig.data_juicer">data_juicer (trinity.common.config.ServiceConfig attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.data_loader_seed">data_loader_seed (trinity.common.verl_config.Actor attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.data_loader_seed">(trinity.common.verl_config.Critic attribute)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.data_processor">data_processor (trinity.common.config.Config attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.CustomField.data_type">data_type (trinity.common.experience.CustomField attribute)</a>
@@ -1420,6 +1459,8 @@
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Trainer.device">device (trinity.common.verl_config.Trainer attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.dist_checkpointing_path">dist_checkpointing_path (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.OpType.DIV">DIV (trinity.common.constants.OpType attribute)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.DPOAlgorithm">DPOAlgorithm (class in trinity.algorithm.algorithm)</a>
@@ -1544,10 +1585,10 @@
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExplorerInput.eval_tasksets">eval_tasksets (trinity.common.config.ExplorerInput attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.utils.eval_utils.html#trinity.utils.eval_utils.evaluate_equation">evaluate_equation() (in module trinity.utils.eval_utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience">Experience (class in trinity.common.experience)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.TrainerInput.experience_buffer">experience_buffer (trinity.common.config.TrainerInput attribute)</a>
@@ -1587,6 +1628,10 @@
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Trainer.experiment_name">experiment_name (trinity.common.verl_config.Trainer attribute)</a>
 </li>
       <li><a href="build_api/trinity.utils.annotations.html#trinity.utils.annotations.Experimental">Experimental() (in module trinity.utils.annotations)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.expert_model_parallel_size">expert_model_parallel_size (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.expert_tensor_parallel_size">expert_tensor_parallel_size (trinity.common.verl_config.MegatronConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.explorer.html#trinity.explorer.Explorer.explore">explore() (trinity.explorer.Explorer method)</a>
 
@@ -1782,6 +1827,8 @@
 </li>
       <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.gather_metrics">gather_metrics() (in module trinity.utils.monitor)</a>
 </li>
+      <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.gather_multi_modal_inputs">gather_multi_modal_inputs() (in module trinity.common.experience)</a>
+</li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.gather_returns">gather_returns() (in module trinity.common.experience)</a>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.gather_token_ids">gather_token_ids() (in module trinity.common.experience)</a>
@@ -1804,6 +1851,14 @@
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.WebShopWorkflow.generate_env_inference_samples">(trinity.common.workflows.WebShopWorkflow method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.generate_mm">generate_mm() (trinity.common.models.model.ModelWrapper method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.vllm_model.html#trinity.common.models.vllm_model.vLLMRolloutModel.generate_mm">(trinity.common.models.vllm_model.vLLMRolloutModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.generate_mm_async">generate_mm_async() (trinity.common.models.model.ModelWrapper method)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.GenerationConfig">GenerationConfig (class in trinity.common.config)</a>
 </li>
       <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.AsyncPriorityQueue.get">get() (trinity.buffer.storage.queue.AsyncPriorityQueue method)</a>
@@ -1870,6 +1925,8 @@
 </li>
       <li><a href="build_api/trinity.utils.log.html#trinity.utils.log.get_logger">get_logger() (in module trinity.utils.log)</a>
 </li>
+      <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.get_megatron_converter">get_megatron_converter() (in module trinity.common.models.utils)</a>
+</li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.get_model_response">get_model_response() (trinity.common.workflows.AlfworldWorkflow method)</a>
 
       <ul>
@@ -1878,6 +1935,8 @@
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.WebShopWorkflow.get_model_response">(trinity.common.workflows.WebShopWorkflow method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.get_model_response_text">get_model_response_text() (trinity.common.workflows.AlfworldWorkflow method)</a>
 
       <ul>
@@ -1886,8 +1945,6 @@
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.WebShopWorkflow.get_model_response_text">(trinity.common.workflows.WebShopWorkflow method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.manager.html#trinity.manager.Synchronizer.get_model_state_dict">get_model_state_dict() (trinity.manager.Synchronizer method)</a>
 
       <ul>
@@ -1956,6 +2013,8 @@
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.grad_clip">(trinity.common.verl_config.Critic attribute)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.grad_offload">grad_offload (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.group">group (trinity.common.config.Config attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.group_by">group_by() (in module trinity.common.experience)</a>
@@ -2046,6 +2105,8 @@
 </li>
       <li><a href="build_api/trinity.algorithm.policy_loss_fn.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.policy_loss_fn.PolicyLossFnMeta.ignore_keys">ignore_keys (trinity.algorithm.policy_loss_fn.policy_loss_fn.PolicyLossFnMeta attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.FormatConfig.image_key">image_key (trinity.common.config.FormatConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.FusedKernelOptions.impl_backend">impl_backend (trinity.common.verl_config.FusedKernelOptions attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.StorageConfig.index">index (trinity.common.config.StorageConfig attribute)</a>
@@ -2076,10 +2137,10 @@
         <li><a href="build_api/trinity.common.models.vllm_worker.html#trinity.common.models.vllm_worker.WorkerExtension.init_process_group">(trinity.common.models.vllm_worker.WorkerExtension method)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.init_workers">init_workers() (trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.init_workers">init_workers() (trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
+</li>
       <li><a href="build_api/trinity.service.data_juicer.client.html#trinity.service.data_juicer.client.DataJuicerClient.initialize">initialize() (trinity.service.data_juicer.client.DataJuicerClient method)</a>
 
       <ul>
@@ -2222,18 +2283,28 @@
       </ul></li>
       <li><a href="build_api/trinity.utils.plugin_loader.html#trinity.utils.plugin_loader.load_from_file">load_from_file() (in module trinity.utils.plugin_loader)</a>
 </li>
+      <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.load_fsdp_state_dict_from_verl_checkpoint">load_fsdp_state_dict_from_verl_checkpoint() (in module trinity.common.models.utils)</a>
+</li>
+      <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.load_huggingface_state_dict">load_huggingface_state_dict() (in module trinity.common.models.utils)</a>
+</li>
       <li><a href="build_api/trinity.utils.plugin_loader.html#trinity.utils.plugin_loader.load_plugin_from_dirs">load_plugin_from_dirs() (in module trinity.utils.plugin_loader)</a>
 </li>
       <li><a href="build_api/trinity.utils.plugin_loader.html#trinity.utils.plugin_loader.load_plugins">load_plugins() (in module trinity.utils.plugin_loader)</a>
 </li>
       <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.load_state_dict">load_state_dict() (in module trinity.common.models.utils)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.load_state_dict_from_verl_checkpoint">load_state_dict_from_verl_checkpoint() (in module trinity.common.models.utils)</a>
-</li>
       <li><a href="build_api/trinity.manager.html#trinity.manager.CacheManager.load_trainer">load_trainer() (trinity.manager.CacheManager method)</a>
 
       <ul>
         <li><a href="build_api/trinity.manager.manager.html#trinity.manager.manager.CacheManager.load_trainer">(trinity.manager.manager.CacheManager method)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.load_weight">load_weight (trinity.common.verl_config.Actor attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.load_weight">(trinity.common.verl_config.Critic attribute)</a>
+</li>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref.load_weight">(trinity.common.verl_config.Ref attribute)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.log">log (trinity.common.config.Config attribute)</a>
@@ -2306,9 +2377,19 @@
       </ul></li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.lr">lr (trinity.common.verl_config.Optim attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.lr_decay_steps">lr_decay_steps (trinity.common.verl_config.Optim attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.lr_decay_style">lr_decay_style (trinity.common.verl_config.Optim attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.lr_warmup_init">lr_warmup_init (trinity.common.verl_config.Optim attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.lr_warmup_steps">lr_warmup_steps (trinity.common.verl_config.Optim attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.lr_warmup_steps_ratio">lr_warmup_steps_ratio (trinity.common.verl_config.Optim attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.lr_wsd_decay_steps">lr_wsd_decay_steps (trinity.common.verl_config.Optim attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.lr_wsd_decay_style">lr_wsd_decay_style (trinity.common.verl_config.Optim attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2420,6 +2501,16 @@
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExplorerConfig.max_timeout">max_timeout (trinity.common.config.ExplorerConfig attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.megatron">megatron (trinity.common.verl_config.Actor attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.megatron">(trinity.common.verl_config.Critic attribute)</a>
+</li>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref.megatron">(trinity.common.verl_config.Ref attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig">MegatronConfig (class in trinity.common.verl_config)</a>
+</li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SyncMethod.MEMORY">MEMORY (trinity.common.constants.SyncMethod attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.merge_by_placement">merge_by_placement() (in module trinity.common.models.utils)</a>
@@ -2443,6 +2534,8 @@
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.metrics">metrics (trinity.common.experience.Experience attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.RewardModel.micro_batch_size_per_gpu">micro_batch_size_per_gpu (trinity.common.verl_config.RewardModel attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.min_lr">min_lr (trinity.common.verl_config.Optim attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.min_lr_ratio">min_lr_ratio (trinity.common.verl_config.Optim attribute)</a>
 </li>
@@ -2481,6 +2574,8 @@
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.MonitorType.MLFLOW">MLFLOW (trinity.common.constants.MonitorType attribute)</a>
 </li>
       <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.MlflowMonitor">MlflowMonitor (class in trinity.utils.monitor)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.StorageConfig.mm_data_kwargs">mm_data_kwargs (trinity.common.config.StorageConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.mode">mode (trinity.common.config.Config attribute)</a>
 </li>
@@ -2666,6 +2761,8 @@
 </li>
         <li><a href="build_api/trinity.common.models.html#module-trinity.common.models">trinity.common.models</a>
 </li>
+        <li><a href="build_api/trinity.common.models.mm_utils.html#module-trinity.common.models.mm_utils">trinity.common.models.mm_utils</a>
+</li>
         <li><a href="build_api/trinity.common.models.model.html#module-trinity.common.models.model">trinity.common.models.model</a>
 </li>
         <li><a href="build_api/trinity.common.models.utils.html#module-trinity.common.models.utils">trinity.common.models.utils</a>
@@ -2709,6 +2806,8 @@
         <li><a href="build_api/trinity.common.workflows.math_rm_workflow.html#module-trinity.common.workflows.math_rm_workflow">trinity.common.workflows.math_rm_workflow</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.math_ruler_workflow.html#module-trinity.common.workflows.math_ruler_workflow">trinity.common.workflows.math_ruler_workflow</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#module-trinity.common.workflows.simple_mm_workflow">trinity.common.workflows.simple_mm_workflow</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.step_wise_workflow.html#module-trinity.common.workflows.step_wise_workflow">trinity.common.workflows.step_wise_workflow</a>
 </li>
@@ -2805,6 +2904,12 @@
 </li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.OpType.MUL">MUL (trinity.common.constants.OpType attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.multi_modal_inputs">multi_modal_inputs (trinity.common.experience.Experience attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experiences.multi_modal_inputs">(trinity.common.experience.Experiences attribute)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Rollout.multi_turn">multi_turn (trinity.common.verl_config.Rollout attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.workflows.workflow.html#trinity.common.workflows.workflow.MultiTurnWorkflow">MultiTurnWorkflow (class in trinity.common.workflows.workflow)</a>
@@ -2911,8 +3016,6 @@
         <li><a href="build_api/trinity.algorithm.advantage_fn.opmd_advantage.html#trinity.algorithm.advantage_fn.opmd_advantage.OPMDGroupAdvantage">(class in trinity.algorithm.advantage_fn.opmd_advantage)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.OPMDPolicyLossFn">OPMDPolicyLossFn (class in trinity.algorithm.policy_loss_fn)</a>
 
       <ul>
@@ -2921,14 +3024,22 @@
       </ul></li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim">Optim (class in trinity.common.verl_config)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.optim">optim (trinity.common.verl_config.Actor attribute)</a>
 
       <ul>
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.optim">(trinity.common.verl_config.Critic attribute)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig.optimizer_offload">optimizer_offload (trinity.common.verl_config.FSDPConfig attribute)</a>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.optimizer">optimizer (trinity.common.verl_config.Optim attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig.optimizer_offload">optimizer_offload (trinity.common.verl_config.FSDPConfig attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.optimizer_offload">(trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.OpType">OpType (class in trinity.common.constants)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExperiencePipelineConfig.output">output (trinity.common.config.ExperiencePipelineConfig attribute)</a>
@@ -2943,6 +3054,12 @@
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.CriticModel.override_config">(trinity.common.verl_config.CriticModel attribute)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.override_ddp_config">override_ddp_config (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.override_transformer_config">override_transformer_config (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.OverrideTransformerConfig">OverrideTransformerConfig (class in trinity.common.verl_config)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -2952,7 +3069,11 @@
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.BufferConfig.pad_token_id">pad_token_id (trinity.common.config.BufferConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig.param_offload">param_offload (trinity.common.verl_config.FSDPConfig attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.param_offload">(trinity.common.verl_config.MegatronConfig attribute)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.StorageConfig.path">path (trinity.common.config.StorageConfig attribute)</a>
 
       <ul>
@@ -2964,6 +3085,8 @@
 </li>
       </ul></li>
       <li><a href="build_api/trinity.algorithm.policy_loss_fn.chord_policy_loss.html#trinity.algorithm.policy_loss_fn.chord_policy_loss.phi_function">phi_function() (in module trinity.algorithm.policy_loss_fn.chord_policy_loss)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.pipeline_model_parallel_size">pipeline_model_parallel_size (trinity.common.verl_config.MegatronConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.PromptType.PLAINTEXT">PLAINTEXT (trinity.common.constants.PromptType attribute)</a>
 </li>
@@ -2982,6 +3105,8 @@
       <li><a href="build_api/trinity.algorithm.policy_loss_fn.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.policy_loss_fn.PolicyLossFnMeta">PolicyLossFnMeta (class in trinity.algorithm.policy_loss_fn.policy_loss_fn)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.DataJuicerServiceConfig.port">port (trinity.common.config.DataJuicerServiceConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.post_process_batch">post_process_batch() (trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.ppo_epochs">ppo_epochs (trinity.common.verl_config.Actor attribute)</a>
 
@@ -3049,10 +3174,10 @@
         <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.prepare">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.AsyncPriorityQueue.priority_fn">priority_fn (trinity.buffer.storage.queue.AsyncPriorityQueue attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.AsyncPriorityQueue.priority_groups">priority_groups (trinity.buffer.storage.queue.AsyncPriorityQueue attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.TaskPipelineConfig.priority_weights">priority_weights (trinity.common.config.TaskPipelineConfig attribute)</a>
@@ -3113,6 +3238,18 @@
         <li><a href="build_api/trinity.service.html#trinity.service.DataJuicerClient.process_task">(trinity.service.DataJuicerClient method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.profile">profile (trinity.common.verl_config.Actor attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.profile">(trinity.common.verl_config.Critic attribute)</a>
+</li>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref.profile">(trinity.common.verl_config.Ref attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ProfileConfig.profile_ranks">profile_ranks (trinity.common.verl_config.ProfileConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ProfileConfig">ProfileConfig (class in trinity.common.verl_config)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.project">project (trinity.common.config.Config attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Trainer.project_name">project_name (trinity.common.verl_config.Trainer attribute)</a>
@@ -3237,6 +3374,14 @@
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.reasoning_parser">reasoning_parser (trinity.common.config.InferenceModelConfig attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.OverrideTransformerConfig.recompute_granularity">recompute_granularity (trinity.common.verl_config.OverrideTransformerConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.OverrideTransformerConfig.recompute_method">recompute_method (trinity.common.verl_config.OverrideTransformerConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.OverrideTransformerConfig.recompute_modules">recompute_modules (trinity.common.verl_config.OverrideTransformerConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.OverrideTransformerConfig.recompute_num_layers">recompute_num_layers (trinity.common.verl_config.OverrideTransformerConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref">Ref (class in trinity.common.verl_config)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ActorRolloutRef.ref">ref (trinity.common.verl_config.ActorRolloutRef attribute)</a>
@@ -3359,6 +3504,10 @@
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.MathWorkflow.reset">(trinity.common.workflows.MathWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RAFTAlfworldWorkflow.reset">(trinity.common.workflows.RAFTAlfworldWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow.reset">(trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleMMWorkflow.reset">(trinity.common.workflows.SimpleMMWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleWorkflow.reset">(trinity.common.workflows.SimpleWorkflow method)</a>
 </li>
@@ -3560,6 +3709,10 @@
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SciWorldWorkflow.run">(trinity.common.workflows.SciWorldWorkflow method)</a>
 </li>
+        <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow.run">(trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleMMWorkflow.run">(trinity.common.workflows.SimpleMMWorkflow method)</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleWorkflow.run">(trinity.common.workflows.SimpleWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.step_wise_workflow.html#trinity.common.workflows.step_wise_workflow.RewardPropagationWorkflow.run">(trinity.common.workflows.step_wise_workflow.RewardPropagationWorkflow method)</a>
@@ -3677,6 +3830,8 @@
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.TrainerConfig.save_interval">save_interval (trinity.common.config.TrainerConfig attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ProfileConfig.save_path">save_path (trinity.common.verl_config.ProfileConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.trainer.html#trinity.trainer.TrainEngineWrapper.save_state_dict">save_state_dict() (trinity.trainer.TrainEngineWrapper method)</a>
 
       <ul>
@@ -3730,7 +3885,11 @@
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SciWorldWorkflow">SciWorldWorkflow (class in trinity.common.workflows)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.seed">seed (trinity.common.config.InferenceModelConfig attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.seed">(trinity.common.verl_config.MegatronConfig attribute)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.algorithm.policy_loss_fn.chord_policy_loss.html#trinity.algorithm.policy_loss_fn.chord_policy_loss.MIXCHORDPolicyLossFn.select_keys">select_keys (trinity.algorithm.policy_loss_fn.chord_policy_loss.MIXCHORDPolicyLossFn property)</a>
 
       <ul>
@@ -3787,6 +3946,8 @@
         <li><a href="build_api/trinity.algorithm.html#trinity.algorithm.PolicyLossFn.select_keys">(trinity.algorithm.PolicyLossFn property)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.sequence_parallel">sequence_parallel (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.serialize">serialize() (trinity.common.experience.Experience method)</a>
 </li>
       <li><a href="build_api/trinity.service.data_juicer.client.html#trinity.service.data_juicer.client.serialize_dataset_to_arrow">serialize_dataset_to_arrow() (in module trinity.service.data_juicer.client)</a>
@@ -4075,6 +4236,12 @@
 </li>
       <li><a href="build_api/trinity.utils.eval_utils.html#trinity.utils.eval_utils.simple_answer_parser">simple_answer_parser() (in module trinity.utils.eval_utils)</a>
 </li>
+      <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleMMWorkflow">SimpleMMWorkflow (class in trinity.common.workflows)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow">(class in trinity.common.workflows.simple_mm_workflow)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleWorkflow">SimpleWorkflow (class in trinity.common.workflows)</a>
 
       <ul>
@@ -4125,6 +4292,10 @@
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.StepWiseAlfworldWorkflow.step">(trinity.common.workflows.StepWiseAlfworldWorkflow method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ProfileConfig.step_end">step_end (trinity.common.verl_config.ProfileConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ProfileConfig.step_start">step_start (trinity.common.verl_config.ProfileConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.StepWiseAlfworldWorkflow">StepWiseAlfworldWorkflow (class in trinity.common.workflows)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.StepWiseGRPOAdvantageFn">StepWiseGRPOAdvantageFn (class in trinity.algorithm.advantage_fn)</a>
@@ -4299,6 +4470,8 @@
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Rollout.temperature">(trinity.common.verl_config.Rollout attribute)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.tensor_model_parallel_size">tensor_model_parallel_size (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.tensor_parallel_size">tensor_parallel_size (trinity.common.config.InferenceModelConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.MonitorType.TENSORBOARD">TENSORBOARD (trinity.common.constants.MonitorType attribute)</a>
@@ -4990,6 +5163,13 @@
 </li>
       </ul></li>
       <li>
+    trinity.common.models.mm_utils
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.mm_utils.html#module-trinity.common.models.mm_utils">module</a>
+</li>
+      </ul></li>
+      <li>
     trinity.common.models.model
 
       <ul>
@@ -5141,6 +5321,13 @@
 
       <ul>
         <li><a href="build_api/trinity.common.workflows.math_ruler_workflow.html#module-trinity.common.workflows.math_ruler_workflow">module</a>
+</li>
+      </ul></li>
+      <li>
+    trinity.common.workflows.simple_mm_workflow
+
+      <ul>
+        <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#module-trinity.common.workflows.simple_mm_workflow">module</a>
 </li>
       </ul></li>
       <li>
@@ -5458,6 +5645,8 @@
         <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.upload_state_dict">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.use_checkpoint_opt_param_scheduler">use_checkpoint_opt_param_scheduler (trinity.common.verl_config.Optim attribute)</a>
+</li>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.use_critic">use_critic (trinity.algorithm.algorithm.AlgorithmType attribute)</a>
 
       <ul>
@@ -5492,6 +5681,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.manager.config_registry.trainer_config_manager.html#trinity.manager.config_registry.trainer_config_manager.use_critic">use_critic() (in module trinity.manager.config_registry.trainer_config_manager)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.use_dist_checkpointing">use_dist_checkpointing (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.use_distributed_optimizer">use_distributed_optimizer (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.use_dynamic_bsz">use_dynamic_bsz (trinity.common.verl_config.Actor attribute)</a>
 
       <ul>
@@ -5508,7 +5701,11 @@
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.use_kl_loss">use_kl_loss (trinity.common.verl_config.Actor attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.use_mbridge">use_mbridge (trinity.common.verl_config.MegatronConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.StorageConfig.use_priority_queue">use_priority_queue (trinity.common.config.StorageConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ProfileConfig.use_profile">use_profile (trinity.common.verl_config.ProfileConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.use_reference">use_reference (trinity.algorithm.algorithm.AlgorithmType attribute)</a>
 
@@ -5572,10 +5769,10 @@
 </li>
       <li><a href="build_api/trinity.common.workflows.customized_toolcall_workflows.html#trinity.common.workflows.customized_toolcall_workflows.validate_format">validate_format() (in module trinity.common.workflows.customized_toolcall_workflows)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.workflows.customized_toolcall_workflows.html#trinity.common.workflows.customized_toolcall_workflows.validate_result">validate_result() (in module trinity.common.workflows.customized_toolcall_workflows)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.utils.eval_utils.html#trinity.utils.eval_utils.validate_think_pattern">validate_think_pattern() (in module trinity.utils.eval_utils)</a>
 </li>
       <li><a href="build_api/trinity.utils.math_eval_utils.html#trinity.utils.math_eval_utils.verify_math_answer">verify_math_answer() (in module trinity.utils.math_eval_utils)</a>
@@ -5583,6 +5780,10 @@
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.veRLConfig">veRLConfig (class in trinity.common.verl_config)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper">VerlPPOTrainerWrapper (class in trinity.trainer.verl_trainer)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.FormatConfig.video_key">video_key (trinity.common.config.FormatConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.MegatronConfig.virtual_pipeline_model_parallel_size">virtual_pipeline_model_parallel_size (trinity.common.verl_config.MegatronConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.models.vllm_model.html#trinity.common.models.vllm_model.vLLMRolloutModel">vLLMRolloutModel (class in trinity.common.models.vllm_model)</a>
 </li>
@@ -5631,6 +5832,10 @@
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.WebShopWorkflow">WebShopWorkflow (class in trinity.common.workflows)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.weight_decay">weight_decay (trinity.common.verl_config.Optim attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Optim.weight_decay_incr_style">weight_decay_incr_style (trinity.common.verl_config.Optim attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.models.vllm_worker.html#trinity.common.models.vllm_worker.WorkerExtension">WorkerExtension (class in trinity.common.models.vllm_worker)</a>
 </li>
