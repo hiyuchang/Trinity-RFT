@@ -640,6 +640,7 @@ document.write(`
 <li><p>首先初始化 AgentScope 环境和所需的 Agent（<code class="docutils literal notranslate"><span class="pre">ReActAgentV2</span></code>）。</p></li>
 <li><p>最关键的集成步骤是将 Trinity 的模型客户端注入到 Agent 中：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">openai_client</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_openai_client</span><span class="p">()</span>
+<span class="c1"># self.openai_client = get_openai_async_client() # or async client depend on whether you are using async openai client</span>
 <span class="c1"># ...</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openai_client</span>
 </pre></div>
@@ -651,7 +652,7 @@ document.write(`
 <li><p><strong>执行 (<code class="docutils literal notranslate"><span class="pre">run</span></code>)</strong></p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">run</span></code> 方法非常简洁，它只是将任务描述传递给 Agent。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">.</span><span class="n">content</span> <span class="c1"># your agent logic</span>
 </pre></div>
 </div>
 </li>
@@ -711,23 +712,23 @@ document.write(`
 <section id="id10">
 <h2>如何运行示例<a class="headerlink" href="#id10" title="Link to this heading">#</a></h2>
 <ol class="arabic simple">
-<li><p><strong>前置条件</strong>：确保已安装 Trinity 及本示例所需依赖（如 <code class="docutils literal notranslate"><span class="pre">AgentScope</span></code>）。请参考 <a class="reference external" href="https://github.com/agentscope-ai/agentscope/tree/v0_zh">Agentscope Github link</a></p></li>
+<li><p><strong>前置条件</strong>：确保已安装 Trinity 及本示例所需依赖（如 <code class="docutils literal notranslate"><span class="pre">AgentScope</span></code>）。请参考 <a class="reference external" href="https://github.com/agentscope-ai/agentscope/tree/v0">Agentscope Github link</a></p></li>
 </ol>
 <blockquote>
 <div><p><strong>注意</strong>：本示例需要以下来源之一的 AgentScope：</p>
 <ul class="simple">
 <li><p>Commit: <code class="docutils literal notranslate"><span class="pre">ad13ed5dacecb79d20abf626769f8c7d7a7d2afb</span></code></p></li>
-<li><p>分支: <a class="reference external" href="https://github.com/agentscope-ai/agentscope/tree/v0_zh"><code class="docutils literal notranslate"><span class="pre">v0</span></code></a></p></li>
+<li><p>分支: <a class="reference external" href="https://github.com/agentscope-ai/agentscope/tree/v0"><code class="docutils literal notranslate"><span class="pre">v0</span></code></a></p></li>
 </ul>
 </div></blockquote>
 <ol class="arabic" start="2">
-<li><p>下载你想使用的模型，并填写 <code class="docutils literal notranslate"><span class="pre">examples/agentscope_tool_react/agentscope_tool_react_gsm8k.yaml</span></code> 或 <code class="docutils literal notranslate"><span class="pre">examples/agentscope_tool_react/agentscope_tool_react_dapo.yaml</span></code> 中的配置文件</p></li>
+<li><p>下载你想使用的模型，并填写 <code class="docutils literal notranslate"><span class="pre">examples/agentscope_tool_react/agentscopev0_tool_react_gsm8k.yaml</span></code> 或 <code class="docutils literal notranslate"><span class="pre">examples/agentscope_tool_react/agentscopev0_tool_react_dapo.yaml</span></code> 中的配置文件</p></li>
 <li><p><strong>启动训练任务</strong>：从仓库根目录运行以下命令。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w"> </span>examples/agentscope_tool_react/agentscope_tool_react_gsm8k.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w"> </span>examples/agentscope_tool_react/agentscopev0_tool_react_gsm8k.yaml
 </pre></div>
 </div>
 <p>或</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w"> </span>examples/agentscope_tool_react/agentscope_tool_react_dapo.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w"> </span>examples/agentscope_tool_react/agentscopev0_tool_react_dapo.yaml
 </pre></div>
 </div>
 </li>
@@ -738,6 +739,8 @@ document.write(`
 <p><img alt="" src="../_images/agentscope_dapo_reward.png" /></p>
 <p>我们还可以看到，模型总体上开始更多地使用工具调用来解决问题。</p>
 <p><img alt="" src="../_images/agentscope_dapo_turns.png" /></p>
+<p>我们也可以把使用 v1 版本的 AgentScope 仓库，然后对 Qwen3-4b-instrcut-2507 进行训练：</p>
+<p><img alt="" src="../_images/agentscope_dapo_qwen3-4B_reward.png" /></p>
 </section>
 <section id="id11">
 <h2>总结<a class="headerlink" href="#id11" title="Link to this heading">#</a></h2>
