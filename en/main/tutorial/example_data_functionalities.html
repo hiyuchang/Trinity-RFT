@@ -604,7 +604,7 @@ document.write(`
 </section>
 <section id="example-data-processor-for-task-pipeline">
 <h2>Example: Data Processor for Task Pipeline<a class="headerlink" href="#example-data-processor-for-task-pipeline" title="Link to this heading">#</a></h2>
-<p>In this example, you will learn how to apply the data processor of Trinity-RFT to prepare and prioritize the dataset before task exploring and training. This example takes GSM-8K dataset as the example dataset to figure out:</p>
+<p>In this example, you will learn how to apply the data processor of Trinity-RFT to prepare and prioritize the dataset before task exploring and training. This example takes GSM8K dataset as the example dataset to figure out:</p>
 <ol class="arabic simple">
 <li><p>how to prepare the data processor</p></li>
 <li><p>how to configure the data processor</p></li>
@@ -639,7 +639,7 @@ and store the base url and api key in the environment variables <code class="doc
 <span class="w">    </span><span class="nt">auto_start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
-<p>Here you can set the input files for the GSM-8K dataset and some other items about task pipeline:</p>
+<p>Here you can set the input files for the GSM8K dataset and some other items about task pipeline:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">task_pipeline</span></code>: the configs for the task pipeline. Task pipeline is used to process the raw dataset. It consists of several inner configs:</p>
 <ul>
@@ -653,7 +653,7 @@ and store the base url and api key in the environment variables <code class="doc
 <p>It’s worth noticing that we don’t need to set the output path usually, cause it will be set to the path of the explorer input automatically.</p>
 <p>The data processing of Data-Juicer is maintained as a service. Thus we need to config the data-juicer service.
 Luckily, Trinity-RFT provides an auto-start way to start the data processor server automatically. All you need to do is to set the <code class="docutils literal notranslate"><span class="pre">auto_start</span></code> of <code class="docutils literal notranslate"><span class="pre">data-juicer</span></code> service to <code class="docutils literal notranslate"><span class="pre">true</span></code> in the <code class="docutils literal notranslate"><span class="pre">service</span></code> section.</p>
-<p>All config items in the <code class="docutils literal notranslate"><span class="pre">data_processor</span></code> section can be found <a class="reference internal" href="trinity_configs.html"><span class="std std-doc">here</span></a>. A prepared config file for this example of GSM-8K can be found in <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/tree/main/examples/grpo_gsm8k_task_pipeline/gsm8k.yaml">the config file</a>.</p>
+<p>All config items in the <code class="docutils literal notranslate"><span class="pre">data_processor</span></code> section can be found <a class="reference internal" href="trinity_configs.html"><span class="std std-doc">here</span></a>. A prepared config file for this example of GSM8K can be found in <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/tree/main/examples/grpo_gsm8k_task_pipeline/gsm8k.yaml">the config file</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Only when one of <code class="docutils literal notranslate"><span class="pre">xxx_pipeline</span></code> is provided, and one of <code class="docutils literal notranslate"><span class="pre">dj_process_desc</span></code> and <code class="docutils literal notranslate"><span class="pre">dj_config_path</span></code> in the pipeline config is provided, the data processor and the data active iterator will be activated. Otherwise, this part will be skipped and it will enter into the exploring stage directly.</p>
@@ -677,7 +677,7 @@ trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w
 </section>
 <section id="example-data-processor-for-experience-pipeline">
 <h2>Example: Data Processor for Experience Pipeline<a class="headerlink" href="#example-data-processor-for-experience-pipeline" title="Link to this heading">#</a></h2>
-<p>In this example, you will learn how to apply the data processor of Trinity-RFT to reshape rewards of experiences after exploring. This example takes GSM-8K dataset as the example dataset to figure out how to reshape rewards of experiences from the explorer before sent to the trainer from a view of the quality of generated responses.</p>
+<p>In this example, you will learn how to apply the data processor of Trinity-RFT to reshape rewards of experiences after exploring. This example takes GSM8K dataset as the example dataset to figure out how to reshape rewards of experiences from the explorer before sent to the trainer from a view of the quality of generated responses.</p>
 <p>In addition to the automatic way to start the data processor server in the previous example, you can also start it manually.</p>
 <p>Before getting started, you need to prepare the main environment of Trinity-RFT according to the <a class="reference internal" href="example_reasoning_basic.html"><span class="std std-doc">installation section of Quickstart</span></a>,
 and store the base url and api key in the environment variables <code class="docutils literal notranslate"><span class="pre">OPENAI_BASE_URL</span></code> and <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> for some agentic or API-model usages if necessary.</p>
@@ -751,7 +751,7 @@ So we don’t need to set the input and output buffers for the experience pipeli
 <span class="w">      </span><span class="nt">field_names</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;prompt&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;response&quot;</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
-<p>All config items in the <code class="docutils literal notranslate"><span class="pre">data_processor</span></code> section can be found <a class="reference internal" href="trinity_configs.html"><span class="std std-doc">here</span></a>. A prepared config file for this example of GSM-8K can be found in <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/tree/main/examples/grpo_gsm8k_experience_pipeline/gsm8k.yaml">the config file</a>.</p>
+<p>All config items in the <code class="docutils literal notranslate"><span class="pre">data_processor</span></code> section can be found <a class="reference internal" href="trinity_configs.html"><span class="std std-doc">here</span></a>. A prepared config file for this example of GSM8K can be found in <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/tree/main/examples/grpo_gsm8k_experience_pipeline/gsm8k.yaml">the config file</a>.</p>
 </section>
 <section id="id3">
 <h3>Exploring &amp; Training<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>

@@ -661,8 +661,8 @@ document.write(`
 <p>The configuration file fine-tunes the behavior of the entire system. Here are the key parameters for this example:</p>
 <section id="native-tool-calling-settings">
 <h4>Native Tool Calling Settings<a class="headerlink" href="#native-tool-calling-settings" title="Link to this heading">#</a></h4>
-<p>These settings in the <code class="docutils literal notranslate"><span class="pre">explorer.rollout_model</span></code> section configure the VLLM-based engine to generate and parse OpenAI-compatible tool calls.
-We use the <code class="docutils literal notranslate"><span class="pre">Qwen3</span></code> model and host model with vllm. The configuration for different model can be found in <a class="reference external" href="https://docs.vllm.ai/en/stable/features/tool_calling.html#qwen-models">VLLM Toolcalls</a></p>
+<p>These settings in the <code class="docutils literal notranslate"><span class="pre">explorer.rollout_model</span></code> section configure the vLLM-based engine to generate and parse OpenAI-compatible tool calls.
+We use the <code class="docutils literal notranslate"><span class="pre">Qwen3</span></code> model and host model with vLLM. The configuration for different model can be found in <a class="reference external" href="https://docs.vllm.ai/en/stable/features/tool_calling.html#qwen-models">vLLM Toolcalls</a></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">explorer</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">rollout_model</span><span class="p">:</span>
 <span class="w">    </span><span class="c1"># ...</span>
@@ -702,7 +702,7 @@ We use the <code class="docutils literal notranslate"><span class="pre">Qwen3</s
 <section id="how-to-run-the-example">
 <h2>How to Run the Example<a class="headerlink" href="#how-to-run-the-example" title="Link to this heading">#</a></h2>
 <ol class="arabic simple">
-<li><p><strong>Prerequisites</strong>: Ensure you have Trinity installed, along with the dependencies for this example (e.g., <code class="docutils literal notranslate"><span class="pre">agentscope</span></code>). Please refer to <a class="reference external" href="https://github.com/agentscope-ai/agentscope/tree/v0">Agentscope Github link</a>.</p></li>
+<li><p><strong>Prerequisites</strong>: Ensure you have Trinity installed, along with the dependencies for this example (e.g., <code class="docutils literal notranslate"><span class="pre">AgentScope</span></code>). Please refer to <a class="reference external" href="https://github.com/agentscope-ai/agentscope/tree/v0">Agentscope Github link</a>.</p></li>
 </ol>
 <blockquote>
 <div><p><strong>NOTE</strong>: This example requires AgentScope from either:</p>

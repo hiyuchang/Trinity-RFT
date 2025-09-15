@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>离线 DPO and SFT &#8212; Trinity-RFT 0.3.1.dev0 文档</title>
+    <title>离线 DPO 和 SFT &#8212; Trinity-RFT 0.3.1.dev0 文档</title>
   
   
   
@@ -44,8 +44,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/example_dpo';</script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
-    <link rel="next" title="Megatron-LM 后端" href="example_megatron.html" />
-    <link rel="prev" title="邮件搜索的工作流" href="example_search_email.html" />
+    <link rel="next" title="Megatron-LM 支持" href="example_megatron.html" />
+    <link rel="prev" title="邮件搜索例子" href="example_search_email.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="zh-CN"/>
   </head>
@@ -181,19 +181,19 @@
 <li class="toctree-l1"><a class="reference internal" href="example_reasoning_basic.html">快速上手</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_reasoning_advanced.html">Off-Policy RFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_async_mode.html">异步 RFT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_multi_turn.html">拼接多轮任务</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_step_wise.html">通用多轮任务</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_react.html">ReAct工作流</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_search_email.html">邮件搜索的工作流</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">离线 DPO and SFT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_megatron.html">Megatron-LM 后端</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_multi_turn.html">多轮对话拼接任务</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_step_wise.html">通用多轮 RFT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_react.html">ReAct 例子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_search_email.html">邮件搜索例子</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">离线 DPO 和 SFT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_megatron.html">Megatron-LM 支持</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_data_functionalities.html">数据处理</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">帮助文档</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="trinity_programming_guide.html">开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trinity_programming_guide.html">开发者指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="trinity_configs.html">参数配置指南</a></li>
-<li class="toctree-l1"><a class="reference internal" href="example_mix_algo.html">设计新算法</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_mix_algo.html">集成新算法</a></li>
 <li class="toctree-l1"><a class="reference internal" href="synchronizer.html">Synchronizer 介绍</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">常见问题</span></p>
@@ -536,7 +536,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -547,11 +549,29 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>离线 DPO and SFT</h1>
+    <h1>离线 DPO 和 SFT</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> 目录 </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">第一步：模型和数据准备</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">模型准备</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">数据准备</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">第二步：配置设置</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dpo">DPO 配置</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sft">SFT 配置</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">第三步：运行实验</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -561,8 +581,148 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="dpo-and-sft">
-<h1>离线 DPO and SFT<a class="headerlink" href="#dpo-and-sft" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="dpo-sft">
+<h1>离线 DPO 和 SFT<a class="headerlink" href="#dpo-sft" title="Link to this heading">#</a></h1>
+<p>本示例描述了基于 Qwen2.5-1.5B-Instruct 模型的 DPO 和 SFT 流程。</p>
+<section id="id1">
+<h2>第一步：模型和数据准备<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h3>模型准备<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>将 Qwen2.5-1.5B-Instruct 模型下载到本地目录 <code class="docutils literal notranslate"><span class="pre">$MODEL_PATH/Qwen2.5-1.5B-Instruct</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 Modelscope</span>
+modelscope<span class="w"> </span>download<span class="w"> </span>Qwen/Qwen2.5-1.5B-Instruct<span class="w"> </span>--local_dir<span class="w"> </span><span class="nv">$MODEL_PATH</span>/Qwen2.5-1.5B-Instruct
+
+<span class="c1"># 使用 Huggingface</span>
+huggingface-cli<span class="w"> </span>download<span class="w"> </span>Qwen/Qwen2.5-1.5B-Instruct<span class="w"> </span>--local-dir<span class="w"> </span><span class="nv">$MODEL_PATH</span>/Qwen2.5-1.5B-Instruct
+</pre></div>
+</div>
+<p>更多关于模型下载的细节，请参考 <a class="reference external" href="https://modelscope.cn/docs/models/download">ModelScope</a> 或 <a class="reference external" href="https://huggingface.co/docs/huggingface_hub/main/en/guides/cli">Huggingface</a>。</p>
+</section>
+<section id="id3">
+<h3>数据准备<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<p>对于 DPO，我们将 <a class="reference external" href="https://huggingface.co/datasets/HumanLLMs/Human-Like-DPO-Dataset">Human-like-DPO-dataset</a> 下载到本地目录 <code class="docutils literal notranslate"><span class="pre">$DATASET_PATH/human_like_dpo_dataset</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 Modelscope</span>
+modelscope<span class="w"> </span>download<span class="w"> </span>--dataset<span class="w"> </span>HumanLLMs/Human-Like-DPO-Dataset<span class="w"> </span>--local_dir<span class="w"> </span><span class="nv">$DATASET_PATH</span>/human_like_dpo_dataset
+
+<span class="c1"># 使用 Huggingface</span>
+huggingface-cli<span class="w"> </span>download<span class="w"> </span>HumanLLMs/Human-Like-DPO-Dataset<span class="w"> </span>--repo-type<span class="w"> </span>dataset<span class="w"> </span>--local-dir<span class="w"> </span><span class="nv">$DATASET_PATH</span>/human_like_dpo_dataset
+</pre></div>
+</div>
+<p>以下是部分以 JSONL 格式存储的数据样本：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;prompt&quot;</span><span class="p">:</span><span class="s2">&quot;Oh, I just saw the best meme - have you seen it?&quot;</span><span class="p">,</span><span class="nt">&quot;chosen&quot;</span><span class="p">:</span><span class="s2">&quot;\ud83d\ude02 Ah, no I haven&#39;t! I&#39;m dying to know, what&#39;s the meme about? Is it a funny cat or a ridiculous situation? Spill the beans! \ud83e\udd23&quot;</span><span class="p">,</span><span class="nt">&quot;rejected&quot;</span><span class="p">:</span><span class="s2">&quot;I&#39;m an artificial intelligence language model, I don&#39;t have personal experiences or opinions. However, I can provide you with information on highly-rated and critically acclaimed films, as well as recommendations based on specific genres or themes. Would you like me to suggest some notable movies or discuss a particular genre of interest?&quot;</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">&quot;prompt&quot;</span><span class="p">:</span><span class="s2">&quot;Have you tried any new hobbies or activities recently?&quot;</span><span class="p">,</span><span class="nt">&quot;chosen&quot;</span><span class="p">:</span><span class="s2">&quot;You know, I&#39;ve been meaning to try my hand at gardening, but I haven&#39;t gotten around to it yet. I&#39;ve heard it&#39;s super relaxing and a great way to get some fresh air. Maybe I&#39;ll finally get around to buying some seeds and pots this weekend. What about you? Have you taken up anything new and exciting lately? \ud83c\udf31\ud83d\udc40&quot;</span><span class="p">,</span><span class="nt">&quot;rejected&quot;</span><span class="p">:</span><span class="s2">&quot;I&#39;m an artificial intelligence language model, and as such, I don&#39;t have personal experiences or engage in physical activities such as dining or cooking. My purpose is to provide information, answer questions, and assist with tasks to the best of my abilities, while maintaining a professional and impartial demeanor. If you have any specific questions or topics related to restaurants or recipes, I&#39;d be happy to provide information or guidance.&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>更多关于数据集下载的细节，请参考 <a class="reference external" href="https://modelscope.cn/docs/datasets/download">ModelScope</a> 或 <a class="reference external" href="https://huggingface.co/docs/huggingface_hub/main/en/guides/cli#download-a-dataset-or-a-space">Huggingface</a>。</p>
+<p>注意该数据集包含 <code class="docutils literal notranslate"><span class="pre">prompt</span></code>、<code class="docutils literal notranslate"><span class="pre">chosen</span></code> 和 <code class="docutils literal notranslate"><span class="pre">rejected</span></code> 三个键。如果你使用其他数据集，请在配置中传入正确的键名。</p>
+<p>对于 SFT，我们下载 <code class="docutils literal notranslate"><span class="pre">open-r1/Mixture-of-Thoughts</span></code> 数据集到本地目录 <code class="docutils literal notranslate"><span class="pre">$DATASET_PATH/Mixture-of-Thoughts</span></code>，其中包含基于 message 的数据，这里列出一个简化的样本：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;messages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;You will be given a competitive programming problem...&quot;</span><span class="p">,</span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">},{</span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;think&gt;\n...</span>
+<span class="s2">&lt;/think&gt;</span>
+<span class="s2">\n...This approach efficiently combines hashing and dynamic programming to solve the problem within the given constraints.&quot;</span><span class="p">,</span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assistant&quot;</span><span class="p">}],</span><span class="w"> </span><span class="nt">&quot;num_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">22185</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;open-r1/codeforces-cots&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id4">
+<h2>第二步：配置设置<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<section id="dpo">
+<h3>DPO 配置<a class="headerlink" href="#dpo" title="Link to this heading">#</a></h3>
+<p>我们在实验中使用 <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/tree/main/examples/dpo_humanlike/dpo.yaml"><code class="docutils literal notranslate"><span class="pre">dpo.yaml</span></code></a> 中的配置。以下列出一些重要设置：</p>
+<p>我们在 train 模式下运行实验，因为没有使用 explorer。要启用此模式，需将 <code class="docutils literal notranslate"><span class="pre">mode</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">train</span></code>，并将数据路径传递给 trainer。</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;project_name&gt;</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;experiment_name&gt;</span>
+<span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train</span>
+<span class="nt">algorithm</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">algorithm_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dpo</span>
+<span class="w">  </span><span class="nt">kl_loss_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k1</span>
+<span class="w">  </span><span class="nt">kl_loss_fn_args</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">kl_coef</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">  </span><span class="c1"># DPO 中 beta 的值</span>
+<span class="nt">checkpoint_root_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:TRINITY_CHECKPOINT_ROOT_DIR,./checkpoints}</span>
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">model_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:TRINITY_MODEL_PATH,Qwen/Qwen2.5-1.5B-Instruct}</span>
+<span class="nt">cluster</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">node_num</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">gpu_per_node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="nt">buffer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">train_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">  </span><span class="nt">trainer_input</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">experience_buffer</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">human_like_dpo</span>
+<span class="w">      </span><span class="nt">storage_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$DATASET_PATH/human_like_dpo_dataset</span>
+<span class="w">      </span><span class="nt">format</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">prompt_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plaintext</span>
+<span class="w">        </span><span class="nt">prompt_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prompt</span>
+<span class="w">        </span><span class="nt">chosen_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chosen</span>
+<span class="w">        </span><span class="nt">rejected_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rejected</span>
+<span class="nt">trainer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">save_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">trainer_config</span><span class="p">:</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"> </span><span class="c1"># 省略其他配置</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">buffer.trainer_input.experience_buffer</span></code> 指定了用于训练的数据集，包括其名称、存储类型、路径和格式。</p>
+<ul class="simple">
+<li><p>名称 <code class="docutils literal notranslate"><span class="pre">human_like_dpo</span></code> 是此数据集配置的唯一标识符，只要在项目内保持唯一性，你可以使用其他名称。</p></li>
+<li><p>存储类型 <code class="docutils literal notranslate"><span class="pre">file</span></code> 表示数据集存储在本地文件系统中的文件里，<code class="docutils literal notranslate"><span class="pre">path</span></code> 指向数据集所在的本地目录。注意 <code class="docutils literal notranslate"><span class="pre">file</span></code> 类型也支持使用 HuggingFace 数据集路径，例如 <code class="docutils literal notranslate"><span class="pre">HumanLLMs/Human-Like-DPO-Dataset</span></code>。</p></li>
+<li><p>format 定义了数据集内部的数据结构，具体如下：</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">prompt_type:</span> <span class="pre">plaintext</span></code> 表示提示是纯文本格式。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prompt_key:</span> <span class="pre">prompt</span></code> 指定数据集中包含用户提示的字段名。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chosen_key:</span> <span class="pre">chosen</span></code> 指定数据集中包含被选中回复的字段名。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rejected_key:</span> <span class="pre">rejected</span></code> 指定数据集中包含被拒绝回复的字段名。</p></li>
+</ul>
+</li>
+</ul>
+<p>更多配置选项，请参考 <a class="reference internal" href="trinity_configs.html#configuration-guide"><span class="std std-ref">参数配置指南</span></a>。</p>
+</section>
+<section id="sft">
+<h3>SFT 配置<a class="headerlink" href="#sft" title="Link to this heading">#</a></h3>
+<p>我们将 <code class="docutils literal notranslate"><span class="pre">algorithm_type</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">sft</span></code> 来运行 SFT 流程，并对配置文件 <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/tree/main/examples/sft_mot/sft.yaml"><code class="docutils literal notranslate"><span class="pre">examples/sft_mot/sft.yaml</span></code></a> 进行如下修改：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;project_name&gt;</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;experiment_name&gt;</span>
+<span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train</span>
+<span class="nt">algorithm</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">algorithm_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sft</span>
+<span class="nt">checkpoint_root_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:TRINITY_CHECKPOINT_ROOT_DIR,./checkpoints}</span>
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">model_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${oc.env:TRINITY_MODEL_PATH,Qwen/Qwen2.5-1.5B-Instruct}</span>
+<span class="nt">cluster</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">node_num</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">gpu_per_node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">buffer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">total_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="nt">train_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">  </span><span class="nt">trainer_input</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">experience_buffer</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;sft_dataset_name&gt;</span>
+<span class="w">      </span><span class="nt">storage_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$DATASET_PATH/Mixture-of-Thoughts</span>
+<span class="w">      </span><span class="nt">split</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train</span>
+<span class="w">      </span><span class="nt">format</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">prompt_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">messages</span>
+<span class="w">        </span><span class="nt">messages_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">messages</span>
+<span class="nt">trainer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">save_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="w">  </span><span class="nt">trainer_config</span><span class="p">:</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"> </span><span class="c1"># 省略其他配置</span>
+</pre></div>
+</div>
+<p>此处我们将 <code class="docutils literal notranslate"><span class="pre">buffer.trainer_input.experience_buffer.format.prompt_type</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">messages</span></code>，因为源数据是 message 格式。同时设置 <code class="docutils literal notranslate"><span class="pre">buffer.trainer_input.experience_buffer.format.messages_key</span></code> 为 <code class="docutils literal notranslate"><span class="pre">messages</span></code>，以指定数据集中包含消息的字段名。</p>
+</section>
+</section>
+<section id="id5">
+<h2>第三步：运行实验<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p>使用以下命令运行 DPO 流程：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w"> </span>examples/dpo_humanlike/dpo.yaml
+</pre></div>
+</div>
+<p>或运行 SFT：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>trinity<span class="w"> </span>run<span class="w"> </span>--config<span class="w"> </span>examples/sft_mot/sft.yaml
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -582,7 +742,7 @@ document.write(`
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">上一页</p>
-        <p class="prev-next-title">邮件搜索的工作流</p>
+        <p class="prev-next-title">邮件搜索例子</p>
       </div>
     </a>
     <a class="right-next"
@@ -590,7 +750,7 @@ document.write(`
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">下一页</p>
-        <p class="prev-next-title">Megatron-LM 后端</p>
+        <p class="prev-next-title">Megatron-LM 支持</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -600,6 +760,31 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> 目录
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">第一步：模型和数据准备</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">模型准备</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">数据准备</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">第二步：配置设置</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dpo">DPO 配置</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sft">SFT 配置</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">第三步：运行实验</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
