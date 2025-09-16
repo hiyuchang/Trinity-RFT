@@ -340,7 +340,7 @@ explorer:
   max_retry_times: 2
   env_vars: {}
   rollout_model:
-    engine_type: vllm_async
+    engine_type: vllm
     engine_num: 1
     tensor_parallel_size: 1
     enable_history: False
@@ -356,7 +356,7 @@ explorer:
 - `max_timeout`: Maximum time (in seconds) for a workflow to complete.
 - `max_retry_times`: Maximum number of retries for a workflow.
 - `env_vars`: Environment variables to be set for every workflow runners.
-- `rollout_model.engine_type`: Type of inference engine. For now, only `vllm_async` is supported.
+- `rollout_model.engine_type`: Type of inference engine. For now, only `vllm_async` and `vllm` is supported, they have the same meaning and both use the asynchronous engine. In subsequent versions, only `vllm` may be retained for simplicity.
 - `rollout_model.engine_num`: Number of inference engines.
 - `rollout_model.tensor_parallel_size`: Degree of tensor parallelism.
 - `rollout_model.enable_history`: Whether to enable model call history recording. If set to `True`, the model wrapper automatically records the return experiences of model calls. Please periodically extract the history via `extract_experience_from_history` to avoid out-of-memory issues. Default is `False`.
@@ -368,7 +368,7 @@ explorer:
 
 ## Synchronizer Configuration
 
-Controls how model weights are synchronized between trainer and explorer. Please refer to {ref}`Synchronizer in Trinity-RFT <Synchronizer>`。 for more details.
+Controls how model weights are synchronized between trainer and explorer. Please refer to {ref}`Synchronizer in Trinity-RFT <Synchronizer>` for more details.
 
 ```yaml
 synchronizer:
@@ -396,6 +396,7 @@ trainer:
   name: trainer
   trainer_type: 'verl'
   save_interval: 100
+  total_steps: 1000
   trainer_config: null
   trainer_config_path: ''
 ```
@@ -403,6 +404,7 @@ trainer:
 - `name`: Name of the trainer. This name will be used as the Ray actor's name, so it must be unique.
 - `trainer_type`: Trainer backend implementation. Currently only supports `verl`.
 - `save_interval`: Frequency (in steps) at which to save model checkpoints.
+- `total_steps`: Total number of training steps.
 - `trainer_config`: The trainer configuration provided inline.
 - `trainer_config_path`: The path to the trainer configuration file. Only one of `trainer_config_path` and `trainer_config` should be specified.
 
@@ -432,8 +434,6 @@ Configures the task / experience pipeline, please refer to {ref}`Data Processing
 
 ```yaml
 data_processor:
-  task_pipeline:
-  # task pipeline related
   task_pipeline:
     num_process: 32
     operators:

@@ -964,7 +964,7 @@ Users can use these features to simplify configuration.</p>
 <span class="w">  </span><span class="nt">max_retry_times</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="w">  </span><span class="nt">env_vars</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
 <span class="w">  </span><span class="nt">rollout_model</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">engine_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm_async</span>
+<span class="w">    </span><span class="nt">engine_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm</span>
 <span class="w">    </span><span class="nt">engine_num</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">    </span><span class="nt">tensor_parallel_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">    </span><span class="nt">enable_history</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
@@ -981,7 +981,7 @@ Users can use these features to simplify configuration.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_timeout</span></code>: Maximum time (in seconds) for a workflow to complete.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_retry_times</span></code>: Maximum number of retries for a workflow.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">env_vars</span></code>: Environment variables to be set for every workflow runners.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.engine_type</span></code>: Type of inference engine. For now, only <code class="docutils literal notranslate"><span class="pre">vllm_async</span></code> is supported.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.engine_type</span></code>: Type of inference engine. For now, only <code class="docutils literal notranslate"><span class="pre">vllm_async</span></code> and <code class="docutils literal notranslate"><span class="pre">vllm</span></code> is supported, they have the same meaning and both use the asynchronous engine. In subsequent versions, only <code class="docutils literal notranslate"><span class="pre">vllm</span></code> may be retained for simplicity.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.engine_num</span></code>: Number of inference engines.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.tensor_parallel_size</span></code>: Degree of tensor parallelism.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.enable_history</span></code>: Whether to enable model call history recording. If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the model wrapper automatically records the return experiences of model calls. Please periodically extract the history via <code class="docutils literal notranslate"><span class="pre">extract_experience_from_history</span></code> to avoid out-of-memory issues. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
@@ -993,7 +993,7 @@ Users can use these features to simplify configuration.</p>
 <hr class="docutils" />
 <section id="synchronizer-configuration">
 <h2>Synchronizer Configuration<a class="headerlink" href="#synchronizer-configuration" title="Link to this heading">#</a></h2>
-<p>Controls how model weights are synchronized between trainer and explorer. Please refer to <a class="reference internal" href="synchronizer.html#synchronizer"><span class="std std-ref">Synchronizer in Trinity-RFT</span></a>。 for more details.</p>
+<p>Controls how model weights are synchronized between trainer and explorer. Please refer to <a class="reference internal" href="synchronizer.html#synchronizer"><span class="std std-ref">Synchronizer in Trinity-RFT</span></a> for more details.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">synchronizer</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sync_method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;nccl&#39;</span>
 <span class="w">  </span><span class="nt">sync_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
@@ -1021,6 +1021,7 @@ Users can use these features to simplify configuration.</p>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trainer</span>
 <span class="w">  </span><span class="nt">trainer_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;verl&#39;</span>
 <span class="w">  </span><span class="nt">save_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">  </span><span class="nt">total_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
 <span class="w">  </span><span class="nt">trainer_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
 <span class="w">  </span><span class="nt">trainer_config_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
 </pre></div>
@@ -1029,6 +1030,7 @@ Users can use these features to simplify configuration.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: Name of the trainer. This name will be used as the Ray actor’s name, so it must be unique.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trainer_type</span></code>: Trainer backend implementation. Currently only supports <code class="docutils literal notranslate"><span class="pre">verl</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">save_interval</span></code>: Frequency (in steps) at which to save model checkpoints.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">total_steps</span></code>: Total number of training steps.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trainer_config</span></code>: The trainer configuration provided inline.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trainer_config_path</span></code>: The path to the trainer configuration file. Only one of <code class="docutils literal notranslate"><span class="pre">trainer_config_path</span></code> and <code class="docutils literal notranslate"><span class="pre">trainer_config</span></code> should be specified.</p></li>
 </ul>
@@ -1055,8 +1057,6 @@ Users can use these features to simplify configuration.</p>
 <h2>DataProcessor Configuration<a class="headerlink" href="#dataprocessor-configuration" title="Link to this heading">#</a></h2>
 <p>Configures the task / experience pipeline, please refer to <a class="reference internal" href="example_data_functionalities.html#data-processing"><span class="std std-ref">Data Processing</span></a> section for details.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data_processor</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">task_pipeline</span><span class="p">:</span>
-<span class="w">  </span><span class="c1"># task pipeline related</span>
 <span class="w">  </span><span class="nt">task_pipeline</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">num_process</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
 <span class="w">    </span><span class="nt">operators</span><span class="p">:</span>

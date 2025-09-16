@@ -965,7 +965,7 @@ document.write(`
 <span class="w">  </span><span class="nt">max_retry_times</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="w">  </span><span class="nt">env_vars</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
 <span class="w">  </span><span class="nt">rollout_model</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">engine_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm_async</span>
+<span class="w">    </span><span class="nt">engine_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm</span>
 <span class="w">    </span><span class="nt">engine_num</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">    </span><span class="nt">tensor_parallel_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">    </span><span class="nt">enable_history</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
@@ -982,7 +982,7 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">max_timeout</span></code>: 工作流完成的最大时间（秒）。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_retry_times</span></code>: 工作流的最大重试次数。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">env_vars</span></code>: 为每个工作流执行器设置的环境变量。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.engine_type</span></code>: 推理引擎类型。目前仅支持 <code class="docutils literal notranslate"><span class="pre">vllm_async</span></code>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.engine_type</span></code>: 推理引擎类型。支持 <code class="docutils literal notranslate"><span class="pre">vllm_async</span></code> 和 <code class="docutils literal notranslate"><span class="pre">vllm</span></code>，二者的含义相同，都使用了异步引擎。后续版本会只保留 <code class="docutils literal notranslate"><span class="pre">vllm</span></code>。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.engine_num</span></code>: 推理引擎数量。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.tensor_parallel_size</span></code>: 张量并行度。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rollout_model.enable_history</span></code>: 是否启用模型调用历史记录。若设为 <code class="docutils literal notranslate"><span class="pre">True</span></code>，模型包装器会自动记录模型调用返回的 experience。请定期通过 <code class="docutils literal notranslate"><span class="pre">extract_experience_from_history</span></code> 提取历史，以避免内存溢出。默认为 <code class="docutils literal notranslate"><span class="pre">False</span></code>。</p></li>
@@ -1022,6 +1022,7 @@ document.write(`
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trainer</span>
 <span class="w">  </span><span class="nt">trainer_type</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;verl&#39;</span>
 <span class="w">  </span><span class="nt">save_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">  </span><span class="nt">total_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
 <span class="w">  </span><span class="nt">trainer_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
 <span class="w">  </span><span class="nt">trainer_config_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
 </pre></div>
@@ -1030,6 +1031,7 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: trainer 的名称。该名称将用作 Ray actor 的名称，因此必须唯一。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trainer_type</span></code>: trainer 后端实现。目前仅支持 <code class="docutils literal notranslate"><span class="pre">verl</span></code>。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">save_interval</span></code>: 保存模型检查点的频率（步）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">total_steps</span></code>: 总训练步数。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trainer_config</span></code>: 内联提供的 trainer 配置。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trainer_config_path</span></code>: trainer 配置文件的路径。<code class="docutils literal notranslate"><span class="pre">trainer_config_path</span></code> 和 <code class="docutils literal notranslate"><span class="pre">trainer_config</span></code> 只能指定其一。</p></li>
 </ul>
@@ -1056,8 +1058,6 @@ document.write(`
 <h2>DataProcessor 配置<a class="headerlink" href="#dataprocessor" title="Link to this heading">#</a></h2>
 <p>配置 task / experience 处理流水线，详情请参考 <a class="reference internal" href="example_data_functionalities.html#data-processing"><span class="std std-ref">数据处理</span></a> 部分。</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data_processor</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">task_pipeline</span><span class="p">:</span>
-<span class="w">  </span><span class="c1"># 任务流水线相关</span>
 <span class="w">  </span><span class="nt">task_pipeline</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">num_process</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
 <span class="w">    </span><span class="nt">operators</span><span class="p">:</span>
