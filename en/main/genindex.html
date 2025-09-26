@@ -174,7 +174,18 @@
  </script></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Guidelines</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorial/trinity_installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/develop_overview.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/develop_workflow.html">Workflow Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/develop_algorithm.html">Algorithms Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/example_mix_algo.html">Advanced Algorithm Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/develop_operator.html">Operator Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/trinity_configs.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/synchronizer.html">Synchronizer in Trinity-RFT</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_reasoning_basic.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_reasoning_advanced.html">Off-Policy RFT</a></li>
@@ -186,13 +197,6 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_dpo.html">Offline DPO and SFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_megatron.html">Megatron-LM Backend</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/example_data_functionalities.html">Data Processing</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Guidelines</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tutorial/trinity_programming_guide.html">Developer Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/trinity_configs.html">Configuration Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/example_mix_algo.html">Algorithm Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial/synchronizer.html">Synchronizer in Trinity-RFT</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">FAQ</span></p>
 <ul class="nav bd-sidenav">
@@ -278,6 +282,7 @@
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.advantage_fn.multi_step_grpo_advantage.html">trinity.algorithm.advantage_fn.multi_step_grpo_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.advantage_fn.opmd_advantage.html">trinity.algorithm.advantage_fn.opmd_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.advantage_fn.ppo_advantage.html">trinity.algorithm.advantage_fn.ppo_advantage module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.advantage_fn.rec_advantage.html">trinity.algorithm.advantage_fn.rec_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.advantage_fn.reinforce_advantage.html">trinity.algorithm.advantage_fn.reinforce_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage.html">trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.advantage_fn.remax_advantage.html">trinity.algorithm.advantage_fn.remax_advantage module</a></li>
@@ -301,6 +306,7 @@
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.policy_loss_fn.opmd_policy_loss.html">trinity.algorithm.policy_loss_fn.opmd_policy_loss module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.policy_loss_fn.policy_loss_fn.html">trinity.algorithm.policy_loss_fn.policy_loss_fn module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.policy_loss_fn.ppo_policy_loss.html">trinity.algorithm.policy_loss_fn.ppo_policy_loss module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.policy_loss_fn.rec_policy_loss.html">trinity.algorithm.policy_loss_fn.rec_policy_loss module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.policy_loss_fn.sft_loss.html">trinity.algorithm.policy_loss_fn.sft_loss module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.policy_loss_fn.sppo_loss_fn.html">trinity.algorithm.policy_loss_fn.sppo_loss_fn module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.algorithm.policy_loss_fn.topr_policy_loss.html">trinity.algorithm.policy_loss_fn.topr_policy_loss module</a></li>
@@ -378,6 +384,7 @@
 <li class="toctree-l3"><a class="reference internal" href="build_api/trinity.utils.dlc_utils.html">trinity.utils.dlc_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="build_api/trinity.utils.eval_utils.html">trinity.utils.eval_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="build_api/trinity.utils.log.html">trinity.utils.log module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_api/trinity.utils.lora_utils.html">trinity.utils.lora_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="build_api/trinity.utils.math_eval_utils.html">trinity.utils.math_eval_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="build_api/trinity.utils.monitor.html">trinity.utils.monitor module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="build_api/trinity.utils.plugin_loader.html">trinity.utils.plugin_loader module</a></li>
@@ -587,6 +594,10 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.PPOAdvantageFn.__init__">(trinity.algorithm.advantage_fn.PPOAdvantageFn method)</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.rec_advantage.html#trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage.__init__">(trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.RECGroupedAdvantage.__init__">(trinity.algorithm.advantage_fn.RECGroupedAdvantage method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage.html#trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage.REINFORCEPLUSPLUSAdvantageFn.__init__">(trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage.REINFORCEPLUSPLUSAdvantageFn method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.REINFORCEPLUSPLUSAdvantageFn.__init__">(trinity.algorithm.advantage_fn.REINFORCEPLUSPLUSAdvantageFn method)</a>
@@ -650,6 +661,10 @@ document.write(`
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.ppo_policy_loss.html#trinity.algorithm.policy_loss_fn.ppo_policy_loss.PPOPolicyLossFn.__init__">(trinity.algorithm.policy_loss_fn.ppo_policy_loss.PPOPolicyLossFn method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.PPOPolicyLossFn.__init__">(trinity.algorithm.policy_loss_fn.PPOPolicyLossFn method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.rec_policy_loss.html#trinity.algorithm.policy_loss_fn.rec_policy_loss.RECPolicyLossFn.__init__">(trinity.algorithm.policy_loss_fn.rec_policy_loss.RECPolicyLossFn method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.RECPolicyLossFn.__init__">(trinity.algorithm.policy_loss_fn.RECPolicyLossFn method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.sft_loss.html#trinity.algorithm.policy_loss_fn.sft_loss.SFTLossFn.__init__">(trinity.algorithm.policy_loss_fn.sft_loss.SFTLossFn method)</a>
 </li>
@@ -772,6 +787,8 @@ document.write(`
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.__init__">(trinity.common.config.InferenceModelConfig method)</a>
 </li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.LogConfig.__init__">(trinity.common.config.LogConfig method)</a>
+</li>
+        <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.__init__">(trinity.common.config.LoRAConfig method)</a>
 </li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.ModelConfig.__init__">(trinity.common.config.ModelConfig method)</a>
 </li>
@@ -1138,14 +1155,14 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.OperatorConfig.args">args (trinity.common.config.OperatorConfig attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.ASYMREAdvantageFn">ASYMREAdvantageFn (class in trinity.algorithm.advantage_fn)</a>
 
       <ul>
         <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREAdvantageFn">(class in trinity.algorithm.advantage_fn.asymre_advantage)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm">AsymREAlgorithm (class in trinity.algorithm.algorithm)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage">ASYMREGroupAdvantage (class in trinity.algorithm.advantage_fn.asymre_advantage)</a>
@@ -1252,8 +1269,6 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.common.workflows.step_wise_workflow.html#trinity.common.workflows.step_wise_workflow.AsyncStepWiseRewardWorkflow">AsyncStepWiseRewardWorkflow (class in trinity.common.workflows.step_wise_workflow)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.mm_utils.html#trinity.common.models.mm_utils.attach_images_to_messages">attach_images_to_messages() (in module trinity.common.models.mm_utils)</a>
-</li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experiences.attention_masks">attention_masks (trinity.common.experience.Experiences attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.DataJuicerServiceConfig.auto_start">auto_start (trinity.common.config.DataJuicerServiceConfig attribute)</a>
@@ -1269,6 +1284,8 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Trainer.balance_batch">balance_batch (trinity.common.verl_config.Trainer attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.base_model_name">base_model_name (trinity.common.config.LoRAConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.buffer.reader.file_reader.html#trinity.buffer.reader.file_reader.BaseFileReader">BaseFileReader (class in trinity.buffer.reader.file_reader)</a>
 </li>
@@ -1361,6 +1378,10 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.OPMDGroupAdvantage.calculate_group_advantage">(trinity.algorithm.advantage_fn.OPMDGroupAdvantage method)</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.rec_advantage.html#trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage.calculate_group_advantage">(trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.RECGroupedAdvantage.calculate_group_advantage">(trinity.algorithm.advantage_fn.RECGroupedAdvantage method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.reinforce_advantage.html#trinity.algorithm.advantage_fn.reinforce_advantage.REINFORCEGroupAdvantage.calculate_group_advantage">(trinity.algorithm.advantage_fn.reinforce_advantage.REINFORCEGroupAdvantage method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.REINFORCEGroupAdvantage.calculate_group_advantage">(trinity.algorithm.advantage_fn.REINFORCEGroupAdvantage method)</a>
@@ -1424,6 +1445,8 @@ document.write(`
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.PPOAlgorithm.can_balance_batch">(trinity.algorithm.algorithm.PPOAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RAFTAlgorithm.can_balance_batch">(trinity.algorithm.algorithm.RAFTAlgorithm attribute)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RECAlgorithm.can_balance_batch">(trinity.algorithm.algorithm.RECAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.SFTAlgorithm.can_balance_batch">(trinity.algorithm.algorithm.SFTAlgorithm attribute)</a>
 </li>
@@ -1552,10 +1575,10 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.clip_ratio">clip_ratio (trinity.common.verl_config.Actor attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.clip_ratio_high">clip_ratio_high (trinity.common.verl_config.Actor attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.clip_ratio_low">clip_ratio_low (trinity.common.verl_config.Actor attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.cliprange_value">cliprange_value (trinity.common.verl_config.Critic attribute)</a>
@@ -1626,6 +1649,8 @@ document.write(`
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.PPOAlgorithm.compute_advantage_in_trainer">(trinity.algorithm.algorithm.PPOAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RAFTAlgorithm.compute_advantage_in_trainer">(trinity.algorithm.algorithm.RAFTAlgorithm attribute)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RECAlgorithm.compute_advantage_in_trainer">(trinity.algorithm.algorithm.RECAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.SFTAlgorithm.compute_advantage_in_trainer">(trinity.algorithm.algorithm.SFTAlgorithm attribute)</a>
 </li>
@@ -1704,6 +1729,10 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.convert_messages_to_experience_async">convert_messages_to_experience_async() (trinity.common.models.model.ModelWrapper method)</a>
 </li>
+      <li><a href="build_api/trinity.common.models.mm_utils.html#trinity.common.models.mm_utils.convert_messages_to_mm_format">convert_messages_to_mm_format() (in module trinity.common.models.mm_utils)</a>
+</li>
+      <li><a href="build_api/trinity.buffer.schema.formatter.html#trinity.buffer.schema.formatter.SFTFormatter.convert_mm_data_to_experiences">convert_mm_data_to_experiences() (trinity.buffer.schema.formatter.SFTFormatter method)</a>
+</li>
       <li><a href="build_api/trinity.buffer.pipelines.task_pipeline.html#trinity.buffer.pipelines.task_pipeline.TaskPipeline.convert_pipeline_config">convert_pipeline_config() (trinity.buffer.pipelines.task_pipeline.TaskPipeline method)</a>
 
       <ul>
@@ -1718,6 +1747,8 @@ document.write(`
         <li><a href="build_api/trinity.common.rewards.countdown_reward.html#trinity.common.rewards.countdown_reward.CountDownRewardFn">(class in trinity.common.rewards.countdown_reward)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.utils.lora_utils.html#trinity.utils.lora_utils.create_dummy_lora">create_dummy_lora() (in module trinity.utils.lora_utils)</a>
+</li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RAFTAlfworldWorkflow.create_environment">create_environment() (trinity.common.workflows.RAFTAlfworldWorkflow method)</a>
 </li>
       <li><a href="build_api/trinity.common.models.html#trinity.common.models.create_inference_models">create_inference_models() (in module trinity.common.models)</a>
@@ -1837,6 +1868,10 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.PPOAdvantageFn.default_args">(trinity.algorithm.advantage_fn.PPOAdvantageFn class method)</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.rec_advantage.html#trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage.default_args">(trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage class method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.RECGroupedAdvantage.default_args">(trinity.algorithm.advantage_fn.RECGroupedAdvantage class method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.reinforce_advantage.html#trinity.algorithm.advantage_fn.reinforce_advantage.REINFORCEGroupAdvantage.default_args">(trinity.algorithm.advantage_fn.reinforce_advantage.REINFORCEGroupAdvantage class method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage.html#trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage.REINFORCEPLUSPLUSAdvantageFn.default_args">(trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage.REINFORCEPLUSPLUSAdvantageFn class method)</a>
@@ -1905,6 +1940,10 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.PPOPolicyLossFn.default_args">(trinity.algorithm.policy_loss_fn.PPOPolicyLossFn class method)</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.rec_policy_loss.html#trinity.algorithm.policy_loss_fn.rec_policy_loss.RECPolicyLossFn.default_args">(trinity.algorithm.policy_loss_fn.rec_policy_loss.RECPolicyLossFn class method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.RECPolicyLossFn.default_args">(trinity.algorithm.policy_loss_fn.RECPolicyLossFn class method)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.sft_loss.html#trinity.algorithm.policy_loss_fn.sft_loss.SFTLossFn.default_args">(trinity.algorithm.policy_loss_fn.sft_loss.SFTLossFn class method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.SFTISLossFn.default_args">(trinity.algorithm.policy_loss_fn.SFTISLossFn class method)</a>
@@ -1968,6 +2007,8 @@ document.write(`
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.PPOAlgorithm.default_config">(trinity.algorithm.algorithm.PPOAlgorithm class method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RAFTAlgorithm.default_config">(trinity.algorithm.algorithm.RAFTAlgorithm class method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RECAlgorithm.default_config">(trinity.algorithm.algorithm.RECAlgorithm class method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.SFTAlgorithm.default_config">(trinity.algorithm.algorithm.SFTAlgorithm class method)</a>
 </li>
@@ -2092,6 +2133,8 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.enable_history">enable_history (trinity.common.config.InferenceModelConfig attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.enable_lora">enable_lora (trinity.common.config.InferenceModelConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.enable_openai_api">enable_openai_api (trinity.common.config.InferenceModelConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.enable_prefix_caching">enable_prefix_caching (trinity.common.config.InferenceModelConfig attribute)</a>
@@ -2160,10 +2203,10 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience">Experience (class in trinity.common.experience)</a>
 </li>
-      <li><a href="build_api/trinity.common.config.html#trinity.common.config.TrainerInput.experience_buffer">experience_buffer (trinity.common.config.TrainerInput attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.TrainerInput.experience_buffer">experience_buffer (trinity.common.config.TrainerInput attribute)</a>
+</li>
       <li><a href="build_api/trinity.buffer.schema.sql_schema.html#trinity.buffer.schema.sql_schema.DPODataModel.experience_bytes">experience_bytes (trinity.buffer.schema.sql_schema.DPODataModel attribute)</a>
 
       <ul>
@@ -2388,6 +2431,8 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig">FSDPConfig (class in trinity.common.verl_config)</a>
 </li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.ModelConfig.fully_sharded_loras">fully_sharded_loras (trinity.common.config.ModelConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ActorModel.fused_kernel_options">fused_kernel_options (trinity.common.verl_config.ActorModel attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.FusedKernelOptions">FusedKernelOptions (class in trinity.common.verl_config)</a>
@@ -2528,6 +2573,14 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.utils.log.html#trinity.utils.log.get_logger">get_logger() (in module trinity.utils.log)</a>
 </li>
+      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.get_lora_request">get_lora_request() (trinity.common.models.model.ModelWrapper method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.vllm_model.html#trinity.common.models.vllm_model.vLLMRolloutModel.get_lora_request">(trinity.common.models.vllm_model.vLLMRolloutModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.get_lora_request_async">get_lora_request_async() (trinity.common.models.model.ModelWrapper method)</a>
+</li>
       <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.get_megatron_converter">get_megatron_converter() (in module trinity.common.models.utils)</a>
 </li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.get_model_response">get_model_response() (trinity.common.workflows.AlfworldWorkflow method)</a>
@@ -2658,6 +2711,10 @@ document.write(`
         <li><a href="build_api/trinity.algorithm.advantage_fn.opmd_advantage.html#trinity.algorithm.advantage_fn.opmd_advantage.OPMDGroupAdvantage.group_experiences">(trinity.algorithm.advantage_fn.opmd_advantage.OPMDGroupAdvantage method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.OPMDGroupAdvantage.group_experiences">(trinity.algorithm.advantage_fn.OPMDGroupAdvantage method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.rec_advantage.html#trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage.group_experiences">(trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage method)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.RECGroupedAdvantage.group_experiences">(trinity.algorithm.advantage_fn.RECGroupedAdvantage method)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.reinforce_advantage.html#trinity.algorithm.advantage_fn.reinforce_advantage.REINFORCEGroupAdvantage.group_experiences">(trinity.algorithm.advantage_fn.reinforce_advantage.REINFORCEGroupAdvantage method)</a>
 </li>
@@ -2930,6 +2987,8 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.load_huggingface_state_dict">load_huggingface_state_dict() (in module trinity.common.models.utils)</a>
 </li>
+      <li><a href="build_api/trinity.buffer.schema.formatter.html#trinity.buffer.schema.formatter.SFTFormatter.load_mm_data">load_mm_data() (trinity.buffer.schema.formatter.SFTFormatter method)</a>
+</li>
       <li><a href="build_api/trinity.utils.plugin_loader.html#trinity.utils.plugin_loader.load_plugin_from_dirs">load_plugin_from_dirs() (in module trinity.utils.plugin_loader)</a>
 </li>
       <li><a href="build_api/trinity.utils.plugin_loader.html#trinity.utils.plugin_loader.load_plugins">load_plugins() (in module trinity.utils.plugin_loader)</a>
@@ -2968,10 +3027,14 @@ document.write(`
         <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.WandbMonitor.log">(trinity.utils.monitor.WandbMonitor method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref.log_prob_max_token_len_per_gpu">log_prob_max_token_len_per_gpu (trinity.common.verl_config.Ref attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Rollout.log_prob_max_token_len_per_gpu">(trinity.common.verl_config.Rollout attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref.log_prob_max_token_len_per_gpu">log_prob_max_token_len_per_gpu (trinity.common.verl_config.Ref attribute)</a>
-</li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref.log_prob_micro_batch_size">log_prob_micro_batch_size (trinity.common.verl_config.Ref attribute)</a>
 
       <ul>
@@ -2985,7 +3048,11 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref.log_prob_use_dynamic_bsz">log_prob_use_dynamic_bsz (trinity.common.verl_config.Ref attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Rollout.log_prob_use_dynamic_bsz">(trinity.common.verl_config.Rollout attribute)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.MlflowMonitor.log_table">log_table() (trinity.utils.monitor.MlflowMonitor method)</a>
 
       <ul>
@@ -3017,6 +3084,28 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.logprobs_async">logprobs_async() (trinity.common.models.model.ModelWrapper method)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.lora_alpha">lora_alpha (trinity.common.config.LoRAConfig attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ActorModel.lora_alpha">(trinity.common.verl_config.ActorModel attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.ModelConfig.lora_configs">lora_configs (trinity.common.config.ModelConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.lora_dtype">lora_dtype (trinity.common.config.LoRAConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.lora_kwargs">lora_kwargs (trinity.common.config.InferenceModelConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.lora_modules">lora_modules (trinity.common.config.InferenceModelConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.lora_rank">lora_rank (trinity.common.config.LoRAConfig attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ActorModel.lora_rank">(trinity.common.verl_config.ActorModel attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig">LoRAConfig (class in trinity.common.config)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Actor.loss_agg_mode">loss_agg_mode (trinity.common.verl_config.Actor attribute)</a>
 
@@ -3115,6 +3204,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Trainer.max_actor_ckpt_to_keep">max_actor_ckpt_to_keep (trinity.common.verl_config.Trainer attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.ModelConfig.max_cpu_loras">max_cpu_loras (trinity.common.config.ModelConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Trainer.max_critic_ckpt_to_keep">max_critic_ckpt_to_keep (trinity.common.verl_config.Trainer attribute)</a>
 </li>
@@ -3306,6 +3397,8 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.ppo_advantage.html#module-trinity.algorithm.advantage_fn.ppo_advantage">trinity.algorithm.advantage_fn.ppo_advantage</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.rec_advantage.html#module-trinity.algorithm.advantage_fn.rec_advantage">trinity.algorithm.advantage_fn.rec_advantage</a>
+</li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.reinforce_advantage.html#module-trinity.algorithm.advantage_fn.reinforce_advantage">trinity.algorithm.advantage_fn.reinforce_advantage</a>
 </li>
         <li><a href="build_api/trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage.html#module-trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage">trinity.algorithm.advantage_fn.reinforce_plus_plus_advantage</a>
@@ -3343,6 +3436,8 @@ document.write(`
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.policy_loss_fn.html#module-trinity.algorithm.policy_loss_fn.policy_loss_fn">trinity.algorithm.policy_loss_fn.policy_loss_fn</a>
 </li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.ppo_policy_loss.html#module-trinity.algorithm.policy_loss_fn.ppo_policy_loss">trinity.algorithm.policy_loss_fn.ppo_policy_loss</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.rec_policy_loss.html#module-trinity.algorithm.policy_loss_fn.rec_policy_loss">trinity.algorithm.policy_loss_fn.rec_policy_loss</a>
 </li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.sft_loss.html#module-trinity.algorithm.policy_loss_fn.sft_loss">trinity.algorithm.policy_loss_fn.sft_loss</a>
 </li>
@@ -3560,6 +3655,8 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.utils.log.html#module-trinity.utils.log">trinity.utils.log</a>
 </li>
+        <li><a href="build_api/trinity.utils.lora_utils.html#module-trinity.utils.lora_utils">trinity.utils.lora_utils</a>
+</li>
         <li><a href="build_api/trinity.utils.math_eval_utils.html#module-trinity.utils.math_eval_utils">trinity.utils.math_eval_utils</a>
 </li>
         <li><a href="build_api/trinity.utils.monitor.html#module-trinity.utils.monitor">trinity.utils.monitor</a>
@@ -3617,6 +3714,8 @@ document.write(`
 
       <ul>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExplorerConfig.name">(trinity.common.config.ExplorerConfig attribute)</a>
+</li>
+        <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.name">(trinity.common.config.LoRAConfig attribute)</a>
 </li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.OperatorConfig.name">(trinity.common.config.OperatorConfig attribute)</a>
 </li>
@@ -3765,9 +3864,11 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.utils.eval_utils.html#trinity.utils.eval_utils.parse_with_timeout">parse_with_timeout() (in module trinity.utils.eval_utils)</a>
 </li>
-      <li><a href="build_api/trinity.common.config.html#trinity.common.config.StorageConfig.path">path (trinity.common.config.StorageConfig attribute)</a>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.path">path (trinity.common.config.LoRAConfig attribute)</a>
 
       <ul>
+        <li><a href="build_api/trinity.common.config.html#trinity.common.config.StorageConfig.path">(trinity.common.config.StorageConfig attribute)</a>
+</li>
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ActorModel.path">(trinity.common.verl_config.ActorModel attribute)</a>
 </li>
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.CriticModel.path">(trinity.common.verl_config.CriticModel attribute)</a>
@@ -4071,6 +4172,14 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.reasoning_parser">reasoning_parser (trinity.common.config.InferenceModelConfig attribute)</a>
 </li>
+      <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RECAlgorithm">RECAlgorithm (class in trinity.algorithm.algorithm)</a>
+</li>
+      <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.RECGroupedAdvantage">RECGroupedAdvantage (class in trinity.algorithm.advantage_fn)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.rec_advantage.html#trinity.algorithm.advantage_fn.rec_advantage.RECGroupedAdvantage">(class in trinity.algorithm.advantage_fn.rec_advantage)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.OverrideTransformerConfig.recompute_granularity">recompute_granularity (trinity.common.verl_config.OverrideTransformerConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.OverrideTransformerConfig.recompute_method">recompute_method (trinity.common.verl_config.OverrideTransformerConfig attribute)</a>
@@ -4081,6 +4190,12 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.explorer.api.service.html#trinity.explorer.api.service.ExplorerService.record_experience">record_experience() (trinity.explorer.api.service.ExplorerService method)</a>
 </li>
+      <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.RECPolicyLossFn">RECPolicyLossFn (class in trinity.algorithm.policy_loss_fn)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.rec_policy_loss.html#trinity.algorithm.policy_loss_fn.rec_policy_loss.RECPolicyLossFn">(class in trinity.algorithm.policy_loss_fn.rec_policy_loss)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Ref">Ref (class in trinity.common.verl_config)</a>
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ActorRolloutRef.ref">ref (trinity.common.verl_config.ActorRolloutRef attribute)</a>
@@ -4650,6 +4765,8 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RAFTAlgorithm.schema">(trinity.algorithm.algorithm.RAFTAlgorithm attribute)</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RECAlgorithm.schema">(trinity.algorithm.algorithm.RECAlgorithm attribute)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.SFTAlgorithm.schema">(trinity.algorithm.algorithm.SFTAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.sPPOAlgorithm.schema">(trinity.algorithm.algorithm.sPPOAlgorithm attribute)</a>
@@ -4705,6 +4822,10 @@ document.write(`
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.ppo_policy_loss.html#trinity.algorithm.policy_loss_fn.ppo_policy_loss.PPOPolicyLossFn.select_keys">(trinity.algorithm.policy_loss_fn.ppo_policy_loss.PPOPolicyLossFn property)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.PPOPolicyLossFn.select_keys">(trinity.algorithm.policy_loss_fn.PPOPolicyLossFn property)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.rec_policy_loss.html#trinity.algorithm.policy_loss_fn.rec_policy_loss.RECPolicyLossFn.select_keys">(trinity.algorithm.policy_loss_fn.rec_policy_loss.RECPolicyLossFn property)</a>
+</li>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.html#trinity.algorithm.policy_loss_fn.RECPolicyLossFn.select_keys">(trinity.algorithm.policy_loss_fn.RECPolicyLossFn property)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.policy_loss_fn.sft_loss.html#trinity.algorithm.policy_loss_fn.sft_loss.SFTLossFn.select_keys">(trinity.algorithm.policy_loss_fn.sft_loss.SFTLossFn property)</a>
 </li>
@@ -4927,10 +5048,10 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.manager.config_registry.model_config_manager.html#trinity.manager.config_registry.model_config_manager.set_max_response_tokens">set_max_response_tokens() (in module trinity.manager.config_registry.model_config_manager)</a>
 </li>
-      <li><a href="build_api/trinity.manager.config_registry.buffer_config_manager.html#trinity.manager.config_registry.buffer_config_manager.set_max_retry_interval">set_max_retry_interval() (in module trinity.manager.config_registry.buffer_config_manager)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="build_api/trinity.manager.config_registry.buffer_config_manager.html#trinity.manager.config_registry.buffer_config_manager.set_max_retry_interval">set_max_retry_interval() (in module trinity.manager.config_registry.buffer_config_manager)</a>
+</li>
       <li><a href="build_api/trinity.manager.config_registry.explorer_config_manager.html#trinity.manager.config_registry.explorer_config_manager.set_max_timeout">set_max_timeout() (in module trinity.manager.config_registry.explorer_config_manager)</a>
 </li>
       <li><a href="build_api/trinity.manager.config_registry.model_config_manager.html#trinity.manager.config_registry.model_config_manager.set_min_response_tokens">set_min_response_tokens() (in module trinity.manager.config_registry.model_config_manager)</a>
@@ -5361,6 +5482,12 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.KL_Ctrl.target_kl">target_kl (trinity.common.verl_config.KL_Ctrl attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.target_modules">target_modules (trinity.common.config.LoRAConfig attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ActorModel.target_modules">(trinity.common.verl_config.ActorModel attribute)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.Task">Task (class in trinity.common.workflows)</a>
 
       <ul>
@@ -5665,6 +5792,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    trinity.algorithm.advantage_fn.rec_advantage
+
+      <ul>
+        <li><a href="build_api/trinity.algorithm.advantage_fn.rec_advantage.html#module-trinity.algorithm.advantage_fn.rec_advantage">module</a>
+</li>
+      </ul></li>
+      <li>
     trinity.algorithm.advantage_fn.reinforce_advantage
 
       <ul>
@@ -5798,6 +5932,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    trinity.algorithm.policy_loss_fn.rec_policy_loss
+
+      <ul>
+        <li><a href="build_api/trinity.algorithm.policy_loss_fn.rec_policy_loss.html#module-trinity.algorithm.policy_loss_fn.rec_policy_loss">module</a>
+</li>
+      </ul></li>
+      <li>
     trinity.algorithm.policy_loss_fn.sft_loss
 
       <ul>
@@ -5923,6 +6064,8 @@ document.write(`
         <li><a href="build_api/trinity.buffer.operators.mappers.html#module-trinity.buffer.operators.mappers">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     trinity.buffer.operators.mappers.reward_shaping_mapper
 
@@ -5930,8 +6073,6 @@ document.write(`
         <li><a href="build_api/trinity.buffer.operators.mappers.reward_shaping_mapper.html#module-trinity.buffer.operators.mappers.reward_shaping_mapper">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     trinity.buffer.pipelines
 
@@ -6556,6 +6697,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    trinity.utils.lora_utils
+
+      <ul>
+        <li><a href="build_api/trinity.utils.lora_utils.html#module-trinity.utils.lora_utils">module</a>
+</li>
+      </ul></li>
+      <li>
     trinity.utils.math_eval_utils
 
       <ul>
@@ -6669,6 +6817,8 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RAFTAlgorithm.use_critic">(trinity.algorithm.algorithm.RAFTAlgorithm attribute)</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RECAlgorithm.use_critic">(trinity.algorithm.algorithm.RECAlgorithm attribute)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.SFTAlgorithm.use_critic">(trinity.algorithm.algorithm.SFTAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.sPPOAlgorithm.use_critic">(trinity.algorithm.algorithm.sPPOAlgorithm attribute)</a>
@@ -6727,6 +6877,8 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RAFTAlgorithm.use_reference">(trinity.algorithm.algorithm.RAFTAlgorithm attribute)</a>
 </li>
+        <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.RECAlgorithm.use_reference">(trinity.algorithm.algorithm.RECAlgorithm attribute)</a>
+</li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.SFTAlgorithm.use_reference">(trinity.algorithm.algorithm.SFTAlgorithm attribute)</a>
 </li>
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.sPPOAlgorithm.use_reference">(trinity.algorithm.algorithm.sPPOAlgorithm attribute)</a>
@@ -6748,6 +6900,8 @@ document.write(`
         <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.MIXCHORDAlgorithm.use_rollout">(trinity.algorithm.algorithm.MIXCHORDAlgorithm attribute)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.ActorModel.use_shm">use_shm (trinity.common.verl_config.ActorModel attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.use_v1">use_v1 (trinity.common.config.InferenceModelConfig attribute)</a>
 </li>
   </ul></td>
