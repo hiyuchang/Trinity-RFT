@@ -194,7 +194,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/example_async_mode.html">异步 RFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/example_multi_turn.html">多轮对话拼接任务</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/example_step_wise.html">通用多轮 RFT</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial/example_react.html">ReAct 例子</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/example_react.html">ReAct Agent 训练</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/example_search_email.html">邮件搜索例子</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/example_dpo.html">离线 DPO 和 SFT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/example_megatron.html">Megatron-LM 支持</a></li>
@@ -363,6 +363,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="trinity.common.workflows.html">trinity.common.workflows package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.agentscope.html">trinity.common.workflows.agentscope package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.customized_math_workflows.html">trinity.common.workflows.customized_math_workflows module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.customized_toolcall_workflows.html">trinity.common.workflows.customized_toolcall_workflows module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.eval_workflow.html">trinity.common.workflows.eval_workflow module</a></li>
@@ -694,6 +695,16 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="trinity.trainer.verl_trainer.html">trinity.trainer.verl_trainer module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.__init__"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.update_latest_checkpoint_step"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.update_latest_checkpoint_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.update_latest_state_dict_step"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.update_latest_state_dict_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.register_thread_count"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.register_thread_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.monitor_step"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.monitor_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.notify_finished"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.notify_finished()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.get_actor"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.get_actor()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.__init__"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.__init__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.init_workers"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.init_workers()</span></code></a></li>
