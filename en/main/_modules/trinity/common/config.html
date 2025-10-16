@@ -376,6 +376,7 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.workflows.math_rm_workflow.html">trinity.common.workflows.math_rm_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.workflows.math_ruler_workflow.html">trinity.common.workflows.math_ruler_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.workflows.math_trainable_ruler_workflow.html">trinity.common.workflows.math_trainable_ruler_workflow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.workflows.rubric_judge_workflow.html">trinity.common.workflows.rubric_judge_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.workflows.simple_mm_workflow.html">trinity.common.workflows.simple_mm_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.workflows.step_wise_workflow.html">trinity.common.workflows.step_wise_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.workflows.workflow.html">trinity.common.workflows.workflow module</a></li>
@@ -560,10 +561,10 @@ document.write(`
     <span class="n">LOG_DIR_ENV_VAR</span><span class="p">,</span>
     <span class="n">LOG_LEVEL_ENV_VAR</span><span class="p">,</span>
     <span class="n">LOG_NODE_IP_ENV_VAR</span><span class="p">,</span>
-    <span class="n">MAX_MODEL_LEN</span><span class="p">,</span>
     <span class="n">PLUGIN_DIRS_ENV_VAR</span><span class="p">,</span>
     <span class="n">TRAINER_NAME</span><span class="p">,</span>
     <span class="n">PromptType</span><span class="p">,</span>
+    <span class="n">SaveStrategy</span><span class="p">,</span>
     <span class="n">StorageType</span><span class="p">,</span>
     <span class="n">SyncMethod</span><span class="p">,</span>
     <span class="n">SyncStyle</span><span class="p">,</span>
@@ -683,7 +684,7 @@ document.write(`
     <span class="n">use_priority_queue</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">reuse_cooldown_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">replay_buffer_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;priority_fn&quot;</span><span class="p">:</span> <span class="s2">&quot;linear_decay&quot;</span><span class="p">,</span> <span class="s2">&quot;decay&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;priority_fn&quot;</span><span class="p">:</span> <span class="s2">&quot;linear_decay&quot;</span><span class="p">,</span> <span class="s2">&quot;decay&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">}</span>
     <span class="p">)</span>
 
     <span class="c1"># used for StorageType.SQL</span>
@@ -1067,6 +1068,8 @@ document.write(`
     <span class="c1"># trainer configs</span>
     <span class="n">actor_grad_clip</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># TODO: extract more train-related params from underlying trainer engine</span>
+
+    <span class="n">save_strategy</span><span class="p">:</span> <span class="n">SaveStrategy</span> <span class="o">=</span> <span class="n">SaveStrategy</span><span class="o">.</span><span class="n">UNRESTRICTED</span>
 
     <span class="c1"># Only one needs to be set for `trainer_config` and `trainer_config_path`</span>
     <span class="n">trainer_config</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
@@ -1464,21 +1467,7 @@ document.write(`
                     <span class="sa">f</span><span class="s2">&quot;`max_model_len` is set to </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">max_model_len</span><span class="si">}</span><span class="s2"> from `max_prompt_tokens` and `max_response_tokens`.&quot;</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoConfig</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
-                <span class="kn">from</span><span class="w"> </span><span class="nn">transformers.tokenization_utils_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">LARGE_INTEGER</span>
-
-                <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_path</span><span class="p">)</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">AutoConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_path</span><span class="p">)</span>
-                <span class="n">max_model_len</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
-                    <span class="nb">getattr</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="s2">&quot;model_max_length&quot;</span><span class="p">,</span> <span class="n">LARGE_INTEGER</span><span class="p">),</span>
-                    <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;max_position_embeddings&quot;</span><span class="p">,</span> <span class="n">LARGE_INTEGER</span><span class="p">),</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">max_model_len</span> <span class="o">&gt;=</span> <span class="n">LARGE_INTEGER</span><span class="p">:</span>
-                    <span class="n">max_model_len</span> <span class="o">=</span> <span class="n">MAX_MODEL_LEN</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Failed to get `max_model_len` from model </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">model_path</span><span class="si">}</span><span class="s2">, use </span><span class="si">{</span><span class="n">MAX_MODEL_LEN</span><span class="si">}</span><span class="s2"> instead.&quot;</span>
-                    <span class="p">)</span>
-                <span class="n">model</span><span class="o">.</span><span class="n">max_model_len</span> <span class="o">=</span> <span class="n">max_model_len</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to determine `max_model_len`, please set it manually.&quot;</span><span class="p">)</span>
 
         <span class="c1"># both max_prompt_tokens and max_response_tokens are None</span>
         <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">max_prompt_tokens</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">max_response_tokens</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

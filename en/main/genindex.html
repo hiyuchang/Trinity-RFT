@@ -376,6 +376,7 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.workflows.math_rm_workflow.html">trinity.common.workflows.math_rm_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.workflows.math_ruler_workflow.html">trinity.common.workflows.math_ruler_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.workflows.math_trainable_ruler_workflow.html">trinity.common.workflows.math_trainable_ruler_workflow module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.workflows.rubric_judge_workflow.html">trinity.common.workflows.rubric_judge_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.workflows.simple_mm_workflow.html">trinity.common.workflows.simple_mm_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.workflows.step_wise_workflow.html">trinity.common.workflows.step_wise_workflow module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.workflows.workflow.html">trinity.common.workflows.workflow module</a></li>
@@ -945,6 +946,10 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RAFTReflectAlfworldWorkflow.__init__">(trinity.common.workflows.RAFTReflectAlfworldWorkflow method)</a>
 </li>
+        <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow.__init__">(trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RubricJudgeWorkflow.__init__">(trinity.common.workflows.RubricJudgeWorkflow method)</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SciWorldWorkflow.__init__">(trinity.common.workflows.SciWorldWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow.__init__">(trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow method)</a>
@@ -1180,14 +1185,14 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.OperatorConfig.args">args (trinity.common.config.OperatorConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.algorithm.advantage_fn.html#trinity.algorithm.advantage_fn.ASYMREAdvantageFn">ASYMREAdvantageFn (class in trinity.algorithm.advantage_fn)</a>
 
       <ul>
         <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREAdvantageFn">(class in trinity.algorithm.advantage_fn.asymre_advantage)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm">AsymREAlgorithm (class in trinity.algorithm.algorithm)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage">ASYMREGroupAdvantage (class in trinity.algorithm.advantage_fn.asymre_advantage)</a>
@@ -1220,6 +1225,8 @@ document.write(`
         <li><a href="build_api/trinity.common.workflows.customized_math_workflows.html#trinity.common.workflows.customized_math_workflows.AsyncMathBoxedWorkflow.asynchronous">(trinity.common.workflows.customized_math_workflows.AsyncMathBoxedWorkflow property)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.customized_toolcall_workflows.html#trinity.common.workflows.customized_toolcall_workflows.ToolCallWorkflow.asynchronous">(trinity.common.workflows.customized_toolcall_workflows.ToolCallWorkflow property)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.asynchronous">(trinity.common.workflows.EmailSearchWorkflow property)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.eval_workflow.html#trinity.common.workflows.eval_workflow.AsyncMathEvalWorkflow.asynchronous">(trinity.common.workflows.eval_workflow.AsyncMathEvalWorkflow property)</a>
 </li>
@@ -2624,6 +2631,12 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.buffer.pipelines.experience_pipeline.html#trinity.buffer.pipelines.experience_pipeline.get_input_buffers">get_input_buffers() (in module trinity.buffer.pipelines.experience_pipeline)</a>
 </li>
+      <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow.get_judge_reward">get_judge_reward() (trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RubricJudgeWorkflow.get_judge_reward">(trinity.common.workflows.RubricJudgeWorkflow method)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.trainer.verl.utils.html#trinity.trainer.verl.utils.get_latest_hf_checkpoint_path">get_latest_hf_checkpoint_path() (in module trinity.trainer.verl.utils)</a>
 </li>
       <li><a href="build_api/trinity.utils.log.html#trinity.utils.log.get_logger">get_logger() (in module trinity.utils.log)</a>
@@ -3011,6 +3024,8 @@ document.write(`
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.LogConfig.level">level (trinity.common.config.LogConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.linear_decay_priority">linear_decay_priority() (in module trinity.buffer.storage.queue)</a>
+</li>
+      <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.linear_decay_use_count_control_priority">linear_decay_use_count_control_priority() (in module trinity.buffer.storage.queue)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExplorerConfig.listen_address">listen_address (trinity.common.config.ExplorerConfig attribute)</a>
 </li>
@@ -3652,6 +3667,8 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.common.workflows.math_trainable_ruler_workflow.html#module-trinity.common.workflows.math_trainable_ruler_workflow">trinity.common.workflows.math_trainable_ruler_workflow</a>
 </li>
+        <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#module-trinity.common.workflows.rubric_judge_workflow">trinity.common.workflows.rubric_judge_workflow</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#module-trinity.common.workflows.simple_mm_workflow">trinity.common.workflows.simple_mm_workflow</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.step_wise_workflow.html#module-trinity.common.workflows.step_wise_workflow">trinity.common.workflows.step_wise_workflow</a>
@@ -3817,14 +3834,14 @@ document.write(`
       </ul></li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SyncMethod.NCCL">NCCL (trinity.common.constants.SyncMethod attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.explorer.html#trinity.explorer.Explorer.need_eval">need_eval() (trinity.explorer.Explorer method)</a>
 
       <ul>
         <li><a href="build_api/trinity.explorer.explorer.html#trinity.explorer.explorer.Explorer.need_eval">(trinity.explorer.explorer.Explorer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.trainer.html#trinity.trainer.Trainer.need_save">need_save() (trinity.trainer.Trainer method)</a>
 
       <ul>
@@ -3850,6 +3867,8 @@ document.write(`
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Algorithm.norm_adv_by_std_in_grpo">norm_adv_by_std_in_grpo (trinity.common.verl_config.Algorithm attribute)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.notify_finished">notify_finished() (trinity.trainer.verl_trainer.CheckpointMonitor method)</a>
+</li>
+      <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.notify_started">notify_started() (trinity.trainer.verl_trainer.CheckpointMonitor method)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.TaskPipelineConfig.num_process">num_process (trinity.common.config.TaskPipelineConfig attribute)</a>
 </li>
@@ -4058,6 +4077,8 @@ document.write(`
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.AsyncPriorityQueue.priority_fn">priority_fn (trinity.buffer.storage.queue.AsyncPriorityQueue attribute)</a>
+</li>
+      <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.PRIORITY_FUNC">PRIORITY_FUNC (in module trinity.buffer.storage.queue)</a>
 </li>
       <li><a href="build_api/trinity.buffer.storage.queue.html#trinity.buffer.storage.queue.AsyncPriorityQueue.priority_groups">priority_groups (trinity.buffer.storage.queue.AsyncPriorityQueue attribute)</a>
 </li>
@@ -4430,6 +4451,10 @@ document.write(`
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RAFTAlfworldWorkflow.reset">(trinity.common.workflows.RAFTAlfworldWorkflow method)</a>
 </li>
+        <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow.reset">(trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RubricJudgeWorkflow.reset">(trinity.common.workflows.RubricJudgeWorkflow method)</a>
+</li>
         <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow.reset">(trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.SimpleMMWorkflow.reset">(trinity.common.workflows.SimpleMMWorkflow method)</a>
@@ -4619,14 +4644,18 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.Critic.rollout_n">rollout_n (trinity.common.verl_config.Critic attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RubricJudgeWorkflow">RubricJudgeWorkflow (class in trinity.common.workflows)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow">(class in trinity.common.workflows.rubric_judge_workflow)</a>
+</li>
+      </ul></li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.EID.run">run (trinity.common.experience.EID attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.AgentScopeV0ReactMathWorkflow.run">run() (trinity.common.workflows.AgentScopeV0ReactMathWorkflow method)</a>
 
       <ul>
         <li><a href="build_api/trinity.common.workflows.customized_math_workflows.html#trinity.common.workflows.customized_math_workflows.MathBoxedWorkflow.run">(trinity.common.workflows.customized_math_workflows.MathBoxedWorkflow method)</a>
-</li>
-        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.run">(trinity.common.workflows.EmailSearchWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.eval_workflow.html#trinity.common.workflows.eval_workflow.MathEvalWorkflow.run">(trinity.common.workflows.eval_workflow.MathEvalWorkflow method)</a>
 </li>
@@ -4645,6 +4674,10 @@ document.write(`
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.MathRULERWorkflow.run">(trinity.common.workflows.MathRULERWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.MathTrainableRULERWorkflow.run">(trinity.common.workflows.MathTrainableRULERWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow.run">(trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.RubricJudgeWorkflow.run">(trinity.common.workflows.RubricJudgeWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow.run">(trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow method)</a>
 </li>
@@ -4695,6 +4728,8 @@ document.write(`
         <li><a href="build_api/trinity.common.workflows.customized_math_workflows.html#trinity.common.workflows.customized_math_workflows.AsyncMathBoxedWorkflow.run_async">(trinity.common.workflows.customized_math_workflows.AsyncMathBoxedWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.customized_toolcall_workflows.html#trinity.common.workflows.customized_toolcall_workflows.ToolCallWorkflow.run_async">(trinity.common.workflows.customized_toolcall_workflows.ToolCallWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.EmailSearchWorkflow.run_async">(trinity.common.workflows.EmailSearchWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.eval_workflow.html#trinity.common.workflows.eval_workflow.AsyncMathEvalWorkflow.run_async">(trinity.common.workflows.eval_workflow.AsyncMathEvalWorkflow method)</a>
 </li>
@@ -4847,12 +4882,16 @@ document.write(`
         <li><a href="build_api/trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.save_state_dict">(trinity.trainer.verl_trainer.VerlPPOTrainerWrapper method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.TrainerConfig.save_strategy">save_strategy (trinity.common.config.TrainerConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.manager.state_manager.html#trinity.manager.state_manager.StateManager.save_trainer">save_trainer() (trinity.manager.state_manager.StateManager method)</a>
 
       <ul>
         <li><a href="build_api/trinity.manager.html#trinity.manager.StateManager.save_trainer">(trinity.manager.StateManager method)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SaveStrategy">SaveStrategy (class in trinity.common.constants)</a>
+</li>
       <li><a href="build_api/trinity.explorer.scheduler.html#trinity.explorer.scheduler.Scheduler.schedule">schedule() (trinity.explorer.scheduler.Scheduler method)</a>
 </li>
       <li><a href="build_api/trinity.explorer.scheduler.html#trinity.explorer.scheduler.Scheduler">Scheduler (class in trinity.explorer.scheduler)</a>
@@ -5159,10 +5198,10 @@ document.write(`
 </li>
       <li><a href="build_api/trinity.manager.config_registry.model_config_manager.html#trinity.manager.config_registry.model_config_manager.set_max_prompt_tokens">set_max_prompt_tokens() (in module trinity.manager.config_registry.model_config_manager)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.manager.config_registry.model_config_manager.html#trinity.manager.config_registry.model_config_manager.set_max_response_tokens">set_max_response_tokens() (in module trinity.manager.config_registry.model_config_manager)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.manager.config_registry.buffer_config_manager.html#trinity.manager.config_registry.buffer_config_manager.set_max_retry_interval">set_max_retry_interval() (in module trinity.manager.config_registry.buffer_config_manager)</a>
 </li>
       <li><a href="build_api/trinity.manager.config_registry.explorer_config_manager.html#trinity.manager.config_registry.explorer_config_manager.set_max_timeout">set_max_timeout() (in module trinity.manager.config_registry.explorer_config_manager)</a>
@@ -5405,6 +5444,12 @@ document.write(`
         <li><a href="build_api/trinity.common.workflows.workflow.html#trinity.common.workflows.workflow.SimpleWorkflow">(class in trinity.common.workflows.workflow)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SaveStrategy.SINGLE_NODE">SINGLE_NODE (trinity.common.constants.SaveStrategy attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SaveStrategy.SINGLE_PROCESS">SINGLE_PROCESS (trinity.common.constants.SaveStrategy attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SaveStrategy.SINGLE_THREAD">SINGLE_THREAD (trinity.common.constants.SaveStrategy attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.models.vllm_model.html#trinity.common.models.vllm_model.vLLMRolloutModel.sleep">sleep() (trinity.common.models.vllm_model.vLLMRolloutModel method)</a>
 </li>
       <li><a href="build_api/trinity.explorer.scheduler.html#trinity.explorer.scheduler.sort_batch_id">sort_batch_id() (in module trinity.explorer.scheduler)</a>
@@ -6555,6 +6600,13 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    trinity.common.workflows.rubric_judge_workflow
+
+      <ul>
+        <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#module-trinity.common.workflows.rubric_judge_workflow">module</a>
+</li>
+      </ul></li>
+      <li>
     trinity.common.workflows.simple_mm_workflow
 
       <ul>
@@ -6909,6 +6961,8 @@ document.write(`
         <li><a href="build_api/trinity.common.verl_config.html#trinity.common.verl_config.RewardModel.ulysses_sequence_parallel_size">(trinity.common.verl_config.RewardModel attribute)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SaveStrategy.UNRESTRICTED">UNRESTRICTED (trinity.common.constants.SaveStrategy attribute)</a>
+</li>
       <li><a href="build_api/trinity.buffer.reader.file_reader.html#trinity.buffer.reader.file_reader.DummyProgressBar.update">update() (trinity.buffer.reader.file_reader.DummyProgressBar method)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl.fsdp_workers.html#trinity.trainer.verl.fsdp_workers.ActorRolloutRefWorker.update_actor">update_actor() (trinity.trainer.verl.fsdp_workers.ActorRolloutRefWorker method)</a>
