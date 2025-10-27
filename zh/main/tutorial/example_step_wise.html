@@ -184,6 +184,7 @@
 <li class="toctree-l1"><a class="reference internal" href="develop_algorithm.html">Algorithm 开发指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_mix_algo.html">Algorithm 进阶开发</a></li>
 <li class="toctree-l1"><a class="reference internal" href="develop_operator.html">Operator 开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="develop_selector.html">🧪 实验性功能：任务选择与调度系统</a></li>
 <li class="toctree-l1"><a class="reference internal" href="trinity_configs.html">参数配置指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="synchronizer.html">Synchronizer 介绍</a></li>
 </ul>
@@ -683,7 +684,7 @@ document.write(`
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">algorithm.algorithm_type</span> <span class="pre">=</span> <span class="pre">multi_step_grpo</span></code>：该算法允许每次运行包含多个步骤并生成多条 experience 数据用于训练，并将最后一步 experience 的 advantages 值广播到之前的 experience 中。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">buffer.train_batch_size</span></code>：从 buffer 中采样用于训练的 experience 数量，可以与每次探索生成的 experience 数量不同。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">buffer.trainer_input.use_priority_queue</span> <span class="pre">=</span> <span class="pre">true</span></code>：使用 <code class="docutils literal notranslate"><span class="pre">PriorityQueue</span></code> 可使模型优先使用高优先级的 experience （默认为使用更新产生的 experience）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">buffer.trainer_input.experience_buffer.replay_buffer</span></code>：使用 <code class="docutils literal notranslate"><span class="pre">PriorityQueue</span></code> 可使模型优先使用高优先级的 experience （默认为使用更新产生的 experience）。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">synchronizer.sync_style</span> <span class="pre">=</span> <span class="pre">dynamic_by_explorer</span></code>：由 explorer 决定何时与 trainer 同步模型权重。</p></li>
 </ul>
 <p>示例配置如下所示：</p>
@@ -724,7 +725,8 @@ document.write(`
 <span class="w">    </span><span class="nt">experience_buffer</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alfworld_buffer</span>
 <span class="w">      </span><span class="nt">storage_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">queue</span>
-<span class="w">      </span><span class="nt">use_priority_queue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">replay_buffer</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">explorer</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">max_repeat_times_per_runner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">  </span><span class="nt">runner_per_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>

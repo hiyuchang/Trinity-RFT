@@ -191,6 +191,7 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/develop_algorithm.html">Algorithm 开发指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/example_mix_algo.html">Algorithm 进阶开发</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/develop_operator.html">Operator 开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/develop_selector.html">🧪 实验性功能：任务选择与调度系统</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/trinity_configs.html">参数配置指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/synchronizer.html">Synchronizer 介绍</a></li>
 </ul>
@@ -584,11 +585,9 @@ document.write(`
         <span class="n">expert_batch_size</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expert_data_ratio</span> <span class="o">*</span> <span class="n">tot_batch_size</span><span class="p">)</span>
 
         <span class="c1"># experience buffer</span>
-        <span class="n">usual_buffer_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">buffer_config</span><span class="p">)</span>
-        <span class="n">usual_buffer_config</span><span class="o">.</span><span class="n">train_batch_size</span> <span class="o">=</span> <span class="n">tot_batch_size</span> <span class="o">-</span> <span class="n">expert_batch_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">usual_exp_buffer</span> <span class="o">=</span> <span class="n">get_buffer_reader</span><span class="p">(</span>
-            <span class="n">buffer_config</span><span class="o">.</span><span class="n">trainer_input</span><span class="o">.</span><span class="n">experience_buffer</span><span class="p">,</span> <span class="n">usual_buffer_config</span>  <span class="c1"># type: ignore</span>
-        <span class="p">)</span>
+        <span class="n">usual_buffer_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">buffer_config</span><span class="o">.</span><span class="n">trainer_input</span><span class="o">.</span><span class="n">experience_buffer</span><span class="p">)</span>
+        <span class="n">usual_buffer_config</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">tot_batch_size</span> <span class="o">-</span> <span class="n">expert_batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usual_exp_buffer</span> <span class="o">=</span> <span class="n">get_buffer_reader</span><span class="p">(</span><span class="n">usual_buffer_config</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
 
         <span class="k">if</span> <span class="n">buffer_config</span><span class="o">.</span><span class="n">trainer_input</span><span class="o">.</span><span class="n">auxiliary_buffers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -608,10 +607,11 @@ document.write(`
             <span class="n">expert_storage_config</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">=</span> <span class="s2">&quot;sft&quot;</span>
 
         <span class="c1"># expert experience buffer</span>
-        <span class="n">expert_buffer_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">buffer_config</span><span class="p">)</span>
-        <span class="n">expert_buffer_config</span><span class="o">.</span><span class="n">train_batch_size</span> <span class="o">=</span> <span class="n">expert_batch_size</span>
+        <span class="n">expert_buffer_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
+            <span class="n">buffer_config</span><span class="o">.</span><span class="n">trainer_input</span><span class="o">.</span><span class="n">auxiliary_buffers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sft_dataset_name</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">expert_buffer_config</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">expert_batch_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expert_exp_buffer</span> <span class="o">=</span> <span class="n">get_buffer_reader</span><span class="p">(</span>
-            <span class="n">buffer_config</span><span class="o">.</span><span class="n">trainer_input</span><span class="o">.</span><span class="n">auxiliary_buffers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sft_dataset_name</span><span class="p">],</span>
             <span class="n">expert_buffer_config</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -620,7 +620,7 @@ document.write(`
 <a class="viewcode-back" href="../../../../build_api/trinity.algorithm.sample_strategy.mix_sample_strategy.html#trinity.algorithm.sample_strategy.MixSampleStrategy.sample">[文档]</a>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Experiences</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="s2">&quot;read_time&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="s2">&quot;time/read_experience&quot;</span><span class="p">):</span>
             <span class="n">usual_exp_list</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">usual_exp_buffer</span><span class="o">.</span><span class="n">read_async</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">usual_exp_list</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">exp</span><span class="o">.</span><span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -646,7 +646,7 @@ document.write(`
             <span class="n">exp_list</span> <span class="o">=</span> <span class="n">usual_exp_list</span> <span class="o">+</span> <span class="n">expert_exp_list</span>
             <span class="n">repr_samples</span> <span class="o">=</span> <span class="n">representative_sample</span><span class="p">(</span><span class="n">exp_list</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="s2">&quot;gather_time&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">Timer</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="s2">&quot;time/gather_experience&quot;</span><span class="p">):</span>
             <span class="n">exps</span> <span class="o">=</span> <span class="n">Experiences</span><span class="o">.</span><span class="n">gather_experiences</span><span class="p">(</span>
                 <span class="n">experiences</span><span class="o">=</span><span class="n">exp_list</span><span class="p">,</span>
                 <span class="n">pad_token_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pad_token_id</span><span class="p">,</span>  <span class="c1"># type: ignore [arg-type]</span>

@@ -191,6 +191,7 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/develop_algorithm.html">Algorithm 开发指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/example_mix_algo.html">Algorithm 进阶开发</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/develop_operator.html">Operator 开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/develop_selector.html">🧪 实验性功能：任务选择与调度系统</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/trinity_configs.html">参数配置指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/synchronizer.html">Synchronizer 介绍</a></li>
 </ul>
@@ -567,7 +568,10 @@ document.write(`
 <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.algorithm.policy_loss_fn.policy_loss_fn</span><span class="w"> </span><span class="kn">import</span> <span class="n">POLICY_LOSS_FN</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.algorithm.sample_strategy.sample_strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">SAMPLE_STRATEGY</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.common.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StorageType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">trinity.manager.config_registry.buffer_config_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_train_batch_size</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">trinity.manager.config_registry.buffer_config_manager</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_train_batch_size</span><span class="p">,</span>
+    <span class="n">parse_priority_fn_args</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.manager.config_registry.config_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONFIG_GENERATORS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.manager.config_registry.trainer_config_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_critic</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.utils.plugin_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_plugins</span>
@@ -759,8 +763,9 @@ document.write(`
             <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span><span class="s2">&quot;Experience Buffer Configs&quot;</span><span class="p">,</span> <span class="n">expanded</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_configs</span><span class="p">(</span><span class="s2">&quot;storage_type&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_configs</span><span class="p">(</span><span class="s2">&quot;experience_buffer_path&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_configs</span><span class="p">(</span><span class="s2">&quot;use_priority_queue&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_configs</span><span class="p">(</span><span class="s2">&quot;reuse_cooldown_time&quot;</span><span class="p">,</span> <span class="s2">&quot;priority_fn&quot;</span><span class="p">,</span> <span class="s2">&quot;priority_decay&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_configs</span><span class="p">(</span><span class="s2">&quot;enable_replay_buffer&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_configs</span><span class="p">(</span><span class="s2">&quot;reuse_cooldown_time&quot;</span><span class="p">,</span> <span class="s2">&quot;priority_fn&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_configs</span><span class="p">(</span><span class="s2">&quot;priority_fn_args&quot;</span><span class="p">)</span>
 
         <span class="c1"># TODO: used for SQL storage</span>
         <span class="c1"># self.buffer_advanced_tab = st.expander(&quot;Advanced Config&quot;)</span>
@@ -1161,11 +1166,11 @@ document.write(`
                 <span class="k">del</span> <span class="n">buffer_config</span><span class="p">[</span><span class="s2">&quot;train_batch_size&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;algorithm_type&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;dpo&quot;</span><span class="p">,</span> <span class="s2">&quot;sft&quot;</span><span class="p">):</span>
             <span class="n">experience_buffer</span> <span class="o">=</span> <span class="n">buffer_config</span><span class="p">[</span><span class="s2">&quot;trainer_input&quot;</span><span class="p">][</span><span class="s2">&quot;experience_buffer&quot;</span><span class="p">]</span>
-            <span class="n">experience_buffer</span><span class="p">[</span><span class="s2">&quot;use_priority_queue&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;use_priority_queue&quot;</span><span class="p">]</span>
-            <span class="n">experience_buffer</span><span class="p">[</span><span class="s2">&quot;reuse_cooldown_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;reuse_cooldown_time&quot;</span><span class="p">]</span>
-            <span class="n">experience_buffer</span><span class="p">[</span><span class="s2">&quot;replay_buffer_kwargs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">experience_buffer</span><span class="p">[</span><span class="s2">&quot;replay_buffer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;enable&quot;</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;enable_replay_buffer&quot;</span><span class="p">],</span>
                 <span class="s2">&quot;priority_fn&quot;</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;priority_fn&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;decay&quot;</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;priority_decay&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;reuse_cooldown_time&quot;</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;reuse_cooldown_time&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;priority_fn_args&quot;</span><span class="p">:</span> <span class="n">parse_priority_fn_args</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;priority_fn_args&quot;</span><span class="p">]),</span>
             <span class="p">}</span>
 
         <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>

@@ -191,6 +191,7 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/develop_algorithm.html">Algorithm 开发指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/example_mix_algo.html">Algorithm 进阶开发</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/develop_operator.html">Operator 开发指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/develop_selector.html">🧪 实验性功能：任务选择与调度系统</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/trinity_configs.html">参数配置指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/synchronizer.html">Synchronizer 介绍</a></li>
 </ul>
@@ -708,11 +709,8 @@ document.write(`
                 <span class="n">cnt</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exps</span><span class="p">)</span>
                 <span class="n">result_exps</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exps</span><span class="p">)</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">metrics</span> <span class="o">=</span> <span class="n">gather_metrics</span><span class="p">(</span><span class="n">metric_list</span><span class="p">,</span> <span class="s2">&quot;group_advantages&quot;</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;experience_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># empty metric list causes ValueError, ignore it</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">gather_metrics</span><span class="p">(</span><span class="n">metric_list</span><span class="p">,</span> <span class="s2">&quot;group_advantages&quot;</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;experience_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt</span>
         <span class="k">return</span> <span class="n">result_exps</span><span class="p">,</span> <span class="n">metrics</span></div>
 
 
