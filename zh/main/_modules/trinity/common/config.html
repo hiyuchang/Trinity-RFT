@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>trinity.common.config &#8212; Trinity-RFT 0.4.0.dev0 文档</title>
+    <title>trinity.common.config &#8212; Trinity-RFT 0.3.2 文档</title>
   
   
   
@@ -35,7 +35,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../_static/documentation_options.js?v=09f53066"></script>
+    <script src="../../../_static/documentation_options.js?v=66fd3a9e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -144,8 +144,8 @@ window.addEventListener("load", () => mermaid.run());
       
     
     
-    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.0.dev0 文档 - Home"/>
-    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.0.dev0 文档 - Home"/>`);</script>
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.3.2 文档 - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.3.2 文档 - Home"/>`);</script>
   
   
 </a></div>
@@ -640,10 +640,10 @@ document.write(`
 <a class="viewcode-back" href="../../../build_api/trinity.common.config.html#trinity.common.config.GenerationConfig">[文档]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GenerationConfig</span><span class="p">:</span>
-    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="n">top_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="n">logprobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># vLLM return `logprobs + 1` elements</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># 1.0</span>
+    <span class="n">top_p</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># 1.0</span>
+    <span class="n">top_k</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># -1</span>
+    <span class="n">logprobs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># 0  # vLLM return `logprobs + 1` elements</span>
     <span class="n">max_tokens</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># if None, use model.max_response_tokens</span>
     <span class="c1"># repeat each task for `n` times</span>
     <span class="c1"># ! DO NOT SET in `buffer.explorer_input.taskset.rollout_args`</span>
@@ -1016,6 +1016,12 @@ document.write(`
 
     <span class="n">custom_chat_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
+    <span class="c1"># rollout args</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">top_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">logprobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
     <span class="c1"># the total number of tokens the model can handle</span>
     <span class="n">max_model_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1053,6 +1059,12 @@ document.write(`
     <span class="n">gpu_memory_utilization</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bfloat16&quot;</span>
     <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+
+    <span class="c1"># rollout args, ! DO NOT SET</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">top_p</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">top_k</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">logprobs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># if not set, use `model.max_model_len`</span>
     <span class="n">max_model_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1262,6 +1274,7 @@ document.write(`
     <span class="c1"># if None, automatically set to ceil(2 * model.max_model_len / ulysses_sequence_parallel_size)</span>
     <span class="n">max_token_len_per_gpu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">ulysses_sequence_parallel_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># sp size</span>
+    <span class="n">fix_actor_microbatch_loss_scale</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># EXPERIMENTAL</span>
     <span class="c1"># TODO: extract more train-related params from underlying trainer engine</span>
 
     <span class="n">save_strategy</span><span class="p">:</span> <span class="n">SaveStrategy</span> <span class="o">=</span> <span class="n">SaveStrategy</span><span class="o">.</span><span class="n">UNRESTRICTED</span>
@@ -1505,6 +1518,10 @@ document.write(`
             <span class="n">set_if_none</span><span class="p">(</span><span class="n">taskset</span><span class="p">,</span> <span class="s2">&quot;default_workflow_type&quot;</span><span class="p">,</span> <span class="n">explorer_input</span><span class="o">.</span><span class="n">default_workflow_type</span><span class="p">)</span>
             <span class="n">set_if_none</span><span class="p">(</span><span class="n">taskset</span><span class="p">,</span> <span class="s2">&quot;default_reward_fn_type&quot;</span><span class="p">,</span> <span class="n">explorer_input</span><span class="o">.</span><span class="n">default_reward_fn_type</span><span class="p">)</span>
             <span class="n">set_if_none</span><span class="p">(</span><span class="n">taskset</span><span class="p">,</span> <span class="s2">&quot;ray_namespace&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ray_namespace</span><span class="p">)</span>
+            <span class="n">set_if_none</span><span class="p">(</span><span class="n">taskset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+            <span class="n">set_if_none</span><span class="p">(</span><span class="n">taskset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;top_p&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">top_p</span><span class="p">)</span>
+            <span class="n">set_if_none</span><span class="p">(</span><span class="n">taskset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;top_k&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">top_k</span><span class="p">)</span>
+            <span class="n">set_if_none</span><span class="p">(</span><span class="n">taskset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;logprobs&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">logprobs</span><span class="p">)</span>
             <span class="n">set_if_none</span><span class="p">(</span><span class="n">taskset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;max_tokens&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">max_response_tokens</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">explorer_input</span><span class="o">.</span><span class="n">eval_tasksets</span><span class="p">):</span>
@@ -1520,6 +1537,10 @@ document.write(`
             <span class="n">set_if_none</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;default_workflow_type&quot;</span><span class="p">,</span> <span class="n">explorer_input</span><span class="o">.</span><span class="n">default_workflow_type</span><span class="p">)</span>
             <span class="n">set_if_none</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;default_reward_fn_type&quot;</span><span class="p">,</span> <span class="n">explorer_input</span><span class="o">.</span><span class="n">default_reward_fn_type</span><span class="p">)</span>
             <span class="n">set_if_none</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;ray_namespace&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ray_namespace</span><span class="p">)</span>
+            <span class="n">set_if_none</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+            <span class="n">set_if_none</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;top_p&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">top_p</span><span class="p">)</span>
+            <span class="n">set_if_none</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;top_k&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">top_k</span><span class="p">)</span>
+            <span class="n">set_if_none</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;logprobs&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">logprobs</span><span class="p">)</span>
             <span class="n">set_if_none</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">rollout_args</span><span class="p">,</span> <span class="s2">&quot;max_tokens&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">max_response_tokens</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_trainer_input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1815,18 +1836,20 @@ document.write(`
 
         <span class="c1"># check explorer</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">rollout_model</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model_path</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">rollout_model</span><span class="o">.</span><span class="n">max_model_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">max_model_len</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">rollout_model</span><span class="o">.</span><span class="n">max_prompt_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">max_prompt_tokens</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">rollout_model</span><span class="o">.</span><span class="n">max_response_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">max_response_tokens</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">rollout_model</span><span class="o">.</span><span class="n">min_response_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">min_response_tokens</span>
+            <span class="n">rollout_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="s2">&quot;top_p&quot;</span><span class="p">,</span> <span class="s2">&quot;top_k&quot;</span><span class="p">,</span> <span class="s2">&quot;logprobs&quot;</span><span class="p">]</span>
+            <span class="n">length_args</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;max_model_len&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_prompt_tokens&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_response_tokens&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;min_response_tokens&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;model_path&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">rollout_args</span> <span class="o">+</span> <span class="n">length_args</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">rollout_model</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">aux_model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">auxiliary_models</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">aux_model</span><span class="o">.</span><span class="n">model_path</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;auxiliary model&#39;s model_path is required.&quot;</span><span class="p">)</span>
-                <span class="n">set_if_none</span><span class="p">(</span><span class="n">aux_model</span><span class="p">,</span> <span class="s2">&quot;max_model_len&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">max_model_len</span><span class="p">)</span>
-                <span class="n">set_if_none</span><span class="p">(</span><span class="n">aux_model</span><span class="p">,</span> <span class="s2">&quot;max_prompt_tokens&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">max_prompt_tokens</span><span class="p">)</span>
-                <span class="n">set_if_none</span><span class="p">(</span><span class="n">aux_model</span><span class="p">,</span> <span class="s2">&quot;max_response_tokens&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">max_response_tokens</span><span class="p">)</span>
-                <span class="n">set_if_none</span><span class="p">(</span><span class="n">aux_model</span><span class="p">,</span> <span class="s2">&quot;min_response_tokens&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">min_response_tokens</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">rollout_args</span> <span class="o">+</span> <span class="n">length_args</span><span class="p">:</span>
+                    <span class="n">set_if_none</span><span class="p">(</span><span class="n">aux_model</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
 
             <span class="c1"># for lora configs</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">lora_configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
