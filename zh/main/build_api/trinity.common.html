@@ -883,6 +883,7 @@ document.write(`
 </li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow"><code class="docutils literal notranslate"><span class="pre">AlfworldWorkflow</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.is_async"><code class="docutils literal notranslate"><span class="pre">AlfworldWorkflow.is_async</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.can_repeat"><code class="docutils literal notranslate"><span class="pre">AlfworldWorkflow.can_repeat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.__init__"><code class="docutils literal notranslate"><span class="pre">AlfworldWorkflow.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.get_model_response"><code class="docutils literal notranslate"><span class="pre">AlfworldWorkflow.get_model_response()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.workflows.html#trinity.common.workflows.AlfworldWorkflow.get_model_response_text"><code class="docutils literal notranslate"><span class="pre">AlfworldWorkflow.get_model_response_text()</span></code></a></li>
@@ -1138,6 +1139,18 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.ReplayBufferConfig.__init__"><code class="docutils literal notranslate"><span class="pre">ReplayBufferConfig.__init__()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.OverRolloutConfig"><code class="docutils literal notranslate"><span class="pre">OverRolloutConfig</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.OverRolloutConfig.ratio"><code class="docutils literal notranslate"><span class="pre">OverRolloutConfig.ratio</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.OverRolloutConfig.wait_after_min"><code class="docutils literal notranslate"><span class="pre">OverRolloutConfig.wait_after_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.OverRolloutConfig.__init__"><code class="docutils literal notranslate"><span class="pre">OverRolloutConfig.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.DynamicTimeoutConfig"><code class="docutils literal notranslate"><span class="pre">DynamicTimeoutConfig</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.DynamicTimeoutConfig.enable"><code class="docutils literal notranslate"><span class="pre">DynamicTimeoutConfig.enable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.DynamicTimeoutConfig.ratio"><code class="docutils literal notranslate"><span class="pre">DynamicTimeoutConfig.ratio</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.DynamicTimeoutConfig.__init__"><code class="docutils literal notranslate"><span class="pre">DynamicTimeoutConfig.__init__()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.StorageConfig"><code class="docutils literal notranslate"><span class="pre">StorageConfig</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.StorageConfig.name"><code class="docutils literal notranslate"><span class="pre">StorageConfig.name</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.StorageConfig.storage_type"><code class="docutils literal notranslate"><span class="pre">StorageConfig.storage_type</span></code></a></li>
@@ -1384,6 +1397,8 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.ExplorerConfig.listen_address"><code class="docutils literal notranslate"><span class="pre">ExplorerConfig.listen_address</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.ExplorerConfig.service_status_check_interval"><code class="docutils literal notranslate"><span class="pre">ExplorerConfig.service_status_check_interval</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.ExplorerConfig.min_running_model_num"><code class="docutils literal notranslate"><span class="pre">ExplorerConfig.min_running_model_num</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.ExplorerConfig.over_rollout"><code class="docutils literal notranslate"><span class="pre">ExplorerConfig.over_rollout</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.ExplorerConfig.dynamic_timeout"><code class="docutils literal notranslate"><span class="pre">ExplorerConfig.dynamic_timeout</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.config.html#trinity.common.config.ExplorerConfig.__init__"><code class="docutils literal notranslate"><span class="pre">ExplorerConfig.__init__()</span></code></a></li>
 </ul>
 </li>
@@ -1682,6 +1697,7 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig.wrap_policy"><code class="docutils literal notranslate"><span class="pre">FSDPConfig.wrap_policy</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig.fsdp_size"><code class="docutils literal notranslate"><span class="pre">FSDPConfig.fsdp_size</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig.forward_prefetch"><code class="docutils literal notranslate"><span class="pre">FSDPConfig.forward_prefetch</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig.model_dtype"><code class="docutils literal notranslate"><span class="pre">FSDPConfig.model_dtype</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.FSDPConfig.__init__"><code class="docutils literal notranslate"><span class="pre">FSDPConfig.__init__()</span></code></a></li>
 </ul>
 </li>
@@ -1757,8 +1773,6 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.Actor.clip_ratio_high"><code class="docutils literal notranslate"><span class="pre">Actor.clip_ratio_high</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.Actor.entropy_coeff"><code class="docutils literal notranslate"><span class="pre">Actor.entropy_coeff</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.Actor.use_kl_loss"><code class="docutils literal notranslate"><span class="pre">Actor.use_kl_loss</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.Actor.kl_loss_coef"><code class="docutils literal notranslate"><span class="pre">Actor.kl_loss_coef</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.Actor.kl_loss_type"><code class="docutils literal notranslate"><span class="pre">Actor.kl_loss_type</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.common.verl_config.html#trinity.common.verl_config.Actor.__init__"><code class="docutils literal notranslate"><span class="pre">Actor.__init__()</span></code></a></li>
 </ul>
 </li>
