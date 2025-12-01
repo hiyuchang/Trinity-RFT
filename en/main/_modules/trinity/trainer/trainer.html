@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>trinity.trainer.trainer &#8212; Trinity-RFT 0.3.2 documentation</title>
+    <title>trinity.trainer.trainer &#8212; Trinity-RFT 0.3.3 documentation</title>
   
   
   
@@ -35,7 +35,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../_static/documentation_options.js?v=2f2e10e9"></script>
+    <script src="../../../_static/documentation_options.js?v=94d292f4"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -500,8 +500,8 @@ window.addEventListener("load", load);
       
     
     
-    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.3.2 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.3.2 documentation - Home"/>`);</script>
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.3.3 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.3.3 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -978,7 +978,8 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">save_interval</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">save_interval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_sync_step</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_sync_time</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">total_steps</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">total_steps</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_hf_checkpoint</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">save_hf_checkpoint</span></div>
 
 
 <div class="viewcode-block" id="Trainer.prepare">
@@ -1012,7 +1013,9 @@ document.write(`
                 <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">need_sync</span><span class="p">():</span>
                     <span class="n">metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_weight</span><span class="p">())</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">need_save</span><span class="p">():</span>
-                    <span class="n">metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">())</span>
+                    <span class="n">metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">(</span><span class="n">save_as_hf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_hf_checkpoint</span> <span class="o">==</span> <span class="s2">&quot;always&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">enable_preview</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_log_experiences</span><span class="p">(</span><span class="n">repr_samples</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_step_num</span><span class="p">)</span>
@@ -1023,7 +1026,7 @@ document.write(`
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in Trainer:</span><span class="se">\n</span><span class="si">{</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">break</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">(</span><span class="n">block_until_saved</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_as_hf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">(</span><span class="n">block_until_saved</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_as_hf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_hf_checkpoint</span> <span class="o">!=</span> <span class="s2">&quot;never&quot;</span><span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">synchronizer</span><span class="o">.</span><span class="n">set_trainer_status</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">RunningStatus</span><span class="o">.</span><span class="n">STOPPED</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;--------------------</span><span class="se">\n</span><span class="s2">&gt; Trainer finished.</span><span class="se">\n</span><span class="s2">--------------------&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">name</span></div>
