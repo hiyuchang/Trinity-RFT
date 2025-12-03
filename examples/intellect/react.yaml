@@ -1,0 +1,117 @@
+continue_from_checkpoint: false
+project: "trinity_tir_stem"
+name: "grpo-4b-code-boxed-reward"
+checkpoint_root_dir: /mnt/data/yuchang/checkpoints
+algorithm:
+  algorithm_type: multi_step_grpo
+  repeat_times: 16
+  optimizer:
+    lr: 1e-6
+  policy_loss_fn_args:
+    clip_range_low: 0.2
+    clip_range_high: 0.28
+  kl_loss_fn_args:
+    kl_coef: 0.0
+model:
+  model_path: /cpfs/data/shared/qwen/Qwen3-4B-Instruct-2507
+  # model_path: /cpfs/data/shared/qwen/Qwen3-4B
+  max_prompt_tokens: 4096
+  max_response_tokens: 10240
+  max_model_len: 24576
+cluster:
+  node_num: 1
+  gpu_per_node: 8
+buffer:
+  total_epochs: 5
+  batch_size: 32
+  train_batch_size: 512
+  explorer_input:
+    tasksets:
+      - name: math
+        storage_type: file
+        path: /mnt/data/yuchang/datasets/intellect-3-rl
+        subset_name: math
+        format:
+          prompt_key: 'question'
+          response_key: 'answer'
+        split: train
+        workflow_args:
+          type: 'intellect'
+        rollout_args:
+          max_tokens: 10240
+        reward_fn_args:
+          format_score_coef: 0.1
+      - name: science
+        storage_type: file
+        path: /mnt/data/yuchang/datasets/intellect-3-rl
+        subset_name: science
+        split: train
+        format:
+          prompt_key: 'question'
+          response_key: 'answer'
+        workflow_args:
+          type: 'intellect'
+        rollout_args:
+          max_tokens: 10240
+        reward_fn_args:
+          format_score_coef: 0.1
+    eval_tasksets:
+      - name: AIME2024
+        storage_type: file
+        path: /mnt/data/yuchang/datasets/AIME24
+        split: test
+        repeat_times: 32
+        format:
+          prompt_key: 'question'
+          response_key: 'answer'
+        rollout_args:
+          temperature: 0.7
+          max_tokens: 10240
+      - name: AIME2025
+        storage_type: file
+        path: /mnt/data/yuchang/datasets/AIME25
+        repeat_times: 32
+        split: test
+        format:
+          prompt_key: 'question'
+          response_key: 'answer'
+        rollout_args:
+          temperature: 0.7
+    default_workflow_type: 'as_react_workflow'
+    # default_reward_fn_type: 'math_boxed_reward' # default
+  trainer_input:
+    experience_buffer:
+      name: experience_buffer
+      storage_type: queue
+explorer:
+  max_repeat_times_per_runner: 1
+  eval_on_startup: true
+  eval_interval: 20
+  runner_per_model: 8
+  rollout_model:
+    engine_num: 4
+    tensor_parallel_size: 1
+    enable_prefix_caching: false
+    enforce_eager: false
+    enable_openai_api: true
+    enable_history: true
+    dtype: bfloat16
+    seed: 42
+    enable_auto_tool_choice: true
+    tool_call_parser: hermes
+trainer:
+  enable_preview: false
+  trainer_type: 'verl'
+  save_interval: 1000
+  use_dynamic_bsz: true
+  max_token_len_per_gpu: 16384
+  ulysses_sequence_parallel_size: 2
+synchronizer:
+  sync_style: dynamic_by_explorer
+  sync_method: 'nccl'
+  sync_interval: 2
+  sync_timeout: 1200
+monitor:
+  monitor_type: wandb
+# log:
+#   level: debug
