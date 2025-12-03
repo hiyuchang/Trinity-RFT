@@ -77,7 +77,7 @@ buffer:
           response_key: 'answer'
         rollout_args:
           temperature: 0.7
-    default_workflow_type: 'as_react_workflow'
+    default_workflow_type: 'agentscope_react_math_workflow'
     # default_reward_fn_type: 'math_boxed_reward' # default
   trainer_input:
     experience_buffer:

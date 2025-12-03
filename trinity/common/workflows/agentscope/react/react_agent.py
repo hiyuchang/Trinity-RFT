@@ -48,7 +48,6 @@ class AgentScopeReActAgent:
             max_iters=max_iters,
         )
         self.response_structure = response_structure
-        self.agent.set_console_output_enabled(False)
 
     async def reply(self, query: str) -> Dict:
         """Generate a response from the agent given a query.

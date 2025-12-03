@@ -80,6 +80,7 @@ You are an agent specialized in solving math problems with tools. Please solve t
             toolkit=self.toolkit,
             memory=InMemoryMemory(),
         )
+        self.agent.set_console_output_enabled(False)
         # we set the openai client to the agent's model
         self.agent.model.client = self.openai_async_client
 
