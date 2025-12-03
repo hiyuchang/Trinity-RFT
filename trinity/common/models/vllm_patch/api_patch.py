@@ -148,7 +148,28 @@ async def chat_completion_full_generator(  # noqa C901
             # the fields of FunctionDefinition are a superset of the
             # tool call outputs and can be used for parsing
             assert content is not None
-            tool_calls = TypeAdapter(list[FunctionDefinition]).validate_json(content)
+            try:
+                tool_calls = TypeAdapter(list[FunctionDefinition]).validate_json(content)
+            except Exception as e:
+                # Check if the content might be truncated
+                finish_reason = (
+                    final_res.outputs[0].finish_reason if final_res and final_res.outputs else None
+                )
+                content_preview = content[:200] if content else "None"
+                content_length = len(content) if content else 0
+                error_msg = (
+                    f"Failed to parse function call JSON. "
+                    f"Content length: {content_length}, "
+                    f"Finish reason: {finish_reason}, "
+                    f"Content preview: {content_preview}... "
+                    f"Error: {str(e)}"
+                )
+                logger.error(error_msg)
+                # Return an error response instead of crashing
+                return self.create_error_response(
+                    f"Invalid function call JSON format. The generated content may be truncated. "
+                    f"Original error: {str(e)}"
+                )
             message = ChatMessage(
                 role=role,
                 content="",

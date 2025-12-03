@@ -37,6 +37,12 @@ class GSM8KRewardFn(MathBoxedRewardFn):
         )
 
 
+class IntellectResponseStructure(BaseModel):
+    result: str = Field(
+        description="Your solution of the given math/science problem. Put your final answer in boxed format, e.g., \\boxed{42}"
+    )
+
+
 # Registry for different templates
 
 
@@ -56,4 +62,9 @@ TEMPLATE_MAP: Dict[str, Optional[Template]] = {
         reward_fn_cls=GSM8KRewardFn,
     ),
     # Add more templates for different task types as needed
+    "intellect": Template(
+        system_prompt="Analyze and solve the following [math/science domain] problem step by step.\nHint: The tool could be used for more precise and efficient calculations and could help you to verify your result before you reach the final answer.\nNote: You should first analyze the problem and form a high-level solution strategy, then utilize the tools to help you solve the problem.",
+        response_structure=IntellectResponseStructure,
+        reward_fn_cls=GSM8KRewardFn,
+    ),
 }

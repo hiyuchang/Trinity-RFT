@@ -96,4 +96,7 @@ class AgentScopeReActWorkflow(Workflow):
             # record detailed reward if available
             if isinstance(reward, dict):
                 exp.metrics.update(reward)
+        self.logger.debug(
+            f"Return experiences len: {len(exps)}, run_id: {str(exps[-1].eid.run)}, final step reward: {exps[-1].reward}"
+        )
         return exps
