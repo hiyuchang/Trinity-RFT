@@ -68,7 +68,7 @@ buffer:
           response_key: 'answer'
         rollout_args:
           temperature: 0.7
-          top_p: 0.8 
+          top_p: 0.8
     default_workflow_type: 'math_boxed_workflow'
     default_reward_fn_type: 'math_boxed_reward'
 explorer:

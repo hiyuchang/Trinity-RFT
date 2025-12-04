@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """We include the customized math workflows in this file."""
 
+import re
 from typing import List, Optional
 
 import openai
 
 from trinity.common.models.model import ModelWrapper
-from trinity.common.rewards.math_reward import MathBoxedRewardFn
 from trinity.common.workflows.workflow import WORKFLOWS, Task, Workflow
 
 
@@ -32,6 +32,7 @@ class AgentScopeReactMathWorkflow(Workflow):
             model=model,
             auxiliary_models=auxiliary_models,
         )
+
         # make sure that we have the correct import
         try:
             from agentscope.formatter import OpenAIChatFormatter
@@ -100,7 +101,6 @@ You are an agent specialized in solving math problems with tools. Please solve t
             self.answer = str(self.truth)
 
         # we use the boxed format to evaluate the answer
-        self.reward_fn = MathBoxedRewardFn()
 
     async def run_async(self):
         # make sure that we have the correct import
@@ -143,8 +143,8 @@ You are an agent specialized in solving math problems with tools. Please solve t
 
         final_answer = extract_final_answer(result)
 
-        reward = self.reward_fn(final_answer, self.answer)
-        reward = sum(reward.values())
+        is_correct = await self.verify_answer(final_answer, self.answer, **self.task.reward_fn_args)
+        reward = 1.0 if is_correct else 0.0
         self.logger.debug(f"Reward: {reward}")
         experiences = self.model.extract_experience_from_history(clear_history=True)
         self.logger.debug(f"Experiences extracted len: {len(experiences)}")
@@ -159,3 +159,84 @@ You are an agent specialized in solving math problems with tools. Please solve t
             f"return experience len: {len(experiences)}, run_id: {str(experiences[-1].eid.run)}, final step reward: {experiences[-1].reward}"
         )
         return experiences
+
+    async def verify_answer(self, answer, truth, **kwargs):
+        use_llm_judge = False
+        if kwargs.get("all_llm_judge", False):
+            use_llm_judge = True
+        elif kwargs.get("case_by_case", False):
+            use_llm_judge = not self.raw_task.get("is_latex", False)
+
+        if use_llm_judge:
+            is_correct = await self.judge_equal(answer, truth)
+        else:
+            from benchmark.plugins.guru_math.naive_dapo import compute_score
+
+            is_correct = compute_score(answer, truth)["acc"]
+        return is_correct
+
+    async def judge_equal(self, answer, truth):
+        """Adated from https://github.com/open-compass/CompassVerifier"""
+        judger = self.auxiliary_models[0] if self.auxiliary_models else None
+        user_prompt = """
+Please as a grading expert, judge whether the final answers given by the candidates below are consistent with the standard answers, that is, whether the candidates answered correctly.
+Here are some evaluation criteria:
+1. Please refer to the given standard answer. You don't need to re-generate the answer to the question because the standard answer has been given. You only need to judge whether the candidate's answer is consistent with the standard answer according to the form of the question. THE STANDARD ANSWER IS ALWAYS CORRECT AND THE QUESTION IS PERFECTLY VALID. NEVER QUESTION THEM.
+2. ONLY compare the FINAL ANSWER - COMPLETELY IGNORE any potential errors in the REASONING PROCESSES.
+3. Some answers may be expressed in different ways, such as some answers may be a mathematical expression, some answers may be a textual description, as long as the meaning expressed is the same. Before making a judgment, please understand the question and the standard answer first, and then judge whether the candidate's answer is correct.
+4. Some answers may consist of multiple items, such as multiple-choice questions, multiple-select questions, fill-in-the-blank questions, etc. Regardless of the question type, the final answer will be considered correct as long as it matches the standard answer, regardless of whether the reasoning process is correct. For multiple-select questions and multi-blank fill-in-the-blank questions, all corresponding options or blanks must be answered correctly and match the standard answer exactly to be deemed correct.
+5. If the prediction is given with \\boxed{{}}, please ignore the \\boxed{{}} and only judge whether the candidate's answer is consistent with the standard answer.
+6. If the candidate's answer is invalid (e.g., incomplete (cut off mid-response), lots of unnormal repetitive content, or irrelevant to the question, saying it can't answer the question because some irresistible factors, like ethical issues, no enough information, etc.), select option C (INVALID).Please judge whether the following answers are consistent with the standard answer based on the above criteria. Grade the predicted answer of this new question as one of:
+A: CORRECT
+B: INCORRECT
+C: INVALID
+Just return the letters "A", "B", or "C", with no text around it.
+Here is your task. Simply reply with either CORRECT, INCORRECT, or INVALID. Don't apologize or correct yourself if there was a mistake; we are just trying to grade the answer.
+<Original Question Begin>:
+{question}
+<Original Question End>
+<Standard Answer Begin>:
+{gold_answer}
+<Standard Answer End>
+<Candidate's Answer Begin>:
+{llm_response}
+<Candidate's Answer End>
+Judging the correctness of the candidate's answer:
+"""
+        messages = [
+            {
+                "role": "user",
+                "content": user_prompt.format(
+                    question=self.task_desc, gold_answer=truth, llm_response=answer
+                ),
+            },
+        ]
+        completion = await judger.chat.completions.create(
+            model=judger.model_path,
+            messages=messages,
+            stream=False,
+            temperature=0.0,
+        )
+        response = completion.choices[0].message.content
+        final_judgment = process_judgment(response)
+        return True if final_judgment == "A" else False
+
+
+def process_judgment(judgment_str: str) -> str:
+    # First try to find the exact \boxed{letter} pattern
+    boxed_matches = re.findall(r"boxed{([A-C])}", judgment_str)
+    if boxed_matches:
+        return boxed_matches[-1]
+
+    # Directly return the judgment if it is A, B, or C
+    if judgment_str in ["A", "B", "C"]:
+        return judgment_str
+    else:
+        final_judgment_str = judgment_str.split("Final Judgment:")[-1]
+        matches = re.findall(r"\(([A-C])\)*", final_judgment_str)
+        if matches:
+            return matches[-1]
+        matches = re.findall(r"([A-C])", final_judgment_str)
+        if matches:
+            return matches[-1]
+        return ""
