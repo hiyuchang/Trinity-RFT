@@ -1,6 +1,6 @@
 continue_from_checkpoint: false
 project: "trinity_tir_stem"
-name: "50steps-all-judge"
+name: "50steps-case-by-case"
 checkpoint_root_dir: /mnt/data/yuchang/checkpoints
 algorithm:
   algorithm_type: multi_step_grpo
@@ -14,7 +14,6 @@ algorithm:
     kl_coef: 0.0
 model:
   model_path: /cpfs/data/shared/qwen/Qwen3-4B-Instruct-2507
-  # model_path: /cpfs/data/shared/qwen/Qwen3-4B
   max_prompt_tokens: 4096
   max_response_tokens: 10240
   max_model_len: 24576
@@ -40,14 +39,12 @@ buffer:
         rollout_args:
           max_tokens: 10240
         reward_fn_args:
-          all_llm_judge: True
+          case_by_case: True
         task_selector:
           selector_type: random
       - name: science
         storage_type: file
-        path: /mnt/data/yuchang/datasets/intellect-3-rl
-        subset_name: science
-        split: train
+        path: /cpfs/data/tir/data/with_answer_tag
         format:
           prompt_key: 'question'
           response_key: 'answer'
@@ -56,7 +53,7 @@ buffer:
         rollout_args:
           max_tokens: 10240
         reward_fn_args:
-          all_llm_judge: True
+          case_by_case: True
         task_selector:
           selector_type: random
     default_workflow_type: 'agentscope_react_math_workflow'

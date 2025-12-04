@@ -26,7 +26,7 @@ cluster:
 buffer:
   total_epochs: 5
   batch_size: 32
-  train_batch_size: 512
+  train_batch_size: 1600
   explorer_input:
     tasksets:
       - name: math

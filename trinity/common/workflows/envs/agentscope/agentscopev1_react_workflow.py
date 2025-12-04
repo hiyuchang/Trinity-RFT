@@ -164,15 +164,20 @@ You are an agent specialized in solving math problems with tools. Please solve t
         use_llm_judge = False
         if kwargs.get("all_llm_judge", False):
             use_llm_judge = True
-        elif kwargs.get("case_by_case", False):
-            use_llm_judge = not self.raw_task.get("is_latex", False)
+        if kwargs.get("case_by_case", False):
+            answer_type = self.raw_task.get("answer_type", None)
+            if answer_type is None:
+                use_llm_judge = False
+            else:
+                use_llm_judge = answer_type == "text"
+                print("answer_type: ", answer_type)
 
         if use_llm_judge:
             is_correct = await self.judge_equal(answer, truth)
         else:
             from benchmark.plugins.guru_math.naive_dapo import compute_score
 
-            is_correct = compute_score(answer, truth)["acc"]
+            is_correct = compute_score(answer, truth, {})["acc"]
         return is_correct
 
     async def judge_equal(self, answer, truth):
