@@ -89,6 +89,14 @@ explorer:
     dtype: bfloat16
     seed: 42
     gpu_memory_utilization: 0.85
+  auxiliary_models:
+    - model_path: /cpfs/data/tir/model/CompassVerifier-3B
+      engine_num: 1
+      tensor_parallel_size: 2
+      enable_thinking: false
+      max_prompt_tokens: 2048
+      max_response_tokens: 128
+      max_model_len: 2500
 trainer:
   enable_preview: false
   trainer_type: 'verl'
