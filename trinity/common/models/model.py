@@ -376,6 +376,7 @@ class ModelWrapper:
         """Clean the state of workflow using the model."""
         async with self.state_lock:
             self.workflow_state = {}
+            self.history.clear()
 
     async def get_workflow_state(self) -> Dict:
         """Get the state of workflow using the model."""
