@@ -9,6 +9,7 @@ from trinity.common.rewards.countdown_reward import CountDownRewardFn
 from trinity.common.rewards.dapo_reward import MathDAPORewardFn
 from trinity.common.rewards.format_reward import FormatReward
 from trinity.common.rewards.math_reward import MathBoxedRewardFn, MathRewardFn
+from trinity.common.rewards.tir_reward import TIRRewardFn
 
 # isort: on
 
@@ -22,4 +23,5 @@ __all__ = [
     "MathRewardFn",
     "MathBoxedRewardFn",
     "MathDAPORewardFn",
+    "TIRRewardFn",
 ]

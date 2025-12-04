@@ -5,6 +5,7 @@ from typing import List
 
 from trinity.common.experience import Experience
 from trinity.common.rewards.math_reward import MathBoxedRewardFn
+from trinity.common.rewards.tir_reward import TIRRewardFn
 from trinity.common.workflows.workflow import WORKFLOWS, SimpleWorkflow, Task
 
 
@@ -42,6 +43,14 @@ class MathBoxedWorkflow(SimpleWorkflow):
 
         if task.reward_fn is None:
             self.reward_fn = MathBoxedRewardFn(**self.reward_fn_args)
+        elif isinstance(task.reward_fn, TIRRewardFn):
+            self.reward_fn = task.reward_fn(
+                question=self.task_desc,
+                truth=self.truth,
+                answer_type=self.raw_task.get("answer_type", None),
+                auxiliary_models=self.auxiliary_models,
+                **self.reward_fn_args,
+            )
         else:
             self.reward_fn = task.reward_fn(**self.reward_fn_args)
 

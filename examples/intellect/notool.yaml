@@ -44,8 +44,6 @@ buffer:
         format:
           prompt_key: 'question'
           response_key: 'answer'
-        reward_fn_args:
-          format_score_coef: 0.1
     eval_tasksets:
       - name: AIME2024
         storage_type: file
@@ -58,6 +56,10 @@ buffer:
         rollout_args:
           temperature: 0.7
           top_p: 0.8
+        reward_fn_args:
+          all_llm_judge: True
+        task_selector:
+          selector_type: random
       - name: AIME2025
         storage_type: file
         path: /mnt/data/yuchang/datasets/AIME25
@@ -69,8 +71,12 @@ buffer:
         rollout_args:
           temperature: 0.7
           top_p: 0.8
+        reward_fn_args:
+          all_llm_judge: True
+        task_selector:
+          selector_type: random
     default_workflow_type: 'math_boxed_workflow'
-    default_reward_fn_type: 'math_boxed_reward'
+    default_reward_fn_type: 'tir_reward'
 explorer:
   eval_on_startup: true
   eval_interval: 20

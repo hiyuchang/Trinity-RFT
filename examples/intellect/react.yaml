@@ -42,7 +42,9 @@ buffer:
         rollout_args:
           max_tokens: 10240
         reward_fn_args:
-          format_score_coef: 0.1
+          all_llm_judge: True
+        task_selector:
+          selector_type: random
       - name: science
         storage_type: file
         path: /mnt/data/yuchang/datasets/intellect-3-rl
@@ -56,7 +58,9 @@ buffer:
         rollout_args:
           max_tokens: 10240
         reward_fn_args:
-          format_score_coef: 0.1
+          all_llm_judge: True
+        task_selector:
+          selector_type: random
     eval_tasksets:
       - name: AIME2024
         storage_type: file
@@ -69,6 +73,10 @@ buffer:
         rollout_args:
           temperature: 0.7
           max_tokens: 10240
+        reward_fn_args:
+          all_llm_judge: True
+        task_selector:
+          selector_type: random
       - name: AIME2025
         storage_type: file
         path: /mnt/data/yuchang/datasets/AIME25
@@ -79,8 +87,12 @@ buffer:
           response_key: 'answer'
         rollout_args:
           temperature: 0.7
+        reward_fn_args:
+          all_llm_judge: True
+        task_selector:
+          selector_type: random
     default_workflow_type: 'agentscope_react_math_workflow'
-    # default_reward_fn_type: 'math_boxed_reward' # default
+    default_reward_fn_type: 'tir_reward'
   trainer_input:
     experience_buffer:
       name: experience_buffer

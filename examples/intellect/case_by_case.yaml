@@ -57,6 +57,7 @@ buffer:
         task_selector:
           selector_type: random
     default_workflow_type: 'agentscope_react_math_workflow'
+    default_reward_fn_type: 'tir_reward'
   trainer_input:
     experience_buffer:
       name: experience_buffer
