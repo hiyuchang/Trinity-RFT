@@ -61,7 +61,7 @@ class TIRRewardFn(RewardFn):
         answer: str,
     ) -> bool:
         """Use LLM to judge whether answer equals truth.
-        
+
         Adapted from https://github.com/open-compass/CompassVerifier
         """
         if not self.auxiliary_models:

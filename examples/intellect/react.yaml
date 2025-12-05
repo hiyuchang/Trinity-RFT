@@ -31,34 +31,24 @@ buffer:
     tasksets:
       - name: math
         storage_type: file
-        path: /mnt/data/yuchang/datasets/intellect-3-rl
-        subset_name: math
+        path: /cpfs/data/tir/data/filter_all_correct/math
+        split: train
         format:
           prompt_key: 'question'
           response_key: 'answer'
-        split: train
-        workflow_args:
-          type: 'intellect'
-        rollout_args:
-          max_tokens: 10240
         reward_fn_args:
-          all_llm_judge: True
+          case_by_case: True
         task_selector:
           selector_type: random
       - name: science
         storage_type: file
-        path: /mnt/data/yuchang/datasets/intellect-3-rl
-        subset_name: science
+        path: /cpfs/data/tir/data/filter_all_correct/science
         split: train
         format:
           prompt_key: 'question'
           response_key: 'answer'
-        workflow_args:
-          type: 'intellect'
-        rollout_args:
-          max_tokens: 10240
         reward_fn_args:
-          all_llm_judge: True
+          case_by_case: True
         task_selector:
           selector_type: random
     eval_tasksets:
@@ -129,7 +119,7 @@ explorer:
 trainer:
   enable_preview: false
   trainer_type: 'verl'
-  save_interval: 1000
+  save_interval: 100
   use_dynamic_bsz: true
   max_token_len_per_gpu: 16384
   ulysses_sequence_parallel_size: 2
@@ -140,5 +130,3 @@ synchronizer:
   sync_timeout: 1200
 monitor:
   monitor_type: wandb
-# log:
-#   level: debug

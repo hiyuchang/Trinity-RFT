@@ -207,12 +207,12 @@ class BaseSimpleWorkflow(Workflow):
         model: ModelWrapper,
         auxiliary_models: Optional[List[openai.OpenAI]] = None,
     ):
-        self.reset(task)
         super().__init__(
             task=task,
             model=model,
             auxiliary_models=auxiliary_models,
         )
+        self.reset(task)
 
     def reset(self, task: Task):
         self.format_args = task.format_args
