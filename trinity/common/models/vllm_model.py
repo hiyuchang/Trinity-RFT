@@ -64,7 +64,7 @@ class vLLMRolloutModel(InferenceModel):
             n=1,
             temperature=config.temperature,
             max_tokens=config.max_response_tokens,
-            min_tokens=config.min_response_tokens,
+            min_tokens=0,
             truncate_prompt_tokens=(
                 config.max_prompt_tokens if config.enable_prompt_truncation else None
             ),

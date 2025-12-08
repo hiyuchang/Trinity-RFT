@@ -7,6 +7,7 @@ from trinity.common.workflows.agentscope_workflow import AgentScopeWorkflowAdapt
 from trinity.common.workflows.customized_math_workflows import (
     AsyncMathBoxedWorkflow,
     MathBoxedWorkflow,
+    AsyncMathBoxedWorkflowV2,
 )
 from trinity.common.workflows.customized_toolcall_workflows import ToolCallWorkflow
 from trinity.common.workflows.envs.agentscope.agentscopev0_react_workflow import (  # will be deprecated soon
@@ -77,6 +78,7 @@ __all__ = [
     "RAFTReflectAlfworldWorkflow",
     "SciWorldWorkflow",
     "AsyncMathBoxedWorkflow",
+    "AsyncMathBoxedWorkflowV2",
     "MathBoxedWorkflow",
     "AsyncMathRMWorkflow",
     "MathRMWorkflow",

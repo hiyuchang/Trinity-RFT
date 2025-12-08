@@ -4,6 +4,10 @@ import re
 
 from trinity.common.rewards.reward_fn import REWARD_FUNCTIONS, RewardFn
 from trinity.utils.log import get_logger
+from trinity.utils.naive_dapo import compute_score
+
+# TODO: after merge main, we can directly import this function from utils
+
 
 logger = get_logger(__name__)
 
@@ -17,44 +21,35 @@ class TIRRewardFn(RewardFn):
         self.truth = truth
         self.answer_type = answer_type
         self.auxiliary_models = auxiliary_models
-        self.kwargs = kwargs
-        self.use_llm_judge = False
-        if kwargs.get("all_llm_judge", False):
+        # flag_reward_fn_kwargs = (
+        #     "all_llm_judge" in kwargs or "all_rule_based" in kwargs or "case_by_case" in kwargs
+        # )
+        reward_fn_setup = kwargs.get("setup", None)
+        if reward_fn_setup == "all_llm_judge":
             self.use_llm_judge = True
-        if kwargs.get("case_by_case", False):
+        elif reward_fn_setup == "all_rule_based":
+            self.use_llm_judge = False
+        elif reward_fn_setup == "case_by_case":
             if self.answer_type is None:
                 self.use_llm_judge = False
             else:
                 self.use_llm_judge = self.answer_type == "text"
                 logger.debug(f"answer_type: {self.answer_type}, truth: {self.truth}")
+        else:
+            logger.warning(
+                "You don't setup the reward function kwargs properly; we use `LLM judge` by default."
+            )
+            self.use_llm_judge = True
 
     async def __call__(self, response, **kwargs):
         if self.use_llm_judge:
             is_correct = await self.judge_equal(response)
-            logger.debug(f"is_correct: {is_correct}")
+            logger.debug(f"Using judge, is_correct: {is_correct}")
             return {"reward": 1.0 if is_correct else 0.0}
         else:
-            import importlib.util
-            import sys
-
-            file_path = "benchmark/plugins/guru_math/naive_dapo.py"
-
-            # 创建模块规范
-            spec = importlib.util.spec_from_file_location("naive_dapo", file_path)
-
-            # 从规范创建模块
-            naive_dapo_module = importlib.util.module_from_spec(spec)
-
-            # 将模块添加到 sys.modules（可选，但推荐）
-            sys.modules["naive_dapo"] = naive_dapo_module
-
-            # 执行模块
-            spec.loader.exec_module(naive_dapo_module)
-
-            # 现在可以调用 compute_score 函数
-            result = naive_dapo_module.compute_score(response, self.truth, {})
-            logger.debug(f"result: {result}")
-            return {"reward": result["acc"]}
+            result = compute_score(response, self.truth, {})
+            logger.debug(f"Using rule, score: {result}")
+            return {"reward": result["acc"]}  # TODO: check after merging
 
     async def judge_equal(
         self,
@@ -109,6 +104,9 @@ Judging the correctness of the candidate's answer:
         )
         response = completion.choices[0].message.content
         final_judgment = process_judgment(response)
+        logger.debug(f"Judge prompt: {user_prompt}")
+        logger.debug(f"Judge response: {response}")
+        logger.debug(f"final judgement: {final_judgment}")
         return final_judgment == "A"
 
 

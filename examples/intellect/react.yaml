@@ -19,7 +19,6 @@ model:
   # model_path: /cpfs/data/shared/qwen/Qwen3-4B
   max_prompt_tokens: 4096
   max_response_tokens: 10240
-  max_model_len: 24576
 cluster:
   node_num: 1
   gpu_per_node: 8
@@ -37,7 +36,7 @@ buffer:
           prompt_key: 'question'
           response_key: 'answer'
         reward_fn_args:
-          case_by_case: True
+          setup: "all_rule_based"
         task_selector:
           selector_type: random
       - name: science
@@ -48,7 +47,7 @@ buffer:
           prompt_key: 'question'
           response_key: 'answer'
         reward_fn_args:
-          case_by_case: True
+          setup: "case_by_case"
         task_selector:
           selector_type: random
     eval_tasksets:
@@ -58,13 +57,13 @@ buffer:
         split: test
         repeat_times: 32
         format:
-          prompt_key: 'question'
+          prompt_key: 'problem'
           response_key: 'answer'
         rollout_args:
           temperature: 0.7
           max_tokens: 10240
         reward_fn_args:
-          all_llm_judge: True
+          setup: "all_rule_based"
         task_selector:
           selector_type: random
       - name: AIME2025
@@ -73,14 +72,27 @@ buffer:
         repeat_times: 32
         split: test
         format:
-          prompt_key: 'question'
+          prompt_key: 'problem'
           response_key: 'answer'
         rollout_args:
           temperature: 0.7
         reward_fn_args:
-          all_llm_judge: True
+          setup: "all_rule_based"
         task_selector:
           selector_type: random
+      - name: GPQA_main
+        storage_type: file
+        path: /cpfs/data/tir/data/gpqa/main
+        split: train
+        repeat_times: 4
+        format:
+          prompt_key: 'question'
+          response_key: 'answer'
+        rollout_args:
+          temperature: 0.7
+          top_p: 0.8
+        reward_fn_args:
+          setup: "all_llm_judge"
     default_workflow_type: 'agentscope_react_math_workflow'
     default_reward_fn_type: 'tir_reward'
   trainer_input:
@@ -127,6 +139,6 @@ synchronizer:
   sync_style: dynamic_by_explorer
   sync_method: 'nccl'
   sync_interval: 2
-  sync_timeout: 1200
+  sync_timeout: 3600
 monitor:
   monitor_type: wandb

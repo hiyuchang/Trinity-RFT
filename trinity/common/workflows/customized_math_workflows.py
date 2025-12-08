@@ -138,7 +138,7 @@ class AsyncMathBoxedWorkflow(MathBoxedWorkflow):
 
 
 @WORKFLOWS.register_module("async_math_boxed_workflow_v2")
-class AsyncMathBoxedWorkflow(MathBoxedWorkflow):
+class AsyncMathBoxedWorkflowV2(MathBoxedWorkflow):
     is_async: bool = True
 
     def reset(self, task: Task):
@@ -155,7 +155,7 @@ class AsyncMathBoxedWorkflow(MathBoxedWorkflow):
 
         self.use_base = self.workflow_args.get("use_base", False)
         self.with_think = self.workflow_args.get("with_think", False)
-        self.format_score_coef = self.workflow_args.get("format_score_coef", 0.1)
+        self.format_score_coef = self.workflow_args.get("format_score_coef", 0.0)
 
         default_prompt = (
             """Please reason step by step, and put your final answer within \\boxed{}."""
@@ -193,10 +193,6 @@ class AsyncMathBoxedWorkflow(MathBoxedWorkflow):
         for i, response in enumerate(responses):
             reward_dict = await self.reward_fn(  # type: ignore [misc]
                 response=response.response_text,  # type: ignore [arg-type]
-                truth=self.truth,
-                with_think=self.with_think,
-                format_score_coef=self.format_score_coef,
-                response_token=response.tokens[response.prompt_length :],
             )
 
             if response.metrics is None:
