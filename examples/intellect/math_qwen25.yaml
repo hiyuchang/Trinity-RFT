@@ -1,6 +1,6 @@
 continue_from_checkpoint: false
 project: "trinity_tir_stem"
-name: "cispo-math-qwen3-4b-cotjudge-bs128"
+name: "cispo-math-qwen25-3b-judge-bs128"
 checkpoint_root_dir: /mnt/data/yuchang/checkpoints
 algorithm:
   algorithm_type: cispo
@@ -13,7 +13,7 @@ algorithm:
   kl_loss_fn_args:
     kl_coef: 0.0
 model:
-  model_path: /cpfs/data/shared/qwen/Qwen3-4B-Instruct-2507
+  model_path: /cpfs/data/shared/qwen/Qwen2.5-3B-Instruct
   enable_prompt_truncation: true
   max_prompt_tokens: 4096
   max_response_tokens: 28672
@@ -28,13 +28,15 @@ buffer:
     tasksets:
       - name: math
         storage_type: file
-        path: /cpfs/data/tir/data/filter_all_correct/math
+        path: /cpfs/data/tir/data/with_answer_tag/math
         split: train
         format:
           prompt_key: 'question'
           response_key: 'answer'
         reward_fn_args:
           setup: "all_llm_judge"
+        # task_selector:
+        #   selector_type: random
     eval_tasksets:
       - name: AIME2024
         storage_type: file
@@ -49,52 +51,26 @@ buffer:
           top_p: 0.8
         reward_fn_args:
           setup: "all_rule_based"
-      - name: AIME2025
-        storage_type: file
-        path: /mnt/data/yuchang/datasets/AIME25
-        repeat_times: 32
-        split: test
-        format:
-          prompt_key: 'problem'
-          response_key: 'answer'
-        rollout_args:
-          temperature: 0.7
-          top_p: 0.8
-        reward_fn_args:
-          setup: "all_rule_based"
-      # - name: GPQA_main
+      # - name: AIME2025
       #   storage_type: file
-      #   path: /cpfs/data/tir/data/gpqa/main
-      #   split: train
-      #   repeat_times: 4
+      #   path: /mnt/data/yuchang/datasets/AIME25
+      #   repeat_times: 32
+      #   split: test
       #   format:
-      #     prompt_key: 'question'
+      #     prompt_key: 'problem'
       #     response_key: 'answer'
       #   rollout_args:
       #     temperature: 0.7
       #     top_p: 0.8
       #   reward_fn_args:
-      #     setup: "all_llm_judge"
-      # - name: GPQA_diamond
-      #   storage_type: file
-      #   path: /cpfs/data/tir/data/gpqa/diamond
-      #   split: train
-      #   repeat_times: 4
-      #   format:
-      #     prompt_key: 'question'
-      #     response_key: 'answer'
-      #   rollout_args:
-      #     temperature: 0.7
-      #     top_p: 0.8
-      #   reward_fn_args:
-      #     setup: "all_llm_judge"
+      #     setup: "all_rule_based"
     default_workflow_type: 'async_math_boxed_workflow_v2'
 explorer:
-  eval_on_startup: false
+  eval_on_startup: true
   eval_interval: 20
   runner_per_model: 8
   rollout_model:
-    engine_num: 4
+    engine_num: 2
     tensor_parallel_size: 1
     enable_chunked_prefill: true
     enforce_eager: false
@@ -102,7 +78,7 @@ explorer:
     seed: 42
     gpu_memory_utilization: 0.85
   auxiliary_models:
-    - model_path: /cpfs/data/shared/qwen/Qwen3-30B-A3B-Instruct-2507
+    - model_path: /cpfs/data/tir/model/CompassVerifier-3B
       engine_num: 1
       tensor_parallel_size: 2
       max_prompt_tokens: 33368 # 32684+600
@@ -117,6 +93,8 @@ trainer:
 synchronizer:
   sync_method: nccl
   sync_interval: 4
-  sync_timeout: 36000
+  sync_timeout: 3600
 monitor:
   monitor_type: wandb
+log:
+  level: debug

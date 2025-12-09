@@ -1,6 +1,6 @@
 continue_from_checkpoint: false
 project: "trinity_tir_stem"
-name: "cispo-math-qwen3-4b-cotjudge-bs128"
+name: "cispo-math-qwen3-4b-alljudge-bs128"
 checkpoint_root_dir: /mnt/data/yuchang/checkpoints
 algorithm:
   algorithm_type: cispo
@@ -19,7 +19,7 @@ model:
   max_response_tokens: 28672
   temperature: 1.0
 cluster:
-  node_num: 1
+  node_num: 3
   gpu_per_node: 8
 buffer:
   total_epochs: 5
@@ -62,39 +62,13 @@ buffer:
           top_p: 0.8
         reward_fn_args:
           setup: "all_rule_based"
-      # - name: GPQA_main
-      #   storage_type: file
-      #   path: /cpfs/data/tir/data/gpqa/main
-      #   split: train
-      #   repeat_times: 4
-      #   format:
-      #     prompt_key: 'question'
-      #     response_key: 'answer'
-      #   rollout_args:
-      #     temperature: 0.7
-      #     top_p: 0.8
-      #   reward_fn_args:
-      #     setup: "all_llm_judge"
-      # - name: GPQA_diamond
-      #   storage_type: file
-      #   path: /cpfs/data/tir/data/gpqa/diamond
-      #   split: train
-      #   repeat_times: 4
-      #   format:
-      #     prompt_key: 'question'
-      #     response_key: 'answer'
-      #   rollout_args:
-      #     temperature: 0.7
-      #     top_p: 0.8
-      #   reward_fn_args:
-      #     setup: "all_llm_judge"
     default_workflow_type: 'async_math_boxed_workflow_v2'
 explorer:
   eval_on_startup: false
   eval_interval: 20
   runner_per_model: 8
   rollout_model:
-    engine_num: 4
+    engine_num: 8
     tensor_parallel_size: 1
     enable_chunked_prefill: true
     enforce_eager: false
@@ -103,7 +77,7 @@ explorer:
     gpu_memory_utilization: 0.85
   auxiliary_models:
     - model_path: /cpfs/data/shared/qwen/Qwen3-30B-A3B-Instruct-2507
-      engine_num: 1
+      engine_num: 4
       tensor_parallel_size: 2
       max_prompt_tokens: 33368 # 32684+600
       max_response_tokens: 2048

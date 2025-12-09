@@ -204,10 +204,10 @@ class AsyncMathBoxedWorkflowV2(MathBoxedWorkflow):
 
             if not self.use_base:
                 self.logger.debug(
-                    f"self.task_desc: {self.task_desc}, messages: {messages}, response: {response.response_text}, reward: {reward}"
+                    f"self.task_desc: {self.task_desc}, truth: {self.truth} response: {response.response_text}, reward: {reward}"
                 )
             else:
                 self.logger.debug(
-                    f"self.task_desc: {self.task_desc}, prompt_text: {prompt_text}, response: {response.response_text}, reward: {reward}"
+                    f"self.task_desc: {self.task_desc}, truth: {self.truth}, response: {response.response_text}, reward: {reward}"
                 )
         return responses
