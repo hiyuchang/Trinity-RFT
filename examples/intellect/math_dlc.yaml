@@ -1,6 +1,6 @@
-continue_from_checkpoint: false
+# continue_from_checkpoint: true
 project: "trinity_tir_stem"
-name: "cispo-math-qwen3-4b-alljudge-bs128"
+name: "cispo-math-qwen3-4b-alljudge"
 checkpoint_root_dir: /mnt/data/yuchang/checkpoints
 algorithm:
   algorithm_type: cispo
@@ -22,8 +22,8 @@ cluster:
   node_num: 3
   gpu_per_node: 8
 buffer:
-  total_epochs: 5
-  batch_size: 128
+  total_epochs: 10
+  batch_size: 32
   explorer_input:
     tasksets:
       - name: math
@@ -35,6 +35,8 @@ buffer:
           response_key: 'answer'
         reward_fn_args:
           setup: "all_llm_judge"
+        task_selector:
+          selector_type: random
     eval_tasksets:
       - name: AIME2024
         storage_type: file
@@ -64,9 +66,12 @@ buffer:
           setup: "all_rule_based"
     default_workflow_type: 'async_math_boxed_workflow_v2'
 explorer:
-  eval_on_startup: false
+  eval_on_startup: true
   eval_interval: 20
-  runner_per_model: 8
+  runner_per_model: 16
+  max_repeat_times_per_runner: 2
+  max_timeout: 3000
+  runner_state_report_interval: 60
   rollout_model:
     engine_num: 8
     tensor_parallel_size: 1
@@ -84,10 +89,13 @@ explorer:
 trainer:
   enable_preview: false
   trainer_type: 'verl'
-  save_interval: 100
+  save_interval: 40 # times of sync_interval
   use_dynamic_bsz: true
   max_token_len_per_gpu: 16384
   ulysses_sequence_parallel_size: 2
+  trainer_config:
+    trainer:
+      max_actor_ckpt_to_keep: 2
 synchronizer:
   sync_method: nccl
   sync_interval: 4

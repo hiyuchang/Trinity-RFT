@@ -1,6 +1,6 @@
-continue_from_checkpoint: false
+# continue_from_checkpoint: true
 project: "trinity_tir_stem"
-name: "cispo-4b-tir-reward"
+name: "cispo-math-qwen3-4b-alljudge-curriculum"
 checkpoint_root_dir: /mnt/data/yuchang/checkpoints
 algorithm:
   algorithm_type: cispo
@@ -19,11 +19,11 @@ model:
   max_response_tokens: 28672
   temperature: 1.0
 cluster:
-  node_num: 1
+  node_num: 3
   gpu_per_node: 8
 buffer:
-  total_epochs: 5
-  batch_size: 128
+  total_epochs: 10
+  batch_size: 32
   explorer_input:
     tasksets:
       - name: math
@@ -34,20 +34,10 @@ buffer:
           prompt_key: 'question'
           response_key: 'answer'
         reward_fn_args:
-          setup: "all_rule_based"
+          setup: "all_llm_judge"
         task_selector:
-          selector_type: random
-      - name: science
-        storage_type: file
-        path: /cpfs/data/tir/data/filter_all_correct/science
-        split: train
-        format:
-          prompt_key: 'question'
-          response_key: 'answer'
-        reward_fn_args:
-          setup: "case_by_case"
-        task_selector:
-          selector_type: random
+          selector_type: offline_curriculum
+          feature_keys: ["avg@8_qwen3_4b_instruct_2507"] 
     eval_tasksets:
       - name: AIME2024
         storage_type: file
@@ -75,39 +65,16 @@ buffer:
           top_p: 0.8
         reward_fn_args:
           setup: "all_rule_based"
-      - name: GPQA_main
-        storage_type: file
-        path: /cpfs/data/tir/data/gpqa/main
-        split: train
-        repeat_times: 4
-        format:
-          prompt_key: 'question'
-          response_key: 'answer'
-        rollout_args:
-          temperature: 0.7
-          top_p: 0.8
-        reward_fn_args:
-          setup: "all_llm_judge"
-      # - name: GPQA_diamond
-      #   storage_type: file
-      #   path: /cpfs/data/tir/data/gpqa/diamond
-      #   split: train
-      #   repeat_times: 4
-      #   format:
-      #     prompt_key: 'question'
-      #     response_key: 'answer'
-      #   rollout_args:
-      #     temperature: 0.7
-      #     top_p: 0.8
-      #   reward_fn_args:
-      #     setup: "all_llm_judge"
     default_workflow_type: 'async_math_boxed_workflow_v2'
 explorer:
   eval_on_startup: true
   eval_interval: 20
-  runner_per_model: 8
+  runner_per_model: 16
+  max_repeat_times_per_runner: 2
+  max_timeout: 3000
+  runner_state_report_interval: 60
   rollout_model:
-    engine_num: 4
+    engine_num: 8
     tensor_parallel_size: 1
     enable_chunked_prefill: true
     enforce_eager: false
@@ -115,22 +82,24 @@ explorer:
     seed: 42
     gpu_memory_utilization: 0.85
   auxiliary_models:
-    - model_path: /cpfs/data/tir/model/CompassVerifier-3B
-      engine_num: 1
+    - model_path: /cpfs/data/shared/qwen/Qwen3-30B-A3B-Instruct-2507
+      engine_num: 4
       tensor_parallel_size: 2
       max_prompt_tokens: 33368 # 32684+600
       max_response_tokens: 2048
-      max_model_len: 20480
 trainer:
   enable_preview: false
   trainer_type: 'verl'
-  save_interval: 100
+  save_interval: 40 # times of sync_interval
   use_dynamic_bsz: true
   max_token_len_per_gpu: 16384
-  ulysses_sequence_parallel_size: 1
+  ulysses_sequence_parallel_size: 2
+  trainer_config:
+    trainer:
+      max_actor_ckpt_to_keep: 2
 synchronizer:
   sync_method: nccl
   sync_interval: 4
-  sync_timeout: 3600
+  sync_timeout: 36000
 monitor:
   monitor_type: wandb

@@ -13,7 +13,7 @@ algorithm:
   kl_loss_fn_args:
     kl_coef: 0.0
 model:
-  model_path: /cpfs/data/shared/qwen/Qwen2.5-3B-Instruct
+  model_path: /cpfs/data/shared/qwen/Qwen2.5-7B-Instruct
   enable_prompt_truncation: true
   max_prompt_tokens: 4096
   max_response_tokens: 28672

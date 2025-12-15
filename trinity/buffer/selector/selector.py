@@ -292,6 +292,127 @@ class OfflineEasy2HardSelector(BaseSelector):
         self.current_index = state_dict.get("current_index", 0)
 
 
+@SELECTORS.register_module("offline_curriculum")
+class OfflineCurriculumSelector(BaseSelector):
+    """
+    Selects samples from (0.75, 1.0), (0.25, 0.75), (0, 0.25) based on pre-defined difficulty features.
+
+    This selector assumes that higher feature values indicate easier examples.
+    It sorts all data once at initialization by descending feature value(s), then sequentially
+    serves batches from easy → hard over epochs. The sorting is fixed (offline), so no online
+    adaptation occurs during training.
+
+    Useful for curriculum learning where sample difficulty is estimated ahead of time
+    (e.g., via teacher model confidence, length, BLEU score, etc.).
+    """
+
+    def __init__(self, data_source, config: TaskSelectorConfig):
+        super().__init__(data_source, config)
+        self.logger = get_logger("offline_curriculum_selector")
+
+        # Extract specified feature columns (e.g., 'loss', 'confidence') used to estimate difficulty
+        feature_keys = config.feature_keys
+        if not feature_keys or len(feature_keys) == 0:
+            raise ValueError("OfflineCurriculumSelector requires at least one feature key")
+
+        self.features = np.concatenate(
+            [np.array(list(data_source.dataset[k]))[:, None] for k in feature_keys], axis=1
+        )
+        # Shape: (N, len(feature_keys)) — one row per sample, one column per feature
+
+        # Initialize seed for random sampling
+        self.seed = 42
+        rng = np.random.default_rng(self.seed)
+
+        # Split samples into three difficulty levels based on feature values
+        # Higher feature values indicate easier examples (as per docstring)
+        # Easy: [0.75, 1.0), Medium: [0.25, 0.75), Hard: [0, 0.25)
+        easy_mask = self.features[:, 0] >= 0.75
+        medium_mask = (self.features[:, 0] >= 0.25) & (self.features[:, 0] < 0.75)
+        hard_mask = self.features[:, 0] < 0.25
+
+        # Get indices for each difficulty level
+        easy_indices = np.where(easy_mask)[0]
+        medium_indices = np.where(medium_mask)[0]
+        hard_indices = np.where(hard_mask)[0]
+
+        # Sort each group by feature value (descending: easiest first within each group)
+        # Then concatenate: easy → medium → hard
+        if len(easy_indices) > 0:
+            # Use random permutation for sampling without replacement
+            easy_shuffled = rng.permutation(easy_indices)
+        else:
+            easy_shuffled = np.array([], dtype=int)
+
+        if len(medium_indices) > 0:
+            medium_shuffled = rng.permutation(medium_indices)
+        else:
+            medium_shuffled = np.array([], dtype=int)
+
+        if len(hard_indices) > 0:
+            hard_shuffled = rng.permutation(hard_indices)
+        else:
+            hard_shuffled = np.array([], dtype=int)
+
+        # Combine in curriculum order: easy → medium → hard
+        self.sorted_index = np.concatenate([easy_shuffled, medium_shuffled, hard_shuffled])
+
+        self.logger.debug(
+            f"OfflineCurriculumSelector: easy={len(easy_shuffled)}, "
+            f"medium={len(medium_shuffled)}, hard={len(hard_shuffled)}, "
+            f"total={len(self.sorted_index)}"
+        )
+
+        # Number of samples per epoch (may be less than full dataset size)
+        self.dataset_size = data_source.dataset_size
+        self.current_index = 0
+
+    def update(self, indices: List[int], values: List[float]) -> None:
+        # No-op: this selector does not adapt based on runtime feedback
+        pass
+
+    def get_indices(self, batch_size, return_extra_info=False):
+        """
+        Returns next batch of indices in curriculum order (easy → hard).
+
+        Batches are taken sequentially from the pre-sorted list. When epoch ends,
+        it wraps around to the beginning (i.e., restarts curriculum).
+        """
+        start = self.current_index % self.dataset_size
+        end = start + batch_size
+        if end <= self.dataset_size:
+            selected_indices = self.sorted_index[start:end]
+        else:
+            selected_indices = np.concatenate(
+                [self.sorted_index[start:], self.sorted_index[: (end - self.dataset_size)]]
+            )
+        self.current_index += batch_size
+        if not return_extra_info:
+            return selected_indices
+        else:
+            extra_info = {
+                "indices": selected_indices.tolist(),
+                "feat1": self.features[selected_indices, 0].tolist(),
+                "feat2": self.features[selected_indices, 1].tolist(),
+            }
+            return selected_indices, extra_info
+
+    def state_dict(self) -> Dict:
+        """
+        Save current position in the curriculum for checkpointing.
+        Allows resuming from same point in the easy→hard progression.
+        """
+        return {
+            "current_index": self.current_index,
+        }
+
+    def load_state_dict(self, state_dict):
+        """
+        Restore progress through the curriculum from saved state.
+        """
+        self.current_index = state_dict.get("current_index", 0)
+
+
 @SELECTORS.register_module("difficulty_based")
 class DifficultyBasedSelector(BaseSelector):
     """

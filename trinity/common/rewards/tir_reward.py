@@ -116,27 +116,33 @@ C: INVALID
 <Candidate's Answer End>
 
 Do not compute the answer by yourself, only judge the candidate's answer.
-Please analyze the candidate's answer and provide a final judgment:
+Please analyze the candidate's answer and provide a final judgment in \\boxed{{}} (e.g. \\boxed{{A}}):
 """
-        messages = [
-            {
-                "role": "user",
-                "content": REVISED_PROMPT.format(
-                    question=self.question, gold_answer=self.truth, llm_response=answer
-                ),
-            },
-        ]
-        completion = await judger.chat.completions.create(
-            model=judger.model_path,
-            messages=messages,
-            stream=False,
-            temperature=0.0,
-        )
-        response = completion.choices[0].message.content
-        final_judgment = process_judgment(response)
-        logger.debug(f"Judge prompt: {messages[0]['content']}")
-        logger.debug(f"Judge response: {response}")
-        logger.debug(f"final judgement: {final_judgment}")
+        
+        for i in range(2):
+            user_prompt = REVISED_PROMPT if i == 0 else CV_PROMPT
+            messages = [
+                {
+                    "role": "user",
+                    "content": user_prompt.format(
+                        question=self.question, gold_answer=self.truth, llm_response=answer
+                    ),
+                },
+            ]
+            completion = await judger.chat.completions.create(
+                model=judger.model_path,
+                messages=messages,
+                stream=False,
+                temperature=0.0,
+            )
+            response = completion.choices[0].message.content
+            final_judgment = process_judgment(response)
+            # logger.debug(f"Judge prompt: {messages[0]['content']}")
+            # logger.debug(f"Judge response: {response}")
+            # logger.debug(f"final judgement: {final_judgment}")
+            if final_judgment in ["A", "B"]:
+                logger.debug(f"Retry judgement since we got an invalid judgment: {final_judgment}")
+                break
         return final_judgment == "A"
 
 

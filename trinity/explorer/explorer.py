@@ -347,10 +347,14 @@ class Explorer:
             )
 
         # save explore checkpoint
-        self.state.save_explorer(
-            current_step=self.explore_step_num,
-            taskset_states=self.taskset.state_dict() if self.taskset else [],
-        )
+        if self.explore_step_num % self.config.synchronizer.sync_interval == 0:
+            self.logger.info(
+                f"Explorer save_checkpoint at step {self.explore_step_num} started."
+            )
+            self.state.save_explorer(
+                current_step=self.explore_step_num,
+                taskset_states=self.taskset.state_dict() if self.taskset else [],
+            )
 
     async def sync_weight(self) -> None:
         """Synchronize model weights."""
