@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
 from trinity.buffer import get_buffer_reader, get_buffer_writer
-from trinity.common.config import Config, ExperienceBufferConfig
+from trinity.common.config import Config, StorageConfig
 from trinity.common.experience import Experience
 from trinity.common.models import get_debug_inference_model
 from trinity.common.models.model import InferenceModel, ModelWrapper
@@ -65,11 +65,12 @@ class WorkflowRunner:
             enable_lora=config.explorer.rollout_model.enable_lora,
             enable_history=config.explorer.rollout_model.enable_history,
         )
-        self.auxiliary_models = [
+        self.auxiliary_models = auxiliary_models or []
+        self.auxiliary_model_wrappers = [
             ModelWrapper(
                 model,
             )
-            for model in (auxiliary_models or [])
+            for model in self.auxiliary_models
         ]
         self.auxiliary_model_clients = []
         self.auxiliary_model_async_clients = []
@@ -86,9 +87,9 @@ class WorkflowRunner:
         """Prepare the runner."""
         await asyncio.gather(
             self.model_wrapper.prepare(),
-            *(aux_model.prepare() for aux_model in self.auxiliary_models),
+            *(aux_model.prepare() for aux_model in self.auxiliary_model_wrappers),
         )
-        for model in self.auxiliary_models:
+        for model in self.auxiliary_model_wrappers:
             api_client = model.get_openai_client()
             async_api_client = model.get_openai_async_client()
             self.auxiliary_model_clients.append(api_client)
@@ -223,18 +224,20 @@ class DebugWorkflowRunner(WorkflowRunner):
         config: Config,
         output_dir: str = "debug_output",
         enable_profiling: bool = False,
+        disable_overwrite: bool = False,
     ) -> None:
         model, auxiliary_models = get_debug_inference_model(config)
         super().__init__(config, model, auxiliary_models, 0)
         self.taskset = get_buffer_reader(config.buffer.explorer_input.tasksets[0])
         self.output_dir = output_dir
         self.enable_profiling = enable_profiling
-        # if output dir is not empty, change to a new dir with datetime suffix
-        if os.path.isdir(self.output_dir) and os.listdir(self.output_dir):
-            suffix = time.strftime("%Y%m%d%H%M%S", time.localtime())
-            new_output_dir = f"{self.output_dir}_{suffix}"
-            self.output_dir = new_output_dir
-        self.logger.info(f"Debug output directory: {self.output_dir}")
+        if disable_overwrite:
+            # if output dir is not empty, change to a new dir with datetime suffix
+            if os.path.isdir(self.output_dir) and os.listdir(self.output_dir):
+                suffix = time.strftime("%Y%m%d%H%M%S", time.localtime())
+                new_output_dir = f"{self.output_dir}_{suffix}"
+                self.output_dir = new_output_dir
+            self.logger.info(f"Debug output directory: {self.output_dir}")
         os.makedirs(self.output_dir, exist_ok=True)
         self.output_profiling_file = os.path.join(
             self.output_dir,
@@ -245,14 +248,22 @@ class DebugWorkflowRunner(WorkflowRunner):
             "experiences.db",
         )
         self.sqlite_writer = get_buffer_writer(
-            ExperienceBufferConfig(
+            StorageConfig(
                 name="debug_buffer",
                 schema_type="experience",
                 path=self.output_sqlite_file,
                 storage_type="sql",
                 batch_size=1,
+                wrap_in_ray=False,
             )
         )
+
+    async def prepare(self) -> None:
+        # make sure models are started
+        prepare_refs = [self.model.prepare.remote()]
+        prepare_refs.extend(model.prepare.remote() for model in self.auxiliary_models)
+        await asyncio.gather(*prepare_refs)
+        await super().prepare()
 
     async def debug(self) -> None:
         """Run the debug workflow."""
@@ -270,8 +281,6 @@ class DebugWorkflowRunner(WorkflowRunner):
         await self.sqlite_writer.write_async(exps)
         if status.ok:
             print(f"Task {task.task_id} completed successfully with metrics:\n{status.metrics}")
-            for exp in exps:
-                print(f"Generated experience:\n{exp}")
         else:
             self.logger.error(f"Task {task.task_id} failed with message: {status.message}")
         self.logger.info("Debugging completed.")
