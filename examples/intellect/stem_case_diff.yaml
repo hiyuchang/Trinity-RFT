@@ -39,7 +39,7 @@ buffer:
           feature_keys: ["avg@8_qwen3_4b_instruct_2507"] 
       - name: science
         storage_type: file
-        path: /cpfs/data/tir/data/filter_all_correct/science
+        path: /cpfs/data/tir/data/filter_all_correct # TODO: mv to /science
         split: train
         format:
           prompt_key: 'question'

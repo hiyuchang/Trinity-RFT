@@ -63,6 +63,8 @@ from trinity.common.workflows.workflow import (
     Workflow,
 )
 
+from trinity.common.workflows.math_tool_integrated_reasoning_workflow_v1 import MathToolIntegratedReasoningWorkflowV1
+
 __all__ = [
     "Task",
     "Workflow",
@@ -98,4 +100,5 @@ __all__ = [
     "RubricJudgeWorkflow",
     "AgentScopeWorkflowAdapter",
     "FrozenLakeWorkflow",
+    "MathToolIntegratedReasoningWorkflowV1",
 ]
