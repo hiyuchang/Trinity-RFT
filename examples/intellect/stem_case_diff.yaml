@@ -21,7 +21,7 @@ cluster:
   node_num: 3
   gpu_per_node: 8
 buffer:
-  total_epochs: 5
+  total_epochs: 6
   batch_size: 32
   explorer_input:
     tasksets:
@@ -39,7 +39,7 @@ buffer:
           feature_keys: ["avg@8_qwen3_4b_instruct_2507"] 
       - name: science
         storage_type: file
-        path: /cpfs/data/tir/data/filter_all_correct # TODO: mv to /science
+        path: /cpfs/data/tir/data/filter_all_correct/science
         split: train
         format:
           prompt_key: 'question'

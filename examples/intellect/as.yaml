@@ -1,5 +1,5 @@
 project: "Trinity-RFT-tir-MATH"
-name: "Curriculum-Qwen3-4B-trained-TIR_v2_test_dlc_100step_2node_only_train_success_nokl"
+name: "Curriculum-Qwen3-4B-trained-TIR_v2_test_dlc_200step_2node_only_train_success_nokl"
 checkpoint_root_dir: /mnt/data/yuchang/checkpoints
 algorithm:
   algorithm_type: multi_step_grpo
@@ -15,7 +15,7 @@ algorithm:
   optimizer:
     lr: 2e-6
 model:
-  model_path: /mnt/data/zhangwenhao.zwh/checkpoints/Trinity-Tir-STEM/sft_math_tir_v1_test/global_step_100/actor/huggingface
+  model_path: /mnt/data/zhangwenhao.zwh/checkpoints/Trinity-Tir-STEM/sft_math_tir_v1_test/global_step_200/actor/huggingface
   max_response_tokens: 20000
   min_response_tokens: 0
   max_model_len: 64000
