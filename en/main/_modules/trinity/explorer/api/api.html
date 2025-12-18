@@ -590,7 +590,6 @@ window.addEventListener("load", load);
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../build_api/trinity.buffer.reader.html">trinity.buffer.reader package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.buffer.reader.file_reader.html">trinity.buffer.reader.file_reader module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.buffer.reader.queue_reader.html">trinity.buffer.reader.queue_reader module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.buffer.reader.reader.html">trinity.buffer.reader.reader module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.buffer.reader.sql_reader.html">trinity.buffer.reader.sql_reader module</a></li>
 </ul>
 </details></li>
@@ -950,6 +949,8 @@ document.write(`
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">chat_completions</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
     <span class="c1"># Currently, we do not support streaming chat completions</span>
     <span class="n">body</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;return_token_ids&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">body</span><span class="p">:</span>
+        <span class="n">body</span><span class="p">[</span><span class="s2">&quot;return_token_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">url</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">allocate_model</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">inference_timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>

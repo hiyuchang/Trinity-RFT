@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>trinity.buffer.reader.reader module &#8212; Trinity-RFT 0.3.3 文档</title>
+    <title>trinity.common.models.vllm_patch.api_patch_v12 module &#8212; Trinity-RFT 0.3.3 文档</title>
   
   
   
@@ -41,11 +41,11 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script src="../_static/translations.js?v=beaddf03"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'build_api/trinity.buffer.reader.reader';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'build_api/trinity.common.models.vllm_patch.api_patch_v12';</script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
-    <link rel="next" title="trinity.buffer.reader.sql_reader module" href="trinity.buffer.reader.sql_reader.html" />
-    <link rel="prev" title="trinity.buffer.reader.queue_reader module" href="trinity.buffer.reader.queue_reader.html" />
+    <link rel="next" title="trinity.common.models.vllm_patch.worker_patch module" href="trinity.common.models.vllm_patch.worker_patch.html" />
+    <link rel="prev" title="trinity.common.models.vllm_patch.api_patch module" href="trinity.common.models.vllm_patch.api_patch.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="zh-CN"/>
   </head>
@@ -155,7 +155,7 @@
             </p>
           </summary>
           <ul>
-            <li class="toctree-l2 current "><a class="reference" href="trinity.buffer.reader.reader.html">latest</a></li>
+            <li class="toctree-l2 current "><a class="reference" href="trinity.common.models.vllm_patch.api_patch_v12.html">latest</a></li>
           </ul>
         </details>
       </li>
@@ -211,7 +211,7 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api_reference.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="trinity.buffer.html">trinity.buffer package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="trinity.buffer.html">trinity.buffer package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="trinity.buffer.operators.html">trinity.buffer.operators package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="trinity.buffer.operators.filters.html">trinity.buffer.operators.filters package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.buffer.operators.mappers.html">trinity.buffer.operators.mappers package</a></li>
@@ -224,10 +224,9 @@
 <li class="toctree-l4"><a class="reference internal" href="trinity.buffer.pipelines.task_pipeline.html">trinity.buffer.pipelines.task_pipeline module</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="trinity.buffer.reader.html">trinity.buffer.reader package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="trinity.buffer.reader.html">trinity.buffer.reader package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="trinity.buffer.reader.file_reader.html">trinity.buffer.reader.file_reader module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.buffer.reader.queue_reader.html">trinity.buffer.reader.queue_reader module</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">trinity.buffer.reader.reader module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.buffer.reader.sql_reader.html">trinity.buffer.reader.sql_reader module</a></li>
 </ul>
 </details></li>
@@ -353,9 +352,9 @@
 <li class="toctree-l3"><a class="reference internal" href="trinity.manager.synchronizer.html">trinity.manager.synchronizer module</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="trinity.common.html">trinity.common package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="trinity.common.models.html">trinity.common.models package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="trinity.common.models.vllm_patch.html">trinity.common.models.vllm_patch package</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="trinity.common.html">trinity.common package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="trinity.common.models.html">trinity.common.models package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="reference internal" href="trinity.common.models.vllm_patch.html">trinity.common.models.vllm_patch package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.models.mm_utils.html">trinity.common.models.mm_utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.models.model.html">trinity.common.models.model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.models.utils.html">trinity.common.models.utils module</a></li>
@@ -519,7 +518,7 @@
       
       
       
-      <li><a href="../_sources/build_api/trinity.buffer.reader.reader.rst" target="_blank"
+      <li><a href="../_sources/build_api/trinity.common.models.vllm_patch.api_patch_v12.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="下载源文件"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -601,7 +600,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>trinity.buffer.reader.reader module</h1>
+    <h1>trinity.common.models.vllm_patch.api_patch_v12 module</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -615,8 +614,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-trinity.buffer.reader.reader">
-<span id="trinity-buffer-reader-reader-module"></span><h1>trinity.buffer.reader.reader module<a class="headerlink" href="#module-trinity.buffer.reader.reader" title="Link to this heading">#</a></h1>
+  <section id="trinity-common-models-vllm-patch-api-patch-v12-module">
+<h1>trinity.common.models.vllm_patch.api_patch_v12 module<a class="headerlink" href="#trinity-common-models-vllm-patch-api-patch-v12-module" title="Link to this heading">#</a></h1>
 </section>
 
 
@@ -631,20 +630,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="trinity.buffer.reader.queue_reader.html"
+       href="trinity.common.models.vllm_patch.api_patch.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">上一页</p>
-        <p class="prev-next-title">trinity.buffer.reader.queue_reader module</p>
+        <p class="prev-next-title">trinity.common.models.vllm_patch.api_patch module</p>
       </div>
     </a>
     <a class="right-next"
-       href="trinity.buffer.reader.sql_reader.html"
+       href="trinity.common.models.vllm_patch.worker_patch.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">下一页</p>
-        <p class="prev-next-title">trinity.buffer.reader.sql_reader module</p>
+        <p class="prev-next-title">trinity.common.models.vllm_patch.worker_patch module</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

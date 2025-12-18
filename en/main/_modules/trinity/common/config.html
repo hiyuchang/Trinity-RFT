@@ -590,7 +590,6 @@ window.addEventListener("load", load);
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../build_api/trinity.buffer.reader.html">trinity.buffer.reader package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.buffer.reader.file_reader.html">trinity.buffer.reader.file_reader module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.buffer.reader.queue_reader.html">trinity.buffer.reader.queue_reader module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.buffer.reader.reader.html">trinity.buffer.reader.reader module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.buffer.reader.sql_reader.html">trinity.buffer.reader.sql_reader module</a></li>
 </ul>
 </details></li>
@@ -1476,7 +1475,7 @@ document.write(`
     <span class="n">use_v1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">enforce_eager</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">enable_prefix_caching</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">enable_chunked_prefill</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">enable_chunked_prefill</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">gpu_memory_utilization</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span>
     <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bfloat16&quot;</span>
     <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
@@ -1881,7 +1880,6 @@ document.write(`
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update config if `node_num` or `gpu_per_node` are not set.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">node_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">gpu_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
-
         <span class="c1"># init ray cluster to detect node_num and gpu_per_node</span>
         <span class="n">was_initialized</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">was_initialized</span><span class="p">:</span>
@@ -2028,7 +2026,7 @@ document.write(`
                 <span class="sa">f</span><span class="s2">&quot;Auto set `buffer.trainer_input.experience_buffer.path` to </span><span class="si">{</span><span class="n">experience_buffer</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
-        <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.algorithm.algorithm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALGORITHM_TYPE</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.algorithm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALGORITHM_TYPE</span>
 
         <span class="n">experience_buffer</span><span class="o">.</span><span class="n">schema_type</span> <span class="o">=</span> <span class="n">ALGORITHM_TYPE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">algorithm_type</span><span class="p">)</span><span class="o">.</span><span class="n">schema</span>
         <span class="n">experience_buffer</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">train_batch_size</span>
@@ -2140,12 +2138,12 @@ document.write(`
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_algorithm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.algorithm</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
             <span class="n">ADVANTAGE_FN</span><span class="p">,</span>
+            <span class="n">ALGORITHM_TYPE</span><span class="p">,</span>
             <span class="n">ENTROPY_LOSS_FN</span><span class="p">,</span>
             <span class="n">KL_FN</span><span class="p">,</span>
             <span class="n">POLICY_LOSS_FN</span><span class="p">,</span>
             <span class="n">SAMPLE_STRATEGY</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">trinity.algorithm.algorithm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALGORITHM_TYPE</span>
 
         <span class="n">algorithm</span> <span class="o">=</span> <span class="n">ALGORITHM_TYPE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">algorithm_type</span><span class="p">)</span>
         <span class="n">algorithm</span><span class="o">.</span><span class="n">check_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
