@@ -624,13 +624,14 @@ window.addEventListener("load", load);
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../build_api/trinity.explorer.html">trinity.explorer package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../build_api/trinity.explorer.api.html">trinity.explorer.api package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.explorer.api.api.html">trinity.explorer.api.api module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.explorer.api.service.html">trinity.explorer.api.service module</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../build_api/trinity.explorer.proxy.html">trinity.explorer.proxy package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.explorer.proxy.app.html">trinity.explorer.proxy.app module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.explorer.proxy.client.html">trinity.explorer.proxy.client module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.explorer.proxy.recorder.html">trinity.explorer.proxy.recorder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.explorer.proxy.service.html">trinity.explorer.proxy.service module</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../build_api/trinity.explorer.explorer.html">trinity.explorer.explorer module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../build_api/trinity.explorer.explorer_client.html">trinity.explorer.explorer_client module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../build_api/trinity.explorer.scheduler.html">trinity.explorer.scheduler module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../build_api/trinity.explorer.workflow_runner.html">trinity.explorer.workflow_runner module</a></li>
 </ul>
@@ -995,14 +996,14 @@ document.write(`
         <span class="p">),</span> <span class="s2">&quot;max_response_length must be greater than cache_length&quot;</span>
 
         <span class="n">response_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">response_token</span><span class="p">)</span>
-        <span class="n">excepted_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_response_length</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_length</span>
+        <span class="n">expected_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_response_length</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_length</span>
 
-        <span class="k">if</span> <span class="n">response_len</span> <span class="o">&lt;</span> <span class="n">excepted_len</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">response_len</span> <span class="o">&lt;</span> <span class="n">expected_len</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
         <span class="k">elif</span> <span class="n">response_len</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_response_length</span><span class="p">:</span>
             <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">penalty_factor</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">excepted_len</span> <span class="o">-</span> <span class="n">response_len</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">penalty_factor</span></div>
+            <span class="k">return</span> <span class="p">(</span><span class="n">expected_len</span> <span class="o">-</span> <span class="n">response_len</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_length</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">penalty_factor</span></div>
 </div>
 
 </pre></div>
