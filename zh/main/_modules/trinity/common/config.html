@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>trinity.common.config &#8212; Trinity-RFT 0.3.3 文档</title>
+    <title>trinity.common.config &#8212; Trinity-RFT 0.4.0 文档</title>
   
   
   
@@ -35,7 +35,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../_static/documentation_options.js?v=cfbd4ef8"></script>
+    <script src="../../../_static/documentation_options.js?v=0a12e38e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -501,8 +501,8 @@ window.addEventListener("load", load);
       
     
     
-    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.3.3 文档 - Home"/>
-    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.3.3 文档 - Home"/>`);</script>
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.0 文档 - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.0 文档 - Home"/>`);</script>
   
   
 </a></div>
@@ -2356,6 +2356,29 @@ document.write(`
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;auxiliary model&#39;s model_path is required.&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">model_args</span><span class="p">:</span>
                     <span class="n">set_if_none</span><span class="p">(</span><span class="n">aux_model</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+
+            <span class="c1"># check gpu number</span>
+            <span class="n">rollout_gpu_num</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">rollout_model</span><span class="o">.</span><span class="n">tensor_parallel_size</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">rollout_model</span><span class="o">.</span><span class="n">engine_num</span>
+                <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">model</span><span class="o">.</span><span class="n">tensor_parallel_size</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">engine_num</span>
+                        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">auxiliary_models</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">node_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">gpu_per_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">total_gpu_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">node_num</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">gpu_per_node</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;explore&quot;</span><span class="p">,</span> <span class="s2">&quot;bench&quot;</span><span class="p">,</span> <span class="s2">&quot;serve&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">rollout_gpu_num</span> <span class="o">&gt;</span> <span class="n">total_gpu_num</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Total GPU number (</span><span class="si">{</span><span class="n">total_gpu_num</span><span class="si">}</span><span class="s2">) is less than the number of GPUs required for rollout (</span><span class="si">{</span><span class="n">rollout_gpu_num</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span> <span class="ow">and</span> <span class="n">rollout_gpu_num</span> <span class="o">&gt;=</span> <span class="n">total_gpu_num</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Not enough GPUs for trainer in &#39;both&#39; mode. Explorer requires </span><span class="si">{</span><span class="n">rollout_gpu_num</span><span class="si">}</span><span class="s2"> GPUs, but total available GPUs are </span><span class="si">{</span><span class="n">total_gpu_num</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">over_rollout</span><span class="o">.</span><span class="n">ratio</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">explorer</span><span class="o">.</span><span class="n">over_rollout</span><span class="o">.</span><span class="n">ratio</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
