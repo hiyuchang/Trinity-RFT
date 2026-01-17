@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>异步 RFT &#8212; Trinity-RFT 0.4.0 文档</title>
+    <title>异步 RFT &#8212; Trinity-RFT 0.4.1 文档</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=0a12e38e"></script>
+    <script src="../_static/documentation_options.js?v=a35297e8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -137,8 +137,8 @@
       
     
     
-    <img src="../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.0 文档 - Home"/>
-    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.0 文档 - Home"/>`);</script>
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.1 文档 - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.1 文档 - Home"/>`);</script>
   
   
 </a></div>
@@ -503,7 +503,7 @@
 <div class="article-header-buttons">
 
 
-<a href="https://github.com/modelscope/Trinity-RFT" target="_blank"
+<a href="https://github.com/agentscope-ai/Trinity-RFT" target="_blank"
    class="btn btn-sm btn-source-repository-button"
    title="源码库"
    data-bs-placement="bottom" data-bs-toggle="tooltip"
@@ -629,7 +629,7 @@ document.write(`
 <h1>异步 RFT<a class="headerlink" href="#rft" title="Link to this heading">#</a></h1>
 <p>本示例展示了如何使用 Qwen2.5-1.5B-Instruct 模型和 GSM8K 数据集以完全异步模式运行 GRPO 算法。</p>
 <p>Trinity-RFT 支持通过在独立进程中运行 trainer 和 explorer 来实现异步 RFT。</p>
-<p>我们提供了两个主要配置文件：<a class="reference external" href="https://github.com/modelscope/Trinity-RFT/blob/main/examples/async_gsm8k/explorer.yaml"><code class="docutils literal notranslate"><span class="pre">explorer.yaml</span></code></a> 和 <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/blob/main/examples/async_gsm8k/trainer.yaml"><code class="docutils literal notranslate"><span class="pre">trainer.yaml</span></code></a>。
+<p>我们提供了两个主要配置文件：<a class="reference external" href="https://github.com/agentscope-ai/Trinity-RFT/blob/main/examples/async_gsm8k/explorer.yaml"><code class="docutils literal notranslate"><span class="pre">explorer.yaml</span></code></a> 和 <a class="reference external" href="https://github.com/agentscope-ai/Trinity-RFT/blob/main/examples/async_gsm8k/trainer.yaml"><code class="docutils literal notranslate"><span class="pre">trainer.yaml</span></code></a>。
 两者之间的主要区别是：在 <code class="docutils literal notranslate"><span class="pre">explorer.yaml</span></code> 中将 <code class="docutils literal notranslate"><span class="pre">mode</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">explore</span></code>，而在 <code class="docutils literal notranslate"><span class="pre">trainer.yaml</span></code> 中将 <code class="docutils literal notranslate"><span class="pre">mode</span></code> 设置为 <code class="docutils literal notranslate"><span class="pre">train</span></code>。
 Explorer 与 Trainer 的模型权重每处理 <code class="docutils literal notranslate"><span class="pre">sync_interval</span> <span class="pre">*</span> <span class="pre">batch_size</span></code> 个任务后同步一次。</p>
 <p>假设我们有一个包含 8 块 GPU 的节点，我们将其中 4 块分配给 trainer，另外 4 块分配给 explorer 。<code class="docutils literal notranslate"><span class="pre">explorer.yaml</span></code> 中的关键配置如下：</p>

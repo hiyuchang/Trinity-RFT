@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Algorithm 进阶开发 &#8212; Trinity-RFT 0.4.0 文档</title>
+    <title>Algorithm 进阶开发 &#8212; Trinity-RFT 0.4.1 文档</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=0a12e38e"></script>
+    <script src="../_static/documentation_options.js?v=a35297e8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -139,8 +139,8 @@
       
     
     
-    <img src="../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.0 文档 - Home"/>
-    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.0 文档 - Home"/>`);</script>
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.1 文档 - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.1 文档 - Home"/>`);</script>
   
   
 </a></div>
@@ -505,7 +505,7 @@
 <div class="article-header-buttons">
 
 
-<a href="https://github.com/modelscope/Trinity-RFT" target="_blank"
+<a href="https://github.com/agentscope-ai/Trinity-RFT" target="_blank"
    class="btn btn-sm btn-source-repository-button"
    title="源码库"
    data-bs-placement="bottom" data-bs-toggle="tooltip"
@@ -890,7 +890,7 @@ document.write(`
 <section id="id5">
 <h2>步骤 4：运行实验<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
 <p>通过上述新定义的类和函数，我们可以无需修改其他流程即可运行实验。
-下面展示了一个包含关键配置的示例，包括权重因子 <span class="math notranslate nohighlight">\(\mu\)</span>（即 <code class="docutils literal notranslate"><span class="pre">algorithm.policy_loss_fn_args['mu']</span></code>）以及专家 experience 的批次大小 <span class="math notranslate nohighlight">\(B'\)</span>，其值等于 <code class="docutils literal notranslate"><span class="pre">buffer.batch_size</span></code>、<code class="docutils literal notranslate"><span class="pre">algorithm.sample_strategy_args['expert_data_ratio']</span></code> 和 <code class="docutils literal notranslate"><span class="pre">algorithm.repeat_times</span></code> 的乘积。完整配置请参考 <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/tree/main/examples/mix_math/mix_math.yaml"><code class="docutils literal notranslate"><span class="pre">mix_math.yaml</span></code></a>。</p>
+下面展示了一个包含关键配置的示例，包括权重因子 <span class="math notranslate nohighlight">\(\mu\)</span>（即 <code class="docutils literal notranslate"><span class="pre">algorithm.policy_loss_fn_args['mu']</span></code>）以及专家 experience 的批次大小 <span class="math notranslate nohighlight">\(B'\)</span>，其值等于 <code class="docutils literal notranslate"><span class="pre">buffer.batch_size</span></code>、<code class="docutils literal notranslate"><span class="pre">algorithm.sample_strategy_args['expert_data_ratio']</span></code> 和 <code class="docutils literal notranslate"><span class="pre">algorithm.repeat_times</span></code> 的乘积。完整配置请参考 <a class="reference external" href="https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/mix_math/mix_math.yaml"><code class="docutils literal notranslate"><span class="pre">mix_math.yaml</span></code></a>。</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">algorithm</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">algorithm_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mix</span>
 <span class="w">  </span><span class="nt">repeat_times</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>

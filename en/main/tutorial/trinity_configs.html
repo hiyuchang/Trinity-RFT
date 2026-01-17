@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Configuration Guide &#8212; Trinity-RFT 0.4.0 documentation</title>
+    <title>Configuration Guide &#8212; Trinity-RFT 0.4.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=183391d5"></script>
+    <script src="../_static/documentation_options.js?v=a3cf13c8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -136,8 +136,8 @@
       
     
     
-    <img src="../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.0 documentation - Home"/>
-    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.0 documentation - Home"/>`);</script>
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.1 documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.1 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -502,7 +502,7 @@
 <div class="article-header-buttons">
 
 
-<a href="https://github.com/modelscope/Trinity-RFT" target="_blank"
+<a href="https://github.com/agentscope-ai/Trinity-RFT" target="_blank"
    class="btn btn-sm btn-source-repository-button"
    title="Source repository"
    data-bs-placement="bottom" data-bs-toggle="tooltip"
@@ -709,7 +709,7 @@ document.write(`
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </pre></div>
 </div>
-<p>Each of these sections will be explained in detail below. For additional details about specific parameters not covered here, please refer to the <a class="reference external" href="https://github.com/modelscope/Trinity-RFT/blob/main/trinity/common/config.py">source code</a>.</p>
+<p>Each of these sections will be explained in detail below. For additional details about specific parameters not covered here, please refer to the <a class="reference external" href="https://github.com/agentscope-ai/Trinity-RFT/blob/main/trinity/common/config.py">source code</a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Trinity-RFT uses <a class="reference external" href="https://omegaconf.readthedocs.io/en/latest/">OmegaConf</a> to load YAML configuration files.
@@ -752,7 +752,7 @@ Users can use these features to simplify configuration.</p>
 <span class="w">  </span><span class="nt">repeat_times</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
 <span class="w">  </span><span class="nt">optimizer</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">lr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1e-6</span>
-<span class="w">    </span><span class="nt">warmup_style</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;warmup&quot;</span>
+<span class="w">    </span><span class="nt">lr_scheduler_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;constant&quot;</span>
 <span class="w">  </span><span class="c1"># The following parameters are optional</span>
 <span class="w">  </span><span class="c1"># If not specified, they will automatically be set based on the `algorithm_type`</span>
 <span class="w">  </span><span class="nt">sample_strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;default&quot;</span>
@@ -768,7 +768,8 @@ Users can use these features to simplify configuration.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">optimizer</span></code>: Optimizer configuration for actor.</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">lr</span></code>: Learning rate for actor.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">warmup_style</span></code>: Warmup style for actor’s learning rate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">warmup_style</span></code>: Deprecated, use <code class="docutils literal notranslate"><span class="pre">lr_scheduler_type</span></code> instead. We will remove this field in future versions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lr_scheduler_type</span></code>: Learning rate scheduler type for actor model. Default is <code class="docutils literal notranslate"><span class="pre">constant</span></code>. Supported types: <code class="docutils literal notranslate"><span class="pre">constant</span></code>, <code class="docutils literal notranslate"><span class="pre">cosine</span></code>.</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sample_strategy</span></code>: The sampling strategy used for loading experiences from experience buffer. Supported types: <code class="docutils literal notranslate"><span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">staleness_control</span></code>, <code class="docutils literal notranslate"><span class="pre">mix</span></code>.</p></li>
@@ -1183,6 +1184,7 @@ Users can use these features to simplify configuration.</p>
 <span class="w">  </span><span class="nt">use_dynamic_bsz</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">max_token_len_per_gpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16384</span>
 <span class="w">  </span><span class="nt">ulysses_sequence_parallel_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">max_checkpoints_to_keep</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
 <span class="w">  </span><span class="nt">trainer_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
 </pre></div>
 </div>
@@ -1217,6 +1219,7 @@ Users can use these features to simplify configuration.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_dynamic_bsz</span></code>: Whether to use dynamic batch size.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_token_len_per_gpu</span></code>:  The maximum number of tokens to be processed in forward and backward when updating the policy. Effective when <code class="docutils literal notranslate"><span class="pre">use_dynamic_bsz=true</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ulysses_sequence_parallel_size</span></code>: Sequence parallel size.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_checkpoints_to_keep</span></code>: Maximum number of checkpoints to keep. Older checkpoints will be deleted. If not specified, all checkpoints will be kept.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">trainer_config</span></code>: The trainer configuration provided inline.</p></li>
 </ul>
 </section>

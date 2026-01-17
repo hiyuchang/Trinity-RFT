@@ -53,7 +53,7 @@ stages:
   ...
 ```
 
-每个部分将在下文详细说明。关于此处未涵盖的具体参数的更多细节，请参考[源码](https://github.com/modelscope/Trinity-RFT/blob/main/trinity/common/config.py)。
+每个部分将在下文详细说明。关于此处未涵盖的具体参数的更多细节，请参考[源码](https://github.com/agentscope-ai/Trinity-RFT/blob/main/trinity/common/config.py)。
 
 ```{tip}
 Trinity-RFT 使用[OmegaConf](https://omegaconf.readthedocs.io/en/latest/) 来加载 YAML 配置文件。
@@ -97,7 +97,7 @@ algorithm:
   repeat_times: 8
   optimizer:
     lr: 1e-6
-    warmup_style: constant
+    lr_scheduler_type: constant
   # 以下参数为可选
   # 若未指定，将根据 `algorithm_type` 自动设置
   sample_strategy: "default"
@@ -111,7 +111,8 @@ algorithm:
 - `repeat_times`: 每个任务重复的次数。默认为 `1`。在 `dpo` 中自动设为 `2`。某些算法如 GRPO 和 OPMD 要求 `repeat_times` > 1。
 - `optimizer`: Actor 优化器的参数。
   - `lr`: 优化器的学习率。
-  - `warmup_style`: 学习率的预热策略。
+  - `warmup_style`：已弃用，请改用 `lr_scheduler_type`。该域将会在未来版本中移除。
+  - `lr_scheduler_type`：Actor 模型的学习率调度器类型。默认值为 `constant`。支持类型：`constant`、`cosine`。
 - `sample_strategy`: 从 experience buffer 加载 experience 时使用的采样策略。支持类型：`default`、`staleness_control`、`mix`。
 - `advantage_fn`: 用于计算优势值的函数。
 - `kl_penalty_fn`: 用于在奖励中计算 KL 惩罚的函数。
@@ -472,6 +473,7 @@ trainer:
   use_dynamic_bsz: true
   max_token_len_per_gpu: 16384
   ulysses_sequence_parallel_size: 1
+  max_checkpoints_to_keep: 5
   trainer_config: null
 ```
 
@@ -496,6 +498,7 @@ trainer:
 - `use_dynamic_bsz`: 是否使用动态批量大小。
 - `max_token_len_per_gpu`: 训练过程中，每个 GPU 最大 token 长度; 当 `use_dynamic_bsz=true` 时生效。
 - `ulysses_sequence_parallel_size`: 序列并行的并行度，即用于分割单个序列的 GPU 数量。
+- `max_checkpoints_to_keep`: 保留的最大检查点数量。超过此数量后，最旧的检查点将被删除。如果未指定，则将保留所有检查点。
 - `trainer_config`: 内联提供的 trainer 配置。
 
 ---

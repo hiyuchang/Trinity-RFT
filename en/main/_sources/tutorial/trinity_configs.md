@@ -53,7 +53,7 @@ stages:
   ...
 ```
 
-Each of these sections will be explained in detail below. For additional details about specific parameters not covered here, please refer to the [source code](https://github.com/modelscope/Trinity-RFT/blob/main/trinity/common/config.py).
+Each of these sections will be explained in detail below. For additional details about specific parameters not covered here, please refer to the [source code](https://github.com/agentscope-ai/Trinity-RFT/blob/main/trinity/common/config.py).
 
 ```{tip}
 Trinity-RFT uses [OmegaConf](https://omegaconf.readthedocs.io/en/latest/) to load YAML configuration files.
@@ -97,7 +97,7 @@ algorithm:
   repeat_times: 8
   optimizer:
     lr: 1e-6
-    warmup_style: "warmup"
+    lr_scheduler_type: "constant"
   # The following parameters are optional
   # If not specified, they will automatically be set based on the `algorithm_type`
   sample_strategy: "default"
@@ -111,7 +111,8 @@ algorithm:
 - `repeat_times`: Number of times each task is repeated. Default is `1`. In `dpo`, this is automatically set to `2`. Some algorithms such as GRPO and OPMD require `repeat_times` > 1.
 - `optimizer`: Optimizer configuration for actor.
   - `lr`: Learning rate for actor.
-  - `warmup_style`: Warmup style for actor's learning rate.
+  - `warmup_style`: Deprecated, use `lr_scheduler_type` instead. We will remove this field in future versions.
+  - `lr_scheduler_type`: Learning rate scheduler type for actor model. Default is `constant`. Supported types: `constant`, `cosine`.
 - `sample_strategy`: The sampling strategy used for loading experiences from experience buffer. Supported types: `default`, `staleness_control`, `mix`.
 - `advantage_fn`: The advantage function used for computing advantages.
 - `kl_penalty_fn`: The KL penalty function used for computing KL penalty applied in reward.
@@ -475,6 +476,7 @@ trainer:
   use_dynamic_bsz: true
   max_token_len_per_gpu: 16384
   ulysses_sequence_parallel_size: 1
+  max_checkpoints_to_keep: 5
   trainer_config: null
 ```
 
@@ -499,6 +501,7 @@ trainer:
 - `use_dynamic_bsz`: Whether to use dynamic batch size.
 - `max_token_len_per_gpu`:  The maximum number of tokens to be processed in forward and backward when updating the policy. Effective when `use_dynamic_bsz=true`.
 - `ulysses_sequence_parallel_size`: Sequence parallel size.
+- `max_checkpoints_to_keep`: Maximum number of checkpoints to keep. Older checkpoints will be deleted. If not specified, all checkpoints will be kept.
 - `trainer_config`: The trainer configuration provided inline.
 ---
 
