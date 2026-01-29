@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>trinity.common.workflows.workflow &#8212; Trinity-RFT 0.4.1 documentation</title>
+    <title>trinity.common.workflows.workflow &#8212; Trinity-RFT 0.5.0.dev0 documentation</title>
   
   
   
@@ -35,7 +35,7 @@
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../../_static/documentation_options.js?v=a3cf13c8"></script>
+    <script src="../../../../_static/documentation_options.js?v=3b5db68c"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -570,8 +570,8 @@ window.addEventListener("load", load);</script>
       
     
     
-    <img src="../../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.4.1 documentation - Home"/>
-    <script>document.write(`<img src="../../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.4.1 documentation - Home"/>`);</script>
+    <img src="../../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.0.dev0 documentation - Home"/>
+    <script>document.write(`<img src="../../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.5.0.dev0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -1276,7 +1276,10 @@ document.write(`
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Experience</span><span class="p">:</span>
         <span class="n">converted_experience</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">convert_messages_to_experience</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_experience_from_converted</span><span class="p">(</span>
-            <span class="n">converted_experience</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">truncate_status</span>
+            <span class="n">converted_experience</span><span class="p">,</span>
+            <span class="n">reward</span><span class="p">,</span>
+            <span class="n">info</span><span class="p">,</span>
+            <span class="n">converted_experience</span><span class="o">.</span><span class="n">truncate_status</span> <span class="ow">or</span> <span class="n">truncate_status</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -1287,7 +1290,10 @@ document.write(`
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Experience</span><span class="p">:</span>
         <span class="n">converted_experience</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">convert_messages_to_experience_async</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_experience_from_converted</span><span class="p">(</span>
-            <span class="n">converted_experience</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">truncate_status</span>
+            <span class="n">converted_experience</span><span class="p">,</span>
+            <span class="n">reward</span><span class="p">,</span>
+            <span class="n">info</span><span class="p">,</span>
+            <span class="n">converted_experience</span><span class="o">.</span><span class="n">truncate_status</span> <span class="ow">or</span> <span class="n">truncate_status</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
