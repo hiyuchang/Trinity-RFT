@@ -82,6 +82,7 @@ ignore_validator_suggestions: false
   - `train`: Only launches the trainer.
   - `explore`: Only launches the explorer.
   - `bench`: Used for benchmarking.
+  - `colocate`: Only for single GPU scenarios, launches both trainer and explorer on the same GPU.
 - `checkpoint_root_dir`: Root directory where all checkpoints and logs will be saved. Checkpoints for this experiment will be stored in `<checkpoint_root_dir>/<project>/<name>/`.
 - `continue_from_checkpoint`: If set to `true`, the experiment will continue from the latest checkpoint in the checkpoint path (if any); otherwise, it will rename the current experiment to `<name>_<timestamp>` and start a new experiment. Due to our decoupled design, during recovery from a checkpoint, we can only guarantee that the Trainer's model parameters and its optional auxiliary buffers (`auxiliary_buffers`) are restored to their latest checkpointed states, while the Explorer and Experience Buffer cannot be guaranteed to be restored to the same point in time.
 - `ray_namespace`: Namespace for the modules launched in the current experiment. If not specified, it will be set to `<project>/<name>`.
@@ -464,7 +465,8 @@ synchronizer:
 - `sync_timeout`: Timeout duration for synchronization.
 - `sync_style`: Style of synchronization. Options:
   - `fixed`: The explorer and trainer synchronize weights every `sync_interval` steps.
-  - `dynamic_by_explorer`: The explorer notifies the trainer to synchronize weights after completing `sync_interval` steps, regardless of how many steps the trainer has completed at this point.
+  - `explorer_driven`: The explorer notifies the trainer to synchronize weights after completing `sync_interval` steps, regardless of how many steps the trainer has completed at this point.
+  - `trainer_driven`: The trainer notifies the explorer to synchronize weights after completing `sync_interval` steps, regardless of how many steps the explorer has completed at this point.
 
 ---
 

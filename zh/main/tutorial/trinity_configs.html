@@ -741,6 +741,7 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">train</span></code>: 仅启动 trainer。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">explore</span></code>: 仅启动 explorer。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bench</span></code>: 用于 benchmark 测试。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">colocate</span></code>: 仅适用于单 GPU 场景，在同一 GPU 上启动 trainer 和 explorer。</p></li>
 </ul>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_root_dir</span></code>: 所有检查点和日志的根目录。该实验的检查点将存储在 <code class="docutils literal notranslate"><span class="pre">&lt;checkpoint_root_dir&gt;/&lt;project&gt;/&lt;name&gt;/</span></code> 路径下。</p></li>
@@ -1176,7 +1177,8 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">sync_style</span></code>: 同步风格。选项：</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">fixed</span></code>: explorer 和 trainer 每隔 <code class="docutils literal notranslate"><span class="pre">sync_interval</span></code> 步同步一次权重。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dynamic_by_explorer</span></code>: explorer 在完成 <code class="docutils literal notranslate"><span class="pre">sync_interval</span></code> 步后通知 trainer 同步权重，而不管此时 trainer 已完成多少步。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">explorer_driven</span></code>: explorer 在完成 <code class="docutils literal notranslate"><span class="pre">sync_interval</span></code> 步后通知 trainer 同步权重，而不管此时 trainer 已完成多少步。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer_driven</span></code>: trainer 在完成 <code class="docutils literal notranslate"><span class="pre">sync_interval</span></code> 步后通知 explorer 同步权重，而不管此时 explorer 已完成多少步。</p></li>
 </ul>
 </li>
 </ul>
