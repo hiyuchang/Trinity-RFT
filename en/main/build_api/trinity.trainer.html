@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>trinity.trainer package &#8212; Trinity-RFT 0.5.0 documentation</title>
+    <title>trinity.trainer package &#8212; Trinity-RFT 0.5.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=e4e9a439"></script>
+    <script src="../_static/documentation_options.js?v=5f152624"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -136,8 +136,8 @@
       
     
     
-    <img src="../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.0 documentation - Home"/>
-    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.5.0 documentation - Home"/>`);</script>
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.1 documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.5.1 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -299,6 +299,7 @@
 <li class="toctree-l4"><a class="reference internal" href="trinity.algorithm.advantage_fn.advantage_fn.html">trinity.algorithm.advantage_fn.advantage_fn module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.algorithm.advantage_fn.asymre_advantage.html">trinity.algorithm.advantage_fn.asymre_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.algorithm.advantage_fn.grpo_advantage.html">trinity.algorithm.advantage_fn.grpo_advantage module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="trinity.algorithm.advantage_fn.jsd_advantage.html">trinity.algorithm.advantage_fn.jsd_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.algorithm.advantage_fn.multi_step_grpo_advantage.html">trinity.algorithm.advantage_fn.multi_step_grpo_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.algorithm.advantage_fn.on_policy_distill_advantage.html">trinity.algorithm.advantage_fn.on_policy_distill_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.algorithm.advantage_fn.opmd_advantage.html">trinity.algorithm.advantage_fn.opmd_advantage module</a></li>
@@ -358,6 +359,7 @@
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.manager.checkpoint_converter.html">trinity.manager.checkpoint_converter module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.manager.config_manager.html">trinity.manager.config_manager module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.manager.log_manager.html">trinity.manager.log_manager module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.manager.state_manager.html">trinity.manager.state_manager module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.manager.synchronizer.html">trinity.manager.synchronizer module</a></li>
 </ul>
@@ -371,6 +373,10 @@
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.models.utils.html">trinity.common.models.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.models.vllm_model.html">trinity.common.models.vllm_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.common.models.vllm_worker.html">trinity.common.models.vllm_worker module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="trinity.common.patch.html">trinity.common.patch package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="trinity.common.patch.kimi.html">trinity.common.patch.kimi module</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="trinity.common.rewards.html">trinity.common.rewards package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -683,8 +689,14 @@ document.write(`
 </li>
 <li class="toctree-l1"><a class="reference internal" href="trinity.trainer.verl.html">trinity.trainer.verl package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="trinity.trainer.verl.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl.dp_actor.html">trinity.trainer.verl.dp_actor module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl.fsdp_checkpoint_manager.html">trinity.trainer.verl.fsdp_checkpoint_manager module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl.dp_actor.html">trinity.trainer.verl.dp_actor module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="trinity.trainer.verl.dp_actor.html#trinity.trainer.verl.dp_actor.DataParallelPPOActor"><code class="docutils literal notranslate"><span class="pre">DataParallelPPOActor</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl.fsdp_checkpoint_manager.html">trinity.trainer.verl.fsdp_checkpoint_manager module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="trinity.trainer.verl.fsdp_checkpoint_manager.html#trinity.trainer.verl.fsdp_checkpoint_manager.FSDPCheckpointManager"><code class="docutils literal notranslate"><span class="pre">FSDPCheckpointManager</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl.fsdp_workers.html">trinity.trainer.verl.fsdp_workers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl.megatron_actor.html">trinity.trainer.verl.megatron_actor module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl.megatron_checkpoint_manager.html">trinity.trainer.verl.megatron_checkpoint_manager module</a></li>
@@ -693,6 +705,7 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="trinity.trainer.verl.utils.html#trinity.trainer.verl.utils.to_data_proto"><code class="docutils literal notranslate"><span class="pre">to_data_proto()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.trainer.verl.utils.html#trinity.trainer.verl.utils.compute_data_metrics"><code class="docutils literal notranslate"><span class="pre">compute_data_metrics()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="trinity.trainer.verl.utils.html#trinity.trainer.verl.utils.get_latest_hf_checkpoint_path"><code class="docutils literal notranslate"><span class="pre">get_latest_hf_checkpoint_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="trinity.trainer.verl.utils.html#trinity.trainer.verl.utils.get_model_class"><code class="docutils literal notranslate"><span class="pre">get_model_class()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -737,7 +750,32 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="trinity.trainer.trainer.html#trinity.trainer.trainer.get_trainer_wrapper"><code class="docutils literal notranslate"><span class="pre">get_trainer_wrapper()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="trinity.trainer.verl_trainer.html">trinity.trainer.verl_trainer module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trinity.trainer.verl_trainer.html">trinity.trainer.verl_trainer module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.__init__"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.update_latest_checkpoint_step"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.update_latest_checkpoint_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.update_latest_state_dict_step"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.update_latest_state_dict_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.register_thread_count"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.register_thread_count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.monitor_step"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.monitor_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.notify_started"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.notify_started()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.notify_finished"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.notify_finished()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.CheckpointMonitor.get_actor"><code class="docutils literal notranslate"><span class="pre">CheckpointMonitor.get_actor()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.__init__"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.init_workers"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.init_workers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.train_step_num"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.train_step_num</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.prepare"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.prepare()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.save_state_dict"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.save_state_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.upload_state_dict"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.upload_state_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.train_step"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.train_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.save_checkpoint"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.save_checkpoint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="trinity.trainer.verl_trainer.html#trinity.trainer.verl_trainer.VerlPPOTrainerWrapper.sync_weight"><code class="docutils literal notranslate"><span class="pre">VerlPPOTrainerWrapper.sync_weight()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

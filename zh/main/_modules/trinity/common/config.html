@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>trinity.common.config &#8212; Trinity-RFT 0.5.0 文档</title>
+    <title>trinity.common.config &#8212; Trinity-RFT 0.5.1 文档</title>
   
   
   
@@ -35,7 +35,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../_static/documentation_options.js?v=6edd33ca"></script>
+    <script src="../../../_static/documentation_options.js?v=c79d47ac"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -571,8 +571,8 @@ window.addEventListener("load", load);</script>
       
     
     
-    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.0 文档 - Home"/>
-    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.5.0 文档 - Home"/>`);</script>
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.1 文档 - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="Trinity-RFT 0.5.1 文档 - Home"/>`);</script>
   
   
 </a></div>
@@ -734,6 +734,7 @@ window.addEventListener("load", load);</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.algorithm.advantage_fn.advantage_fn.html">trinity.algorithm.advantage_fn.advantage_fn module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.algorithm.advantage_fn.asymre_advantage.html">trinity.algorithm.advantage_fn.asymre_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.algorithm.advantage_fn.grpo_advantage.html">trinity.algorithm.advantage_fn.grpo_advantage module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.algorithm.advantage_fn.jsd_advantage.html">trinity.algorithm.advantage_fn.jsd_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.algorithm.advantage_fn.multi_step_grpo_advantage.html">trinity.algorithm.advantage_fn.multi_step_grpo_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.algorithm.advantage_fn.on_policy_distill_advantage.html">trinity.algorithm.advantage_fn.on_policy_distill_advantage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.algorithm.advantage_fn.opmd_advantage.html">trinity.algorithm.advantage_fn.opmd_advantage module</a></li>
@@ -793,6 +794,7 @@ window.addEventListener("load", load);</script>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../build_api/trinity.manager.checkpoint_converter.html">trinity.manager.checkpoint_converter module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../build_api/trinity.manager.config_manager.html">trinity.manager.config_manager module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../build_api/trinity.manager.log_manager.html">trinity.manager.log_manager module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../build_api/trinity.manager.state_manager.html">trinity.manager.state_manager module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../build_api/trinity.manager.synchronizer.html">trinity.manager.synchronizer module</a></li>
 </ul>
@@ -806,6 +808,10 @@ window.addEventListener("load", load);</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.models.utils.html">trinity.common.models.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.models.vllm_model.html">trinity.common.models.vllm_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.models.vllm_worker.html">trinity.common.models.vllm_worker module</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../build_api/trinity.common.patch.html">trinity.common.patch package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../build_api/trinity.common.patch.kimi.html">trinity.common.patch.kimi module</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../build_api/trinity.common.rewards.html">trinity.common.rewards package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -1520,6 +1526,7 @@ document.write(`
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelConfig</span><span class="p">:</span>
     <span class="c1"># source model path</span>
     <span class="n">model_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">trust_remote_code</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">critic_model_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="n">custom_chat_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1572,6 +1579,7 @@ document.write(`
     <span class="c1"># ! DO NOT SET in explorer.rollout_model, automatically set from config.model.model_path</span>
     <span class="n">model_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">trust_remote_code</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="n">engine_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;vllm&quot;</span>
     <span class="n">engine_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
@@ -1757,7 +1765,6 @@ document.write(`
     <span class="c1"># ! DO NOT SET FOLLOWING FIELDS</span>
     <span class="n">explorer_output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StorageConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># automatically set</span>
     <span class="n">tokenizer_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># automatically set</span>
-    <span class="n">pad_token_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># automatically set</span>
     <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># automatically set</span></div>
 
 
@@ -2073,6 +2080,13 @@ document.write(`
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">tinker</span><span class="o">.</span><span class="n">base_url</span><span class="p">:</span>
             <span class="n">envs</span><span class="p">[</span><span class="s2">&quot;TINKER_BASE_URL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">tinker</span><span class="o">.</span><span class="n">base_url</span>
         <span class="k">return</span> <span class="n">envs</span></div>
+
+
+<div class="viewcode-block" id="Config.get_checkpoint_job_dir">
+<a class="viewcode-back" href="../../../build_api/trinity.common.config.html#trinity.common.config.Config.get_checkpoint_job_dir">[文档]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_checkpoint_job_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the checkpoint job dir.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_root_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 </div>
 
 
