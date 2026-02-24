@@ -28,6 +28,9 @@ from verl.utils.debug import GPUMemoryLogger
 from verl.utils.device import get_device_id
 from verl.utils.py_functional import append_to_dict
 from verl.utils.seqlen_balancing import prepare_dynamic_batch
+from verl.utils.torch_functional import (
+    logprobs_from_logits as verl_logprobs_from_logits,
+)
 from verl.workers.actor.dp_actor import DataParallelPPOActor as DPActor
 
 from trinity.algorithm import ENTROPY_LOSS_FN, KL_FN, POLICY_LOSS_FN
@@ -35,11 +38,19 @@ from trinity.algorithm.entropy_loss_fn.entropy_loss_fn import DummyEntropyLossFn
 from trinity.algorithm.kl_fn.kl_fn import DummyKLFn
 from trinity.algorithm.utils import prefix_metrics
 from trinity.common.config import AlgorithmConfig
+from trinity.utils.registry import Registry
 
 __all__ = ["DataParallelPPOActor"]
 
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
+
+LOG_PROB_FN: Registry = Registry(
+    "log_prob_fn",
+    default_mapping={
+        "clipv_entropy_nec": "examples.entropy.clipv_dp_actor.clipv_compute_log_prob_with_nec",
+    },
+)
 
 
 class DataParallelPPOActor(DPActor):
@@ -51,6 +62,22 @@ class DataParallelPPOActor(DPActor):
         self.policy_loss_fn = None
         self.kl_loss_fn = None
         self.entropy_loss_fn = None
+        log_prob_fn_key = config.get("log_prob_fn", "default")
+        if not log_prob_fn_key or log_prob_fn_key == "default":
+            self._compute_log_prob_fn_name = "default"
+            self._compute_log_prob_fn = None  # use default log_prob_fn
+        else:
+            self._compute_log_prob_fn_name = str(log_prob_fn_key)
+            self._compute_log_prob_fn = LOG_PROB_FN.get(
+                self._compute_log_prob_fn_name
+            )  # use custom log_prob_fn
+
+    def compute_log_probs_from_logits(
+        self, logits: torch.Tensor, labels: torch.Tensor, inplace_backward: bool = True
+    ) -> torch.Tensor:
+        return verl_logprobs_from_logits(
+            logits=logits, labels=labels, inplace_backward=inplace_backward
+        )
 
     def set_algorithm(self, algorithm_config: AlgorithmConfig):
         self.loss_agg_mode = algorithm_config.loss_agg_mode
@@ -221,3 +248,18 @@ class DataParallelPPOActor(DPActor):
                 append_to_dict(metrics, mini_batch_metrics)
         self.actor_optimizer.zero_grad()
         return metrics
+
+    @GPUMemoryLogger(role="dp actor", logger=logger)
+    def compute_log_prob(
+        self, data: DataProto, calculate_entropy: bool = False, calculate_nec: bool = False
+    ):
+        if self._compute_log_prob_fn_name == "default" or self._compute_log_prob_fn is None:
+            log_probs, entropys = super().compute_log_prob(
+                data=data, calculate_entropy=calculate_entropy
+            )
+            return {"entropys": entropys, "log_probs": log_probs}
+        else:
+            outputs = self._compute_log_prob_fn(
+                actor=self, data=data, calculate_entropy=calculate_entropy
+            )
+        return outputs
