@@ -20,6 +20,7 @@ ADVANTAGE_FN: Registry = Registry(
         "on_policy_distill": "trinity.algorithm.advantage_fn.on_policy_distill_advantage.OnPolicyDistillAdvantage",
         "jsd": "trinity.algorithm.advantage_fn.jsd_advantage.JSDAdvantage",
         "clipb": "trinity.algorithm.advantage_fn.clipb_advantage.ClipBAdvantageFn",
+        "clipv": "trinity.algorithm.advantage_fn.clipv_advantage.ClipVAdvantageFn",
     },
 )
 

@@ -2,6 +2,8 @@
 
 This example shows the two algorithms **Clip_B** and **Clip_V** from the work [On the Entropy Dynamics in Reinforcement Fine-Tuning of Large Language Models](https://arxiv.org/pdf/2602.03392).
 
+NOTE: This example is only tested on verl==0.7.0.
+
 ## Data Preparation
 
 We utilize the [DAPO-Math-17k](https://huggingface.co/datasets/open-r1/DAPO-Math-17k-Processed) dataset as our training set. We exclude 500 questions from the training set to form the validation set (denoted by dapo-validation-500).
@@ -16,7 +18,7 @@ cd /path/to/Trinity-RFT
 git apply examples/entropy/clipb_trainer.patch
 ```
 
-2. Update the dataset paths in the config file [`clipb.yaml`](clipb.yaml) to point to your local data.
+2. Update the dataset paths and other configurations in the file [`clipb.yaml`](clipb.yaml) to point to your local data.
 
 3. Run the experiment:
 
@@ -26,4 +28,17 @@ trinity run examples/entropy/clipb.yaml
 
 ## Clip_V Implementation
 
-Coming soon.
+1. Apply the patch to keep entropy information in the trainer batch:
+
+```bash
+cd /path/to/Trinity-RFT
+git apply examples/entropy/clipv_trainer.patch
+```
+
+2. Update the dataset paths and other configurations in the file [`clipv.yaml`](clipv.yaml) to point to your local data.
+
+3. Run the experiment:
+
+```bash
+trinity run examples/entropy/clipv.yaml
+```
