@@ -1,27 +1,4 @@
---- a/trinity/trainer/verl/fsdp_workers.py
-+++ b/trinity/trainer/verl/fsdp_workers.py
-@@ -610,7 +610,8 @@
-
-     @register(dispatch_mode=Dispatch.ONE_TO_ALL)
-     def init_model(self):
--        from trinity.trainer.verl.dp_actor import DataParallelPPOActor
-+        from examples.entropy.clipv_dp_actor import DataParallelPPOActor
-@@ -903,10 +904,16 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
-         # perform recompute log_prob
-         with self.ulysses_sharding_manager:
-             with adapter_ctx:
--                output, entropys = self.actor.compute_log_prob(
--                    data=data, calculate_entropy=not is_lora
-+                output, entropys, necs = self.actor.compute_log_prob(
-+                    data=data, calculate_entropy=not is_lora, calculate_nec=True
-                 )
-             tensors = {"ref_log_prob": output} if is_lora else {"old_log_probs": output}
-+            if necs is not None:
-+                tensors["necs"] = necs
-             if not is_lora:
-                 tensors["entropys"] = entropys
-             output = DataProto.from_dict(
-
+diff --git a/trinity/trainer/verl_trainer.py b/trinity/trainer/verl_trainer.py
 --- a/trinity/trainer/verl_trainer.py
 +++ b/trinity/trainer/verl_trainer.py
 @@ -24,13 +24,15 @@ from verl.trainer.ppo.ray_trainer import (
@@ -41,11 +18,14 @@
  from trinity.algorithm import ADVANTAGE_FN, ALGORITHM_TYPE, KL_FN
  from trinity.algorithm.utils import prefix_metrics
  from trinity.common.config import Config
-@@ -433,6 +435,34 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+@@ -433,6 +435,37 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
          self.config.actor_rollout_ref.actor.optim.total_training_steps = self.total_training_steps
          self.config.critic.optim.total_training_steps = self.total_training_steps
 
 +    def _compute_old_log_prob(self, batch: DataProto):
++        """
++        We add nec to the batch to make the advantage function (e.g. Clip_V) use it.
++        """
 +        if self.use_legacy_worker_impl == "disable":
 +            # TODO: remove step 1, 2, 4 after we make the whole training tensordict and padding free
 +            # step 1: convert dataproto to tensordict.
@@ -76,16 +56,7 @@
      async def save_state_dict(self):  # checkpoint sync
          actor_local_path = os.path.join(
              self.config.trainer.default_local_dir, f"global_step_{self.global_steps}", "actor"
-@@ -488,6 +518,10 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
-                 with marked_timer("old_log_prob", timing_raw, color="blue"):
-                     old_log_prob, old_log_prob_mfu = self._compute_old_log_prob(batch)
-                     entropys = old_log_prob.batch["entropys"]
-+                    new_log_probs = old_log_prob.batch["old_log_probs"]
-+                    necs = old_log_prob.batch["necs"]
-                     response_masks = batch.batch["response_mask"]
-                     actor_config = self.config.actor_rollout_ref.actor
-                     entropy_agg = agg_loss(
-@@ -501,13 +535,19 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+@@ -501,13 +534,19 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
                          "perf/mfu/actor_infer": old_log_prob_mfu,
                      }
                      metrics.update(old_log_prob_metrics)
@@ -98,13 +69,15 @@
 
                          metrics.update(calculate_debug_metrics(batch))
 +
-+                    batch.batch["new_log_probs"] = new_log_probs
++                    # !!! Patch starts !!!
++                    batch.batch["new_log_probs"] = old_log_prob.batch["old_log_probs"]
 +                    batch.batch["new_entropys"]  = entropys
-+                    batch.batch["necs"] = necs
++                    batch.batch["necs"] = old_log_prob.batch["necs"]
++                    # !!! Patch ends !!!
 
              if self.algorithm.use_reference:  # ref_logprob may not be used
                  # compute reference log_prob
-@@ -526,7 +566,8 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+@@ -526,7 +565,8 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
                      batch, kl_metrics = self.kl_fn.apply_kl_penalty_to_reward(batch)
                      metrics.update(prefix_metrics(kl_metrics, prefix="critic"))
                      # compute advantages, executed on the driver process
