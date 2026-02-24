@@ -61,7 +61,7 @@ buffer:
         response_key: 'answer'
       rollout_args:
         temperature: 0.7
-    - name : aime25
+    - name: aime25
       storage_type: file
       path: math-ai/aime25 # Path to the AIME2025 dataset
       split: 'test'
