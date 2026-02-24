@@ -12,16 +12,12 @@
              with adapter_ctx:
 -                output, entropys = self.actor.compute_log_prob(
 -                    data=data, calculate_entropy=not is_lora
-+                # !!! Patch starts !!!
 +                output, entropys, necs = self.actor.compute_log_prob(
 +                    data=data, calculate_entropy=not is_lora, calculate_nec=True
                  )
-+                # !!! Patch ends !!!
              tensors = {"ref_log_prob": output} if is_lora else {"old_log_probs": output}
-+            # !!! Patch starts !!!
 +            if necs is not None:
 +                tensors["necs"] = necs
-+            # !!! Patch ends !!!
              if not is_lora:
                  tensors["entropys"] = entropys
              output = DataProto.from_dict(
@@ -84,10 +80,8 @@
                  with marked_timer("old_log_prob", timing_raw, color="blue"):
                      old_log_prob, old_log_prob_mfu = self._compute_old_log_prob(batch)
                      entropys = old_log_prob.batch["entropys"]
-+                    # !!! Patch starts !!!
 +                    new_log_probs = old_log_prob.batch["old_log_probs"]
 +                    necs = old_log_prob.batch["necs"]
-+                    # !!! Patch ends !!!
                      response_masks = batch.batch["response_mask"]
                      actor_config = self.config.actor_rollout_ref.actor
                      entropy_agg = agg_loss(
@@ -104,11 +98,9 @@
 
                          metrics.update(calculate_debug_metrics(batch))
 +
-+                    # !!! Patch starts !!!
 +                    batch.batch["new_log_probs"] = new_log_probs
 +                    batch.batch["new_entropys"]  = entropys
 +                    batch.batch["necs"] = necs
-+                    # !!! Patch ends !!!
 
              if self.algorithm.use_reference:  # ref_logprob may not be used
                  # compute reference log_prob

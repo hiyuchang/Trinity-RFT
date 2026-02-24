@@ -106,22 +106,17 @@ class DataParallelPPOActor(OriginalDPActor):
 
         log_probs_lst = []
         entropy_lst = []
-        # !!! Patch starts !!!
         nec_lst = []
-        # !!! Patch ends !!!
         for micro_batch in micro_batches:
             micro_batch = micro_batch.to(get_device_id())
             model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
             with torch.no_grad():
-                # !!! Patch starts !!!
                 outputs = self._forward_micro_batch(
                     model_inputs,
                     temperature=temperature,
                     calculate_entropy=calculate_entropy,
                     calculate_nec=calculate_nec,
                 )
-                # !!! Patch ends !!!
-            # !!! Patch starts !!!
             if calculate_nec:
                 entropy, log_probs, nec = cast(
                     tuple[torch.Tensor, torch.Tensor, torch.Tensor], outputs
@@ -129,7 +124,6 @@ class DataParallelPPOActor(OriginalDPActor):
                 nec_lst.append(nec)
             else:
                 entropy, log_probs = cast(tuple[torch.Tensor, torch.Tensor], outputs)
-            # !!! Patch ends !!!
             log_probs_lst.append(log_probs)
             if calculate_entropy:
                 entropy_lst.append(entropy)
@@ -138,25 +132,19 @@ class DataParallelPPOActor(OriginalDPActor):
         entropys = None
         if calculate_entropy:
             entropys = torch.concat(entropy_lst, dim=0)
-        # !!! Patch starts !!!
         necs = None
         if calculate_nec:
             necs = torch.concat(nec_lst, dim=0)
-        # !!! Patch ends !!!
 
         if use_dynamic_bsz:
             log_probs = restore_dynamic_batch(log_probs, batch_idx_list)
             if calculate_entropy:
                 entropys = restore_dynamic_batch(entropys, batch_idx_list)
-            # !!! Patch starts !!!
             if calculate_nec:
                 necs = restore_dynamic_batch(necs, batch_idx_list)
-            # !!! Patch ends !!!
 
-        # !!! Patch starts !!!
         if calculate_nec:
             return log_probs, entropys, necs
-        # !!! Patch ends !!!
         return log_probs, entropys
 
     def _forward_micro_batch(  # type: ignore # noqa: C901
@@ -180,9 +168,7 @@ class DataParallelPPOActor(OriginalDPActor):
             attention_mask = micro_batch["attention_mask"]
             position_ids = micro_batch["position_ids"]
             entropy = None
-            # !!! Patch starts !!!
             nec = None
-            # !!! Patch ends !!!
             if position_ids.dim() == 3:  # qwen2vl mrope
                 position_ids = position_ids.transpose(0, 1)  # (bsz, 4, seqlen) -> (4, bsz, seqlen)
 
@@ -291,12 +277,10 @@ class DataParallelPPOActor(OriginalDPActor):
                 if self.use_fused_kernels:
                     log_probs = output.log_probs.squeeze(0)  # (total_nnz,)
                     entropy_rmpad = output.entropy.squeeze(0)  # (total_nnz,)
-                    # !!! Patch starts !!!
                     if calculate_nec:
                         raise RuntimeError(
                             "calculate_nec=True is not supported with fused kernels in _forward_micro_batch"
                         )
-                    # !!! Patch ends !!!
 
                 else:
                     logits_rmpad = output.logits.squeeze(0)  # (total_nnz, vocab_size)
@@ -322,11 +306,9 @@ class DataParallelPPOActor(OriginalDPActor):
                             entropy_rmpad = torch.utils.checkpoint.checkpoint(
                                 self.compute_entropy_from_logits, logits_rmpad
                             )
-                    # !!! Patch starts !!!
                     if calculate_nec:
                         H_for_N = entropy_rmpad.to(torch.float32) if calculate_entropy else None
                         N_rmpad = compute_N_from_logits(logits_rmpad, entropy=H_for_N)
-                    # !!! Patch ends !!!
 
                 # gather log_prob if sp > 1
                 if self.use_ulysses_sp:
@@ -344,7 +326,6 @@ class DataParallelPPOActor(OriginalDPActor):
                             unpad_dim=0,
                             padding_size=pad_size,
                         )
-                    # !!! Patch starts !!!
                     if calculate_nec:
                         N_rmpad = gather_outputs_and_unpad(
                             N_rmpad,
@@ -352,16 +333,13 @@ class DataParallelPPOActor(OriginalDPActor):
                             unpad_dim=0,
                             padding_size=pad_size,
                         )
-                    # !!! Patch ends !!!
 
                 if is_mask_all_zero:
                     log_probs = log_probs[:0]
                     if calculate_entropy:
                         entropy_rmpad = entropy_rmpad[:0]
-                    # !!! Patch starts !!!
                     if calculate_nec:
                         N_rmpad = N_rmpad[:0]
-                    # !!! Patch ends !!!
 
                 # pad back to (bsz, seqlen)
                 if calculate_entropy:
@@ -371,7 +349,6 @@ class DataParallelPPOActor(OriginalDPActor):
                         batch=batch_size,
                         seqlen=seqlen,
                     )
-                # !!! Patch starts !!!
                 if calculate_nec:
                     full_N = pad_input(
                         hidden_states=N_rmpad.unsqueeze(-1),
@@ -379,7 +356,6 @@ class DataParallelPPOActor(OriginalDPActor):
                         batch=batch_size,
                         seqlen=seqlen,
                     )
-                # !!! Patch ends !!!
                 full_log_probs = pad_input(
                     hidden_states=log_probs.unsqueeze(-1),
                     indices=indices,
@@ -392,10 +368,8 @@ class DataParallelPPOActor(OriginalDPActor):
                     entropy = full_entropy.squeeze(-1)[
                         :, -response_length - 1 : -1
                     ]  # (bsz, response_length)
-                # !!! Patch starts !!!
                 if calculate_nec:
                     nec = full_N.squeeze(-1)[:, -response_length - 1 : -1]  # (bsz, response_length)
-                # !!! Patch ends !!!
                 log_probs = full_log_probs.squeeze(-1)[
                     :, -response_length - 1 : -1
                 ]  # (bsz, response_length)
@@ -418,12 +392,10 @@ class DataParallelPPOActor(OriginalDPActor):
                 if self.use_fused_kernels:
                     log_probs = output.log_probs[:, -response_length - 1 : -1]
                     entropy = output.entropy[:, -response_length - 1 : -1]  # (bsz, response_length)
-                    # !!! Patch starts !!!
                     if calculate_nec:
                         raise RuntimeError(
                             "calculate_nec=True is not supported with fused kernels in _forward_micro_batch"
                         )
-                    # !!! Patch ends !!!
 
                 else:
                     logits = output.logits
@@ -440,14 +412,10 @@ class DataParallelPPOActor(OriginalDPActor):
                             entropy = torch.utils.checkpoint.checkpoint(
                                 verl_F.entropy_from_logits, logits
                             )
-                    # !!! Patch starts !!!
                     if calculate_nec:
                         H_for_N = entropy.to(torch.float32) if calculate_entropy else None
                         nec = compute_N_from_logits(logits, entropy=H_for_N)
-                    # !!! Patch ends !!!
 
-            # !!! Patch starts !!!
             if calculate_nec:
                 return entropy, log_probs, nec
-            # !!! Patch ends !!!
             return entropy, log_probs
