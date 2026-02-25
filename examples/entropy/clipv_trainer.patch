@@ -1,4 +1,27 @@
+diff --git a/trinity/trainer/verl/fsdp_workers.py b/trinity/trainer/verl/fsdp_workers.py
+index b82fd264..0fff4233 100644
+--- a/trinity/trainer/verl/fsdp_workers.py
++++ b/trinity/trainer/verl/fsdp_workers.py
+@@ -610,7 +610,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
+
+     @register(dispatch_mode=Dispatch.ONE_TO_ALL)
+     def init_model(self):
+-        from trinity.trainer.verl.dp_actor import DataParallelPPOActor
++        from examples.entropy.clipv_dp_actor import DataParallelPPOActor
+
+         # This is used to import external_lib into the huggingface systems
+         import_external_libs(self.config.model.get("external_lib", None))
+@@ -911,6 +911,8 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
+                 tensors = {"ref_log_prob": outputs["log_probs"]}
+             if calculate_entropy:
+                 tensors["entropys"] = outputs["entropys"]
++            if "necs" in outputs:
++                tensors["necs"] = outputs["necs"]
+             output = DataProto.from_dict(
+                 tensors=tensors,
+                 meta_info={"temperature": self.config.rollout.temperature},
 diff --git a/trinity/trainer/verl_trainer.py b/trinity/trainer/verl_trainer.py
+index 849e176b..734b8b26 100644
 --- a/trinity/trainer/verl_trainer.py
 +++ b/trinity/trainer/verl_trainer.py
 @@ -24,13 +24,15 @@ from verl.trainer.ppo.ray_trainer import (
@@ -56,7 +79,7 @@ diff --git a/trinity/trainer/verl_trainer.py b/trinity/trainer/verl_trainer.py
      async def save_state_dict(self):  # checkpoint sync
          actor_local_path = os.path.join(
              self.config.trainer.default_local_dir, f"global_step_{self.global_steps}", "actor"
-@@ -501,13 +534,19 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+@@ -501,13 +534,17 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
                          "perf/mfu/actor_infer": old_log_prob_mfu,
                      }
                      metrics.update(old_log_prob_metrics)
@@ -69,15 +92,13 @@ diff --git a/trinity/trainer/verl_trainer.py b/trinity/trainer/verl_trainer.py
 
                          metrics.update(calculate_debug_metrics(batch))
 +
-+                    # !!! Patch starts !!!
 +                    batch.batch["new_log_probs"] = old_log_prob.batch["old_log_probs"]
 +                    batch.batch["new_entropys"]  = entropys
 +                    batch.batch["necs"] = old_log_prob.batch["necs"]
-+                    # !!! Patch ends !!!
 
              if self.algorithm.use_reference:  # ref_logprob may not be used
                  # compute reference log_prob
-@@ -526,7 +565,8 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
+@@ -526,7 +563,8 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
                      batch, kl_metrics = self.kl_fn.apply_kl_penalty_to_reward(batch)
                      metrics.update(prefix_metrics(kl_metrics, prefix="critic"))
                      # compute advantages, executed on the driver process

@@ -610,7 +610,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
     @register(dispatch_mode=Dispatch.ONE_TO_ALL)
     def init_model(self):
-        from trinity.trainer.verl.dp_actor import DataParallelPPOActor
+        from examples.entropy.clipv_dp_actor import DataParallelPPOActor
 
         # This is used to import external_lib into the huggingface systems
         import_external_libs(self.config.model.get("external_lib", None))
@@ -904,9 +904,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         calculate_entropy = not is_lora
         with self.ulysses_sharding_manager:
             with adapter_ctx:
-                outputs = self.actor.compute_log_prob(
-                    data=data, calculate_entropy=calculate_entropy
-                )
+                outputs = self.actor.compute_log_prob(data=data, calculate_entropy=not is_lora)
             if not is_lora:
                 tensors = {"old_log_probs": outputs["log_probs"]}
             else:
@@ -954,12 +952,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 "cpu"
             )  # data will to device with each micro batch on ref.compute_log_prob
             outputs = self.ref_policy.compute_log_prob(data=data, calculate_entropy=False)
-            if isinstance(outputs, dict):
-                ref_log_prob = outputs["log_probs"]
-            else:
-                # Backward compatibility with old tuple return style.
-                ref_log_prob, _ = outputs
-            output = DataProto.from_dict(tensors={"ref_log_prob": ref_log_prob})
+            output = DataProto.from_dict(tensors={"ref_log_prob": outputs["log_probs"]})
 
         output = output.to("cpu")
 

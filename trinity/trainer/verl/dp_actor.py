@@ -27,10 +27,7 @@ from verl import DataProto
 from verl.utils.debug import GPUMemoryLogger
 from verl.utils.device import get_device_id
 from verl.utils.py_functional import append_to_dict
-from verl.utils.seqlen_balancing import prepare_dynamic_batch
-from verl.utils.torch_functional import (
-    logprobs_from_logits as verl_logprobs_from_logits,
-)
+from verl.utils.seqlen_balancing import prepare_dynamic_batch, restore_dynamic_batch
 from verl.workers.actor.dp_actor import DataParallelPPOActor as DPActor
 
 from trinity.algorithm import ENTROPY_LOSS_FN, KL_FN, POLICY_LOSS_FN
@@ -38,19 +35,11 @@ from trinity.algorithm.entropy_loss_fn.entropy_loss_fn import DummyEntropyLossFn
 from trinity.algorithm.kl_fn.kl_fn import DummyKLFn
 from trinity.algorithm.utils import prefix_metrics
 from trinity.common.config import AlgorithmConfig
-from trinity.utils.registry import Registry
 
 __all__ = ["DataParallelPPOActor"]
 
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
-
-LOG_PROB_FN: Registry = Registry(
-    "log_prob_fn",
-    default_mapping={
-        "clipv_entropy_nec": "examples.entropy.clipv_dp_actor.clipv_compute_log_prob_with_nec",
-    },
-)
 
 
 class DataParallelPPOActor(DPActor):
@@ -62,22 +51,6 @@ class DataParallelPPOActor(DPActor):
         self.policy_loss_fn = None
         self.kl_loss_fn = None
         self.entropy_loss_fn = None
-        log_prob_fn_key = config.get("log_prob_fn", "default")
-        if not log_prob_fn_key or log_prob_fn_key == "default":
-            self._compute_log_prob_fn_name = "default"
-            self._compute_log_prob_fn = None  # use default log_prob_fn
-        else:
-            self._compute_log_prob_fn_name = str(log_prob_fn_key)
-            self._compute_log_prob_fn = LOG_PROB_FN.get(
-                self._compute_log_prob_fn_name
-            )  # use custom log_prob_fn
-
-    def compute_log_probs_from_logits(
-        self, logits: torch.Tensor, labels: torch.Tensor, inplace_backward: bool = True
-    ) -> torch.Tensor:
-        return verl_logprobs_from_logits(
-            logits=logits, labels=labels, inplace_backward=inplace_backward
-        )
 
     def set_algorithm(self, algorithm_config: AlgorithmConfig):
         self.loss_agg_mode = algorithm_config.loss_agg_mode
@@ -157,11 +130,13 @@ class DataParallelPPOActor(DPActor):
 
                     # all return: (bsz, response_length)
                     calculate_entropy = self.entropy_loss_fn != DummyEntropyLossFn
-                    entropy, log_prob = self._forward_micro_batch(
+                    outputs = self._forward_micro_batch(
                         micro_batch=model_inputs,
                         temperature=temperature,
                         calculate_entropy=calculate_entropy,
                     )
+                    log_prob = outputs["log_probs"]
+                    entropy = outputs["entropys"] if calculate_entropy else None
 
                     pg_loss, pg_loss_metrics = self.policy_loss_fn(  # type: ignore
                         logprob=log_prob, **model_inputs
@@ -249,17 +224,71 @@ class DataParallelPPOActor(DPActor):
         self.actor_optimizer.zero_grad()
         return metrics
 
+    # TODO: remove this method after upgrading verl
     @GPUMemoryLogger(role="dp actor", logger=logger)
-    def compute_log_prob(
-        self, data: DataProto, calculate_entropy: bool = False, calculate_nec: bool = False
-    ):
-        if self._compute_log_prob_fn_name == "default" or self._compute_log_prob_fn is None:
-            log_probs, entropys = super().compute_log_prob(
-                data=data, calculate_entropy=calculate_entropy
-            )
-            return {"entropys": entropys, "log_probs": log_probs}
+    def compute_log_prob(self, data: DataProto, calculate_entropy=False) -> dict[str, torch.Tensor]:
+        """Compute the log probability of the responses given input_ids, attention_mask and position_ids
+
+        Args:
+            data (DataProto): a DataProto containing keys
+
+                ``input_ids``: tensor of shape [batch_size, sequence_length]. torch.int64. Note that input_ids is the
+                concatenation of prompt and response. Note that ``sequence_length = prompt_length + response_length``.
+
+                ``attention_mask``: tensor of shape [batch_size, sequence_length]. torch.int64.
+
+                ``position_ids``: tensor of shape [batch_size, sequence_length]. torch.int64.
+
+                ``responses``:  tensor of shape [batch_size, response_length]. torch.int64.
+
+        Returns:
+            dict[str, torch.Tensor]: a dict containing keys
+                - ``log_probs``: tensor of shape [batch_size, response_length]. torch.float32.
+                - ``entropys``: tensor of shape [batch_size, response_length]. torch.float32.
+        """
+        # set to eval
+        self.actor_module.eval()
+
+        micro_batch_size = data.meta_info["micro_batch_size"]
+        temperature = data.meta_info[
+            "temperature"
+        ]  # temperature must be in the data.meta_info to avoid silent error
+        use_dynamic_bsz = data.meta_info["use_dynamic_bsz"]
+        has_multi_modal_inputs = "multi_modal_inputs" in data.non_tensor_batch.keys()
+        select_keys = ["responses", "input_ids", "attention_mask", "position_ids"]
+        non_tensor_select_keys = ["multi_modal_inputs"] if has_multi_modal_inputs else []
+
+        data = data.select(batch_keys=select_keys, non_tensor_batch_keys=non_tensor_select_keys)
+
+        if use_dynamic_bsz:
+            max_token_len = data.meta_info["max_token_len"] * self.ulysses_sequence_parallel_size
+            micro_batches, batch_idx_list = prepare_dynamic_batch(data, max_token_len=max_token_len)
         else:
-            outputs = self._compute_log_prob_fn(
-                actor=self, data=data, calculate_entropy=calculate_entropy
-            )
+            micro_batches = data.split(micro_batch_size)
+
+        log_probs_lst = []
+        entropy_lst = []
+        for micro_batch in micro_batches:
+            micro_batch = micro_batch.to(get_device_id())
+            model_inputs = {**micro_batch.batch, **micro_batch.non_tensor_batch}
+            with torch.no_grad():
+                outputs = self._forward_micro_batch(
+                    model_inputs, temperature=temperature, calculate_entropy=calculate_entropy
+                )
+            log_probs_lst.append(outputs["log_probs"])
+            if calculate_entropy:
+                entropy_lst.append(outputs["entropys"])
+
+        log_probs = torch.concat(log_probs_lst, dim=0)
+        if calculate_entropy:
+            entropys = torch.concat(entropy_lst, dim=0)
+
+        if use_dynamic_bsz:
+            log_probs = restore_dynamic_batch(log_probs, batch_idx_list)
+            if calculate_entropy:
+                entropys = restore_dynamic_batch(entropys, batch_idx_list)
+
+        outputs = {"log_probs": log_probs}
+        if calculate_entropy:
+            outputs["entropys"] = entropys
         return outputs

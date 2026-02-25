@@ -91,9 +91,6 @@ trainer:
   trainer_type: 'verl'
   save_interval: 100
   trainer_config:
-    actor_rollout_ref:
-      actor:
-        log_prob_fn: clipv_entropy_nec
     algorithm:
       rollout_correction:
         bypass_mode: false
