@@ -182,6 +182,7 @@ class Actor:
     entropy_coeff: float = 0.001
     use_kl_loss: bool = False
 
+
 @dataclass
 class Ref:
     strategy: Optional[str] = None
