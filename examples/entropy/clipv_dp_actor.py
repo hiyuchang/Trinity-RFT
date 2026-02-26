@@ -43,7 +43,7 @@ def compute_N_from_logits(
     entropy: [...], if None, compute H = -sum p log p from logits
     return: [...], the same shape as logits without the last dimension
     """
-    z = logits.to(torch.float32) # use float32 for stability
+    z = logits.to(torch.float32)  # use float32 for stability
     logp = F.log_softmax(z, dim=-1)  # [..., V]
     p = logp.exp()  # [..., V]
 
