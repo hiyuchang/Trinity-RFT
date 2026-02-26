@@ -47,7 +47,7 @@ git apply examples/entropy/clipv_trainer.patch
 trinity run examples/entropy/clipv.yaml
 ```
 
-## Clip_V Code Logic
+### Logic of Clip_V
 
 As shown in the following flowchart, the forward pass of [examples/entropy/clipv_dp_actor.py](./clipv_dp_actor.py) outputs `log_probs`, `entropy`, and `nec`.
 These signals are then used by [Clip_V advantage function](../../trinity/algorithm/advantage_fn/clipv_advantage.py) to compute `xD` and clip only negative-advantage tokens. This process returns the revised `advantages`.
