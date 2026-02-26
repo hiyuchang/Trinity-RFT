@@ -4,6 +4,8 @@ This example shows the two algorithms **Clip_B** and **Clip_V** from the work [O
 
 NOTE: This example is only tested on trinity==0.5.1 and verl==0.7.0. The following experiments require `synchronizer.sync_interval=1` and `trainer.trainer_config.algorithm.rollout_correction.bypass_mode=false` to be set.
 
+We also provide a runnable branch in the [Trinity-RFT](https://github.com/hiyuchang/Trinity-RFT/tree/example/entropy) repository that already includes all patches for this example.
+
 ## Data Preparation
 
 We utilize the [DAPO-Math-17k](https://huggingface.co/datasets/open-r1/DAPO-Math-17k-Processed) dataset as our training set. We exclude 500 questions from the training set to form the validation set (denoted by dapo-validation-500).
