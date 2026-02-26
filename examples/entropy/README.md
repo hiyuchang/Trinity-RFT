@@ -11,13 +11,11 @@ The training set is filtered out samples from the training set with excessively 
 
 ## Clip_B Experiment
 
-1. Apply the patch to keep entropy information in the trainer batch:
+1. Locate this branch of the Trinity-RFT repository:
 
 ```bash
 cd /path/to/Trinity-RFT
-git apply examples/entropy/clipb_trainer.patch
-# if not successful, try:
-# git apply --3way --ignore-whitespace examples/entropy/clipb_trainer.patch
+git checkout example/entropy
 ```
 
 2. Update the dataset paths and other configurations in the file [`clipb.yaml`](./clipb.yaml) to point to your local data.
@@ -30,13 +28,11 @@ trinity run examples/entropy/clipb.yaml
 
 ## Clip_V Implementation
 
-1. Apply the patch to keep entropy information in the trainer batch:
+1. Locate this branch of the Trinity-RFT repository:
 
 ```bash
 cd /path/to/Trinity-RFT
-git apply examples/entropy/clipv_trainer.patch
-# if not successful, try:
-# git apply --3way --ignore-whitespace examples/entropy/clipv_trainer.patch
+git checkout example/entropy
 ```
 
 2. Update the dataset paths and other configurations in the file [`clipv.yaml`](./clipv.yaml) to point to your local data.
@@ -47,7 +43,7 @@ git apply examples/entropy/clipv_trainer.patch
 trinity run examples/entropy/clipv.yaml
 ```
 
-## Clip_V Code Logic
+### Logic of Clip_V
 
 As shown in the following flowchart, the forward pass of [examples/entropy/clipv_dp_actor.py](./clipv_dp_actor.py) outputs `log_probs`, `entropy`, and `nec`.
 These signals are then used by [Clip_V advantage function](../../trinity/algorithm/advantage_fn/clipv_advantage.py) to compute `xD` and clip only negative-advantage tokens. This process returns the revised `advantages`.
