@@ -610,7 +610,7 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
 
     @register(dispatch_mode=Dispatch.ONE_TO_ALL)
     def init_model(self):
-        from examples.entropy.clipv_dp_actor import DataParallelPPOActor
+        from trinity.trainer.verl.dp_actor import DataParallelPPOActor
 
         # This is used to import external_lib into the huggingface systems
         import_external_libs(self.config.model.get("external_lib", None))
@@ -911,8 +911,6 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
                 tensors = {"ref_log_prob": outputs["log_probs"]}
             if calculate_entropy:
                 tensors["entropys"] = outputs["entropys"]
-            if "necs" in outputs:
-                tensors["necs"] = outputs["necs"]
             output = DataProto.from_dict(
                 tensors=tensors,
                 meta_info={"temperature": self.config.rollout.temperature},
