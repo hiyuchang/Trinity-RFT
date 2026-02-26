@@ -182,10 +182,6 @@ class Actor:
     entropy_coeff: float = 0.001
     use_kl_loss: bool = False
 
-    # custom log_prob_fn
-    log_prob_fn: Optional[str] = None
-
-
 @dataclass
 class Ref:
     strategy: Optional[str] = None
