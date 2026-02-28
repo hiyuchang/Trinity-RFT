@@ -91,9 +91,7 @@ class MultiStepPadding(ExperienceOperator):
                         )
                         for _ in range(num_placeholder_exps)
                     ]
-                    logger.debug(
-                        f"Adding {num_placeholder_exps} placeholder experiences"
-                    )
+                    logger.debug(f"Adding {num_placeholder_exps} placeholder experiences")
                     # Put empty at the beginning, as the adv is computed using the last exp
                     exps_same_run = empty_experiences + exps_same_run
                     all_exps.extend(exps_same_run)
