@@ -74,22 +74,45 @@ class Trainer:
         await self.synchronizer.set_trainer_status.remote(RunningStatus.RUNNING)
 
     async def train(self) -> str:
-        """Train the model."""
-        while self.train_step_num < self.total_steps:
-            try:
+        """Train the model with one-step-ahead data prefetch."""
+        prefetched_sample_task = None
+
+        try:
+            while self.train_step_num < self.total_steps:
                 metrics = {}
-                # sample may be blocked due to explorer does not generate enough data
-                self.logger.info(f"Sample data for step {self.train_step_num + 1} started.")
-                sample_task = asyncio.create_task(self._sample_data())
-                while not sample_task.done():
+
+                # 1. 获取当前 step 要训练的数据：
+                #    - 首轮没有预取任务，则现采
+                #    - 后续优先消费上一轮提前预取好的任务
+                if prefetched_sample_task is None:
+                    self.logger.info(f"Sample data for step {self.train_step_num + 1} started.")
+                    current_sample_task = asyncio.create_task(self._sample_data())
+                else:
+                    current_sample_task = prefetched_sample_task
+                    prefetched_sample_task = None
+
+                # 等待当前 step 的 sample 完成；等待期间保持原有 sync 行为
+                while not current_sample_task.done():
                     # sync weight to make sure the explorer can continue to explore and generate enough data
                     if await self.need_sync():
                         metrics.update(await self.sync_weight())
                     await asyncio.sleep(1)
-                exps, sample_metrics, repr_samples = await sample_task
+
+                # 如果这里抛 StopAsyncIteration，说明“当前要训练的数据”已经没有了，直接结束
+                exps, sample_metrics, repr_samples = await current_sample_task
                 metrics.update(sample_metrics)
                 self.logger.info(f"Sample data for step {self.train_step_num + 1} finished.")
+
+                # 2. 当前 step 开始训练的同时，预取下一步数据
+                #    注意：只有在理论上还可能存在下一步时才预取
+                if self.train_step_num + 1 < self.total_steps:
+                    self.logger.info(f"Sample data for step {self.train_step_num + 2} started.")
+                    prefetched_sample_task = asyncio.create_task(self._sample_data())
+
+                # 3. 训练当前 step，训练流程保持不变
                 metrics.update(await self.train_step(exps))
+
+                # 4. 保持原有 train 后的 sync/save/log 流程不变
                 if await self.need_sync():
                     metrics.update(await self.sync_weight())
                 if self.need_save():
@@ -99,18 +122,26 @@ class Trainer:
                 if self.config.trainer.enable_preview:
                     self._log_experiences(repr_samples)
                 self.monitor.log(metrics, self.train_step_num)
-            except StopAsyncIteration:
-                self.logger.info("No more samples to train. Stopping training.")
-                break
-            except Exception:
-                self.logger.error(f"Error in Trainer:\n{traceback.format_exc()}")
-                break
 
-        await self.save_checkpoint(
-            block_until_saved=True, save_as_hf=self.save_hf_checkpoint != "never"
-        )
-        await self.synchronizer.set_trainer_status.remote(RunningStatus.STOPPED)
-        self.logger.info("--------------------\n> Trainer finished.\n--------------------")
+        except StopAsyncIteration:
+            self.logger.info("No more samples to train. Stopping training.")
+        except Exception:
+            self.logger.error(f"Error in Trainer:\n{traceback.format_exc()}")
+        finally:
+            # 清理可能残留的预取任务，避免后台悬挂
+            if prefetched_sample_task is not None and not prefetched_sample_task.done():
+                prefetched_sample_task.cancel()
+                try:
+                    await prefetched_sample_task
+                except Exception:
+                    pass
+
+            await self.save_checkpoint(
+                block_until_saved=True, save_as_hf=self.save_hf_checkpoint != "never"
+            )
+            await self.synchronizer.set_trainer_status.remote(RunningStatus.STOPPED)
+            self.logger.info("--------------------\n> Trainer finished.\n--------------------")
+
         return self.config.trainer.name
 
     async def train_step(self, exps: List[Experience]) -> Dict:

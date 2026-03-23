@@ -32,6 +32,7 @@ class _HFBatchReader:
         drop_last: bool = True,
         total_steps: Optional[int] = None,
         enable_progress_bar: Optional[bool] = True,
+        shuffle: bool = True,
     ):
         self.dataset = dataset
         self.dataset_size = len(dataset)
@@ -40,6 +41,7 @@ class _HFBatchReader:
         self.drop_last = drop_last
 
         self.current_offset = offset
+        self.shuffle = shuffle
 
         # convert epochs/steps to sample number
         if total_steps:
@@ -68,6 +70,8 @@ class _HFBatchReader:
                 self.progress_bar.close()
                 raise StopIteration
             index = self.current_offset % self.dataset_size
+            if self.shuffle and index == 0:
+                self.dataset = self.dataset.shuffle(seed=(self.current_offset // self.dataset_size))
             batch.append(self.dataset[index])
             indices.append(index)
             self.current_offset += 1
@@ -141,6 +145,7 @@ class ExperienceFileReader(BaseFileReader):
             drop_last=True,
             total_steps=config.total_steps,
             enable_progress_bar=config.enable_progress_bar,
+            shuffle=True,
         )
         self.selector = None
 

@@ -137,6 +137,28 @@ class Monitor(ABC):
         """Return default arguments for the monitor."""
         return {}
 
+    def format_data_str(self, data: dict, step: int) -> str:
+        cleaned_data = {
+            k: (
+                v.item()
+                if hasattr(v, "item")
+                else float(v)  # tensor or numpy scalar
+                if isinstance(v, (np.integer, np.floating))
+                else v  # numpy types
+            )
+            for k, v in data.items()
+        }
+        # Format floats to reasonable precision using default str (avoids scientific notation and long decimals)
+        formatted_data = (
+            "{"
+            + ", ".join(
+                repr(k) + ": " + (f"{v:.6g}" if isinstance(v, float) else repr(v))
+                for k, v in cleaned_data.items()
+            )
+            + "}"
+        )
+        return f"Step {step}: {formatted_data}"
+
 
 class TensorboardMonitor(Monitor):
     def __init__(
@@ -154,7 +176,7 @@ class TensorboardMonitor(Monitor):
         """Log metrics."""
         for key in data:
             self.logger.add_scalar(key, data[key], step)
-        self.console_logger.info(f"Step {step}: {data}")
+        self.console_logger.info(f"{self.format_data_str(data, step)}")
 
     def close(self) -> None:
         self.logger.close()
@@ -196,7 +218,7 @@ class WandbMonitor(Monitor):
     def log(self, data: dict, step: int, commit: bool = False) -> None:
         """Log metrics."""
         self.logger.log(data, step=step, commit=commit)
-        self.console_logger.info(f"Step {step}: {data}")
+        self.console_logger.info(f"{self.format_data_str(data, step)}")
 
     def close(self) -> None:
         self.logger.finish()
@@ -249,7 +271,7 @@ class MlflowMonitor(Monitor):
 
     def log(self, data: dict, step: int, commit: bool = False) -> None:
         """Log metrics."""
-        self.console_logger.info(f"Step {step}: {data}")
+        self.console_logger.info(f"{self.format_data_str(data, step)}")
         # Replace all '@' in keys with '_at_', as MLflow does not support '@' in metric names
         data = {k.replace("@", "_at_"): v for k, v in data.items()}
         mlflow.log_metrics(metrics=data, step=step)
@@ -338,7 +360,7 @@ class SwanlabMonitor(Monitor):
         """Log metrics."""
         # SwanLab doesn't use commit flag; keep signature for compatibility
         swanlab.log(data, step=step)
-        self.console_logger.info(f"Step {step}: {data}")
+        self.console_logger.info(f"{self.format_data_str(data, step)}")
 
     def close(self) -> None:
         try:
