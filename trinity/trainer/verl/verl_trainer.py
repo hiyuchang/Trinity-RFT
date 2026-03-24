@@ -461,6 +461,7 @@ class VerlPPOTrainerWrapper(RayPPOTrainer, TrainEngineWrapper):
         batch = to_data_proto(
             batch_exps, self.tokenizer.pad_token_id, self.empty_model, self.logger
         )
+        await asyncio.sleep(0)
         metrics = {}
         self.global_steps += 1
         timing_raw = {}

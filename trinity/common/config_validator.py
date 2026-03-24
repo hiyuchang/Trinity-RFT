@@ -941,10 +941,10 @@ class BufferConfigValidator(ConfigValidator):
             _fill_taskset_config(taskset, i)
 
             # check if selector is supported
-            selector = SELECTORS.get(taskset.task_selector.selector_type)
+            selector = SELECTORS.get(taskset.data_selector.selector_type)
             if selector is None:
                 raise ValueError(
-                    f"Selector {taskset.task_selector.selector_type} is not supported."
+                    f"Selector {taskset.data_selector.selector_type} is not supported."
                 )
 
         for idx, taskset in enumerate(explorer_input.eval_tasksets):

@@ -110,6 +110,12 @@ class DataParallelPPOActor(DPActor):
             self.loss_agg_mode == "token-mean"
         )
 
+        from verl.utils import seqlen_balancing
+
+        from trinity.trainer.verl.utils import rearrange_micro_batches
+
+        seqlen_balancing.rearrange_micro_batches = rearrange_micro_batches
+
         metrics = {}
         for _ in range(self.config.ppo_epochs):
             for batch_idx, mini_batch in enumerate(mini_batches):

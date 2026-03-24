@@ -14,7 +14,6 @@ import pandas as pd
 import ray
 
 from trinity.algorithm import SAMPLE_STRATEGY
-from trinity.algorithm.sample_strategy.sample_strategy import SampleStrategy
 from trinity.common.config import Config
 from trinity.common.constants import RunningStatus, SyncMethod, SyncStyle
 from trinity.common.experience import Experience
@@ -47,17 +46,28 @@ class Trainer:
             config=config,
         )
         self._sample_exps_to_log = []
-        self.sample_strategy: SampleStrategy = SAMPLE_STRATEGY.get(
-            config.algorithm.sample_strategy
-        )(
-            buffer_config=config.buffer,
-            **config.algorithm.sample_strategy_args,
+
+        current_node_id = ray.get_runtime_context().get_node_id()
+        sample_strategy_cls = SAMPLE_STRATEGY.get(config.algorithm.sample_strategy)
+        self.sample_strategy = (
+            ray.remote(
+                sample_strategy_cls,
+            )
+            .options(
+                scheduling_strategy=ray.util.scheduling_strategies.NodeAffinitySchedulingStrategy(
+                    node_id=current_node_id, soft=False  # False 表示强制调度到该节点
+                )
+            )
+            .remote(
+                buffer_config=config.buffer,
+                **config.algorithm.sample_strategy_args,
+            )
         )
         if "latest_exp_index" in trainer_state:
             sample_strategy_state = {"current_index": trainer_state["latest_exp_index"]}
         else:
             sample_strategy_state = trainer_state.get("sample_strategy_state", {})
-        self.sample_strategy.load_state_dict(sample_strategy_state)
+        ray.get(self.sample_strategy.load_state_dict.remote(sample_strategy_state))
         self.save_interval = config.trainer.save_interval
         self.last_sync_step = 0
         self.last_sync_time = None
@@ -107,7 +117,19 @@ class Trainer:
                 #    注意：只有在理论上还可能存在下一步时才预取
                 if self.train_step_num + 1 < self.total_steps:
                     self.logger.info(f"Sample data for step {self.train_step_num + 2} started.")
-                    prefetched_sample_task = asyncio.create_task(self._sample_data())
+
+                    # prefetched_sample_task = asyncio.create_task(self._sample_data())
+                    def run_in_new_loop():
+                        """同步包装器：在新事件循环中运行异步函数"""
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        try:
+                            return loop.run_until_complete(self._sample_data())
+                        finally:
+                            loop.close()
+
+                    # to_thread 将同步函数放入线程池
+                    prefetched_sample_task = asyncio.create_task(asyncio.to_thread(run_in_new_loop))
 
                 # 3. 训练当前 step，训练流程保持不变
                 metrics.update(await self.train_step(exps))
@@ -167,7 +189,9 @@ class Trainer:
             Dict: Metrics of the sampling step.
             List[Dict]: A list of representative samples for logging.
         """
-        batch, metrics, repr_samples = await self.sample_strategy.sample(self.train_step_num + 1)
+        batch, metrics, repr_samples = await self.sample_strategy.sample.remote(
+            self.train_step_num + 1
+        )
         metrics["sample/task_count"] = len(set(exp.eid.tid for exp in batch))
         return batch, metrics, repr_samples
 
@@ -232,7 +256,7 @@ class Trainer:
             )
             self.state.save_trainer(
                 current_step=self.train_step_num,
-                sample_strategy_state=self.sample_strategy.state_dict(),
+                sample_strategy_state=(await self.sample_strategy.state_dict.remote()),
             )
         return metrics
 

@@ -32,7 +32,6 @@ class _HFBatchReader:
         drop_last: bool = True,
         total_steps: Optional[int] = None,
         enable_progress_bar: Optional[bool] = True,
-        shuffle: bool = True,
     ):
         self.dataset = dataset
         self.dataset_size = len(dataset)
@@ -41,7 +40,6 @@ class _HFBatchReader:
         self.drop_last = drop_last
 
         self.current_offset = offset
-        self.shuffle = shuffle
 
         # convert epochs/steps to sample number
         if total_steps:
@@ -70,8 +68,6 @@ class _HFBatchReader:
                 self.progress_bar.close()
                 raise StopIteration
             index = self.current_offset % self.dataset_size
-            if self.shuffle and index == 0:
-                self.dataset = self.dataset.shuffle(seed=(self.current_offset // self.dataset_size))
             batch.append(self.dataset[index])
             indices.append(index)
             self.current_offset += 1
@@ -133,6 +129,7 @@ class ExperienceFileReader(BaseFileReader):
     """Reader for SFT / DPO file data."""
 
     def __init__(self, config: StorageConfig):
+        self.config = config
         self.formatter = FORMATTER.get(config.schema_type)(
             tokenizer_path=config.tokenizer_path, format_config=config.format
         )
@@ -145,12 +142,25 @@ class ExperienceFileReader(BaseFileReader):
             drop_last=True,
             total_steps=config.total_steps,
             enable_progress_bar=config.enable_progress_bar,
-            shuffle=True,
         )
-        self.selector = None
+        if config.data_selector is not None:
+            from trinity.buffer.selector import SELECTORS
+            from trinity.buffer.selector.selector import BaseSelector
+
+            self.selector: BaseSelector = SELECTORS.get(config.data_selector.selector_type)(
+                self.dataset, config.data_selector
+            )
+        else:
+            self.selector = None
 
     def read(self, batch_size: Optional[int] = None, **kwargs) -> List:
-        samples, _ = self.dataset.read_batch(batch_size or self.read_batch_size)
+        batch_size = batch_size or self.read_batch_size
+        if self.selector is not None:
+            indices = self.selector.get_indices(batch_size)
+            samples = self.dataset.select_batch(indices)
+        else:
+            samples, _ = self.dataset.read_batch(batch_size)
+
         exp_list = []
         for sample in samples:
             experience = self.formatter.format(sample)
@@ -158,9 +168,13 @@ class ExperienceFileReader(BaseFileReader):
         return exp_list
 
     def state_dict(self):
+        if self.selector is not None:
+            return self.selector.state_dict()
         return {"current_index": self.dataset.current_offset}
 
     def load_state_dict(self, state_dict):
+        if self.selector is not None:
+            self.selector.load_state_dict(state_dict)
         self.dataset.current_offset = state_dict["current_index"]
 
     def __len__(self):
@@ -177,22 +191,22 @@ class TaskFileReader(BaseFileReader):
         datasets.disable_caching()
         self.read_batch_size = config.batch_size
         self.dataset = _HFBatchReader(
-            load_dataset(self.config.path, name=self.config.subset_name, split=self.config.split),
-            name=self.config.name,
+            load_dataset(config.path, name=config.subset_name, split=config.split),
+            name=config.name,
             default_batch_size=self.read_batch_size,
-            total_epochs=self.config.total_epochs if not self.config.is_eval else 1,
-            offset=self.config.index,
-            drop_last=not self.config.is_eval,
-            total_steps=self.config.total_steps if not self.config.is_eval else None,
-            enable_progress_bar=self.config.enable_progress_bar,
+            total_epochs=config.total_epochs if not config.is_eval else 1,
+            offset=config.index,
+            drop_last=not config.is_eval,
+            total_steps=config.total_steps if not config.is_eval else None,
+            enable_progress_bar=config.enable_progress_bar,
         )
         self.formatter = FORMATTER.get("task")(config)
-        if self.config.task_selector is not None:
+        if config.data_selector is not None:
             from trinity.buffer.selector import SELECTORS
             from trinity.buffer.selector.selector import BaseSelector
 
-            self.selector: BaseSelector = SELECTORS.get(self.config.task_selector.selector_type)(
-                self.dataset, self.config.task_selector
+            self.selector: BaseSelector = SELECTORS.get(config.data_selector.selector_type)(
+                self.dataset, config.data_selector
             )
         else:
             self.selector = None
