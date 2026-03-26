@@ -1,7 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import List
+from typing import Any, List
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -27,7 +27,7 @@ class SQLExperienceViewer:
         self.session = sessionmaker(bind=self.engine)
 
     def get_experiences(self, offset: int, limit: int = 10) -> List[Experience]:
-        self.logger.info(f"Viewing experiences from offset {offset} with limit {limit}.")
+        self.logger.info("Viewing experiences from offset %s with limit %s.", offset, limit)
         with self.session() as session:
             query = session.query(self.table_model_cls).offset(offset).limit(limit)
             results = query.all()
@@ -40,13 +40,16 @@ class SQLExperienceViewer:
         return count
 
     @staticmethod
-    def run_viewer(model_path: str, db_url: str, table_name: str, port: int):
+    def run_viewer(
+        model_path: str, db_url: str, table_name: str, schema_type: str, port: int
+    ) -> None:
         """Start the Streamlit viewer.
 
         Args:
             model_path (str): Path to the tokenizer/model directory.
             db_url (str): Database URL for the experience database.
             table_name (str): Name of the experience table in the database.
+            schema_type (str): Schema type of the experience table.
             port (int): Port number to run the Streamlit app on.
         """
 
@@ -66,6 +69,8 @@ class SQLExperienceViewer:
             db_url,
             "--table",
             table_name,
+            "--schema",
+            schema_type,
             "--tokenizer",
             model_path,
         ]
@@ -83,10 +88,15 @@ def get_color_for_action_mask(action_mask_value: int) -> str:
         return "#ffcdd2"
 
 
-def render_experience(exp: Experience, tokenizer):
+def render_experience(exp: Experience, tokenizer: Any) -> None:
     """Render a single experience sequence in Streamlit."""
     token_ids = exp.tokens
-    logprobs = exp.logprobs
+    if token_ids is None:
+        raise ValueError("Experience tokens are required for visualization.")
+    if exp.logprobs is not None:
+        logprobs = exp.logprobs
+    else:
+        logprobs = [0.0] * len(token_ids)
     action_mask = exp.action_mask
 
     prompt_length = exp.prompt_length
@@ -94,25 +104,17 @@ def render_experience(exp: Experience, tokenizer):
     prompt_token_ids = token_ids[:prompt_length]  # type: ignore [index]
     response_token_ids = token_ids[prompt_length:]  # type: ignore [index]
 
+    def decode_token_ids(tokenizer_obj: Any, token_id_list: Any) -> str:
+        return str(tokenizer_obj.decode(token_id_list))
+
     # Decode tokens
-    prompt_text = (
-        tokenizer.decode(prompt_token_ids)
-        if hasattr(tokenizer, "decode")
-        else "".join([str(tid) for tid in prompt_token_ids])
-    )
-    response_text = (
-        tokenizer.decode(response_token_ids)
-        if hasattr(tokenizer, "decode")
-        else "".join([str(tid) for tid in response_token_ids])
-    )
+    prompt_text = decode_token_ids(tokenizer, prompt_token_ids)
+    response_text = decode_token_ids(tokenizer, response_token_ids)
 
     # Get each response token text
     response_tokens = []
     for tid in response_token_ids:
-        if hasattr(tokenizer, "decode"):
-            token_text = tokenizer.decode([tid])
-        else:
-            token_text = f"[{tid}]"
+        token_text = decode_token_ids(tokenizer, [tid])
         response_tokens.append(token_text)
 
     # HTML escape function
@@ -215,7 +217,7 @@ def render_experience(exp: Experience, tokenizer):
     """
 
     # Add each response token
-    for i, (token_text, logprob, mask) in enumerate(zip(response_tokens, logprobs, action_mask)):  # type: ignore [arg-type]
+    for token_text, logprob, mask in zip(response_tokens, logprobs, action_mask):  # type: ignore [arg-type]
         bg_color = get_color_for_action_mask(mask)
 
         # Handle special character display
@@ -251,8 +253,16 @@ def parse_args():
         help="Name of the experience table.",
     )
     parser.add_argument(
+        "--schema",
+        type=str,
+        default="experience",
+        choices=("experience", "sft"),
+        help="Schema type of the experience table.",
+    )
+    parser.add_argument(
         "--tokenizer",
         type=str,
+        required=True,
         help="Path to the tokenizer.",
     )
     return parser.parse_args()
@@ -262,12 +272,11 @@ def main():
     args = parse_args()
 
     # Initialize SQLExperienceViewer
-    config = StorageConfig(
-        name=args.table,
-        path=args.db_url,
-        schema_type="experience",
-        storage_type="sql",
-    )
+    config = StorageConfig()
+    config.name = args.table
+    config.path = args.db_url
+    config.schema_type = args.schema
+    config.storage_type = "sql"
     viewer = SQLExperienceViewer(config)
 
     st.title("🎯 Trinity-RFT Experience Visualizer")
