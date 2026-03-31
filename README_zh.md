@@ -41,6 +41,8 @@ Trinity-RFT 面向不同背景和目标的用户提供相应功能：
 
 ## 🚀 新闻
 
+* [2026-03] 🤖 Trinity-RFT 助力 CoPaw-Flash 训练，打造更懂本地化场景的智能体小模型。欢迎到 [CoPaw](https://github.com/agentscope-ai/CoPaw) 试用 CoPaw-Flash，模型下载请见 [ModelScope](https://www.modelscope.cn/organization/AgentScope) 和 [HuggingFace](https://huggingface.co/agentscope-ai)（[新闻](https://mp.weixin.qq.com/s/-BXNU_PMi6QJuwSB5BqTbQ)）。
+* [2026-03] Trinity-RFT 现在已经支持 Qwen3.5 系列模型。
 * [2026-02] [[发布说明]](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.5.1) Trinity-RFT v0.5.1 发布：增强 VLM 支持，改进日志系统，修复若干 Bug。
 * [2026-02] [[发布说明]](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.5.0) Trinity-RFT v0.5.0 发布：单 GPU 场景下的 colocate 模式，trainer 驱动的权重同步，自动并行设置建议等新功能。
 * [2026-01] 🎉 三篇论文被 ICLR 2026 接收：[CHORD](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/mix_chord)、[BOTS](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/bots) 和 [Group-relative REINFORCE 系列变种](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/rec_gsm8k)。在 Trinity-RFT 中尝试这些新算法吧！
@@ -50,12 +52,12 @@ Trinity-RFT 面向不同背景和目标的用户提供相应功能：
 * [2025-12] Trinity-RFT 助力淘宝闪购医药健康业务，让 AI 智能体能够理解模糊症状、主动询问后续问题，并提供精准推荐（[新闻](https://tech.china.com.cn/sx/20251201/411376.shtml)）。
 * [2025-11] [[发布说明](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.3.3)] Trinity-RFT v0.3.3 发布：修复若干 Bug。
 * [2025-11] 推出 [Learn-to-Ask](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/learn_to_ask)：利用离线专家数据，训练具备主动问询能力的对话智能体（[论文](https://arxiv.org/pdf/2510.25441)）。
-* [2025-11] 推出 [BOTS](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/bots)：在线 RL 任务选择，实现高效 LLM 微调（[论文](https://arxiv.org/pdf/2510.26374)）。
-* [2025-09] 我们的 [论文](https://arxiv.org/pdf/2509.24203) 揭示了 group-relative REINFORCE 及其变种（如 GRPO 和 AsymRE）的 off-policy 解释（[代码](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/rec_gsm8k)）。
-* [2025-08] 推出 [CHORD](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/mix_chord)：动态 SFT + RL 集成，实现进阶 LLM 微调（[论文](https://arxiv.org/pdf/2508.11408)）。
 
 <details><summary> More... </summary>
 <ul>
+  <li> [2025-11] 推出 [BOTS](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/bots)：在线 RL 任务选择，实现高效 LLM 微调（[论文](https://arxiv.org/pdf/2510.26374)）。</li>
+  <li> [2025-09] 我们的 [论文](https://arxiv.org/pdf/2509.24203) 揭示了 group-relative REINFORCE 及其变种（如 GRPO 和 AsymRE）的 off-policy 解释（[代码](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/rec_gsm8k)）。 </li>
+  <li> [2025-08] 推出 [CHORD](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/mix_chord)：动态 SFT + RL 集成，实现进阶 LLM 微调（[论文](https://arxiv.org/pdf/2508.11408)）。</li>
   <li> [2025-11] Trinity-RFT v0.3.2 发布：修复若干 Bug 并支持进阶的任务选择和调度。</li>
   <li> [2025-10] Trinity-RFT v0.3.1 发布：多阶段训练支持、改进的智能体 RL 示例、LoRA 支持、调试模式和全新 RL 算法。</li>
   <li> [2025-09] Trinity-RFT v0.3.0 发布：增强的 Buffer、FSDP2 & Megatron 支持，多模态模型，以及全新 RL 算法/示例。</li>

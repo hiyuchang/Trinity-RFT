@@ -32,6 +32,8 @@ Trinity-RFT provides functionalities for users with different backgrounds and ob
 
 ## 🚀 News
 
+* [2026-03] 🤖 Trinity-RFT empowers the training of CoPaw-Flash, building a small agent model better suited for localized scenarios. Feel free to try CoPaw-Flash on [CoPaw](https://github.com/agentscope-ai/CoPaw); models are also available on [ModelScope](https://www.modelscope.cn/organization/AgentScope) and [HuggingFace](https://huggingface.co/agentscope-ai) ([News](https://mp.weixin.qq.com/s/-BXNU_PMi6QJuwSB5BqTbQ)).
+* [2026-03] Trinity-RFT now supports Qwen3.5 series.
 * [2026-02] [[Release Notes]](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.5.1) Trinity-RFT v0.5.1 released: Enhanced VLM support, logging improvements, bug fixes.
 * [2026-02] [[Release Notes]](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.5.0) Trinity-RFT v0.5.0 released: colocate mode for single-GPU scenarios, trainer driven weight synchronization, automatic parallelism setting suggestion, and more.
 * [2026-01] 🎉 Three papers accepted by ICLR 2026: [CHORD](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/mix_chord), [BOTS](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/bots), and [Group-relative REINFORCE variants](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/rec_gsm8k). Try out these new algorithms in Trinity-RFT!
@@ -40,12 +42,12 @@ Trinity-RFT provides functionalities for users with different backgrounds and ob
 * [2025-12] [[Release Notes]](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.4.0) Trinity-RFT v0.4.0 released: added [Tinker](https://thinkingmachines.ai/tinker/) backend for users **without GPUs**, add more benchmarks, enhance online RL and more.
 * [2025-12] Trinity-RFT powers the medical and health business of "Taobao Shangou", enabling the AI agent to understand vague symptoms, proactively ask follow-up questions, and provide precise recommendations ([News](https://tech.china.com.cn/sx/20251201/411376.shtml)).
 * [2025-11] Introducing [Learn-to-Ask](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/learn_to_ask): a framework for training proactive dialogue agents from offline expert data ([paper](https://arxiv.org/pdf/2510.25441)).
-* [2025-11] Introducing [BOTS](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/bots): online RL task selection for efficient LLM fine-tuning ([paper](https://arxiv.org/pdf/2510.26374)).
-* [2025-09] [Our paper](https://arxiv.org/pdf/2509.24203) reveals a novel off-policy interpretation for group-relative REINFORCE and its variants like GRPO and AsymRE ([implementation](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/rec_gsm8k)).
-* [2025-08] Introducing [CHORD](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/mix_chord): dynamic SFT + RL integration for advanced LLM fine-tuning ([paper](https://arxiv.org/pdf/2508.11408)).
 
 <details><summary> More... </summary>
 <ul>
+  <li> [2025-11] Introducing [BOTS](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/bots): online RL task selection for efficient LLM fine-tuning ([paper](https://arxiv.org/pdf/2510.26374)).</li>
+  <li> [2025-09] [Our paper](https://arxiv.org/pdf/2509.24203) reveals a novel off-policy interpretation for group-relative REINFORCE and its variants like GRPO and AsymRE ([implementation](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/rec_gsm8k)).</li>
+  <li> [2026-03] [2025-08] Introducing [CHORD](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/mix_chord): dynamic SFT + RL integration for advanced LLM fine-tuning ([paper](https://arxiv.org/pdf/2508.11408)).</li>
   <li> [2025-11] Trinity-RFT v0.3.3 released: bug fixes.</li>
   <li> [2025-11] Trinity-RFT v0.3.2 released: bug fixes and advanced task selection & scheduling.</li>
   <li> [2025-10] Trinity-RFT v0.3.1 released: multi-stage training support, improved agentic RL examples, LoRA support, debug mode and new RL algorithms.</li>
