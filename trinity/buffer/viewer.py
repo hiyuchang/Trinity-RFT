@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any, List
 
 import streamlit as st
-import streamlit.components.v1 as components
 from sqlalchemy.orm import sessionmaker
 from transformers import AutoTokenizer
 
@@ -88,6 +87,13 @@ def get_color_for_action_mask(action_mask_value: int) -> str:
         return "#ffcdd2"
 
 
+def render_token_detail_html(html: str) -> None:
+    """Render token detail in the adaptive expanded panel style."""
+    with st.container(border=True):
+        st.markdown("**🔍 Response Tokens Detail:**")
+        st.html(html)
+
+
 def render_experience(exp: Experience, tokenizer: Any) -> None:
     """Render a single experience sequence in Streamlit."""
     token_ids = exp.tokens
@@ -147,72 +153,64 @@ def render_experience(exp: Experience, tokenizer: Any) -> None:
     info.markdown("**Info:**")
     info.json(exp.info or {}, expanded=False)
 
-    # Response Tokens Detail section using components.html
-    st.markdown("**🔍 Response Tokens Detail:**")
-
     # Build HTML only for Response Tokens Detail
     html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+    <style>
+        .token-detail-root * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-                padding: 10px;
-            }
+        .token-detail-root {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            padding: 10px;
+        }
 
-            .token-container {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 5px;
-                padding: 15px;
-                background-color: white;
-                border-radius: 5px;
-            }
+        .token-detail-root .token-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+        }
 
-            .token-box {
-                display: inline-flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 8px 12px;
-                border-radius: 5px;
-                border: 1px solid #ddd;
-                min-width: 60px;
-                transition: transform 0.2s, box-shadow 0.2s;
-            }
+        .token-detail-root .token-box {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            min-width: 60px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-            .token-box:hover {
-                transform: scale(1.5);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                z-index: 10;
-            }
+        .token-detail-root .token-box:hover {
+            transform: scale(1.5);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
 
-            .token-text {
-                font-family: 'Courier New', monospace;
-                font-size: 14px;
-                font-weight: bold;
-                margin-bottom: 5px;
-                text-align: center;
-                word-break: break-all;
-                max-width: 100px;
-            }
+        .token-detail-root .token-text {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+            word-break: break-all;
+            max-width: 100px;
+        }
 
-            .token-logprob {
-                font-size: 11px;
-                color: #555;
-                font-family: 'Courier New', monospace;
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
+        .token-detail-root .token-logprob {
+            font-size: 11px;
+            color: #555;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+    </style>
+    <div class="token-detail-root">
         <div class="token-container">
     """
 
@@ -232,12 +230,10 @@ def render_experience(exp: Experience, tokenizer: Any) -> None:
         """
     html += """
         </div>
-    </body>
-    </html>
+    </div>
     """
 
-    # Use components.html for token details only
-    components.html(html, height=200, scrolling=True)
+    render_token_detail_html(html)
 
 
 def parse_args():
@@ -305,7 +301,6 @@ def main():
     experiences_per_page = st.sidebar.slider(
         "Experiences per page", min_value=1, max_value=20, value=5
     )
-
     # Calculate total pages
     total_pages = (total_seq_num + experiences_per_page - 1) // experiences_per_page
 
