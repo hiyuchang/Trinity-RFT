@@ -228,7 +228,7 @@ class RayClusterConfigValidator(ConfigValidator):
         cluster = config.cluster
 
         def _required_gpus(model_config) -> int:
-            if model_config.engine_type == "openai_api":
+            if model_config.explorer.rollout_model.engine_type == "openai_api":
                 return 0
             return model_config.tensor_parallel_size * model_config.engine_num
 
@@ -390,7 +390,7 @@ class ModelConfigValidator(ConfigValidator):
         if not model.critic_model_path:
             model.critic_model_path = model.model_path
 
-        if model.engine_type == "openai_api":
+        if model.explorer.rollout_model.engine_type == "openai_api":
             self._check_openai_api(config)
 
         if model.tinker.enable:

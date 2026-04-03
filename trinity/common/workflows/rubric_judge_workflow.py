@@ -198,7 +198,7 @@ class RubricJudgeWorkflowWithAPI(RubricJudgeWorkflow):
         api_key_env = workflow_args.get("judge_api_key_env", "OPENAI_API_KEY")
         if not judge_model_name:
             raise ValueError(
-                "Judge model_name is missing. Set `judge_model_name` in workflow_args."
+                "Judge model name is missing. Set `judge_model_name` in workflow_args."
             )
         judge_base_url = os.getenv(base_url_env, "")
         if not judge_base_url:
