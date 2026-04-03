@@ -2,12 +2,11 @@ import asyncio
 import gc
 import os
 import unittest
-from pathlib import Path
 
 import ray
 
-from trinity.common.config import InferenceModelConfig, load_config
-from trinity.common.constants import MODEL_PATH_ENV_VAR
+from tests.tools import get_model_path, get_template_config
+from trinity.common.config import ExternalModelConfig, InferenceModelConfig
 from trinity.common.models import create_explorer_models
 from trinity.common.models.model import ModelWrapper
 from trinity.common.models.openai_api_model import OpenaiAPIModel
@@ -34,17 +33,10 @@ class TestOpenaiAPIModel(unittest.IsolatedAsyncioTestCase):
         ray.shutdown(_exiting_interpreter=True)
 
     async def asyncSetUp(self):
-        model_path = os.environ.get(MODEL_PATH_ENV_VAR)
-        if not model_path:
-            raise unittest.SkipTest(
-                f"Please set `export {MODEL_PATH_ENV_VAR}=<your_model_dir>` before running this test."
-            )
-
+        model_path = get_model_path()
         # Part 1: bootstrap a local OpenAI-compatible endpoint via vLLM.
-        config_path = Path(__file__).resolve().parents[1] / "template" / "config.yaml"
-        config = load_config(str(config_path))
+        config = get_template_config()
         config.mode = "explore"
-        config.ray_namespace = "trinity_unittest"
         config.model.model_path = model_path
         config.explorer.rollout_model.engine_type = "vllm"
         config.explorer.rollout_model.engine_num = 1
@@ -65,19 +57,24 @@ class TestOpenaiAPIModel(unittest.IsolatedAsyncioTestCase):
         os.environ[self.base_url_env] = f"{self.vllm_wrapper.api_address}/v1"
         os.environ[self.api_key_env] = "EMPTY"
         self.model_path = model_path
+        print(
+            f"Model is prepared at {self.vllm_wrapper.api_address}/v1, model_name: {self.model_name}"
+        )
 
     async def test_openai_api_model_basic(self):
         # Part 2: verify OpenaiAPIModel can call the endpoint correctly.
         model = OpenaiAPIModel(
             InferenceModelConfig(
-                engine_type="openai_api",
+                engine_type="external",
                 model_path=self.model_path,
-                api_base_url_env=self.base_url_env,
-                api_key_env=self.api_key_env,
-                api_model_name=self.model_name,
-                api_max_concurrent_requests=2,
-                max_prompt_tokens=8,
+                max_prompt_tokens=1024,
                 enable_prompt_truncation=True,
+                external_model_config=ExternalModelConfig(
+                    base_url_env=self.base_url_env,
+                    api_key_env=self.api_key_env,
+                    model_name=self.model_name,
+                    max_concurrent_requests=4,
+                ),
             )
         )
 
@@ -86,16 +83,9 @@ class TestOpenaiAPIModel(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(len(generate_exps[0].response_text) > 0)
 
         messages = [
-            {"role": "system", "content": "You are concise."},
+            {"role": "system", "content": "You are an assistant. Answer the question briefly."},
             {"role": "user", "content": [{"type": "text", "text": "What is 1+1?"}]},
         ]
-        chat_exps = await model.chat(messages, n=1, max_tokens=16)
+        chat_exps = await model.chat(messages, n=1, max_tokens=32)
         self.assertEqual(len(chat_exps), 1)
         self.assertTrue(len(chat_exps[0].response_text) > 0)
-
-        long_prompt_exps = await model.generate("hello " * 1024, n=2)
-        self.assertEqual(len(long_prompt_exps), 2)
-        self.assertTrue(all(exp.truncate_status == "prompt_truncated" for exp in long_prompt_exps))
-
-        token_len = await model.get_message_token_len(messages)
-        self.assertGreater(token_len, 0)

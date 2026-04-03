@@ -227,15 +227,17 @@ class RayClusterConfigValidator(ConfigValidator):
         """
         cluster = config.cluster
 
-        def _required_gpus(model_config) -> int:
-            if model_config.explorer.rollout_model.engine_type == "openai_api":
-                return 0
-            return model_config.tensor_parallel_size * model_config.engine_num
+        if config.explorer.rollout_model.engine_type == "external":
+            return
 
         if config.mode != "train":
-            cluster.rollout_gpu_num = _required_gpus(config.explorer.rollout_model)
+            cluster.rollout_gpu_num = (
+                config.explorer.rollout_model.tensor_parallel_size
+                * config.explorer.rollout_model.engine_num
+            )
             cluster.auxiliary_model_gpu_num = sum(
-                _required_gpus(model) for model in config.explorer.auxiliary_models
+                model.tensor_parallel_size * model.engine_num
+                for model in config.explorer.auxiliary_models
             )
         cluster.explorer_gpu_num = cluster.rollout_gpu_num + cluster.auxiliary_model_gpu_num
         cluster.total_gpu_num = cluster.node_num * cluster.gpu_per_node
@@ -390,7 +392,7 @@ class ModelConfigValidator(ConfigValidator):
         if not model.critic_model_path:
             model.critic_model_path = model.model_path
 
-        if model.explorer.rollout_model.engine_type == "openai_api":
+        if config.explorer.rollout_model.engine_type == "external":
             self._check_openai_api(config)
 
         if model.tinker.enable:
@@ -421,11 +423,12 @@ class ModelConfigValidator(ConfigValidator):
             self.logger.debug("Trainer type is set to `tinker` for skipping trainer validation.")
 
         model = config.model
-        if not model.api_base_url_env or os.getenv(model.api_base_url_env) is None:
+        openai_api = model.openai_api
+        if not openai_api.api_base_url_env or os.getenv(openai_api.api_base_url_env) is None:
             raise ValueError("`api_base_url_env` must be provided when engine_type=openai_api.")
-        if not model.api_key_env or os.getenv(model.api_key_env) is None:
+        if not openai_api.api_key_env or os.getenv(openai_api.api_key_env) is None:
             raise ValueError("`model.api_key_env` must be provided when engine_type=openai_api.")
-        if not model.api_model_name:
+        if not openai_api.api_model_name:
             raise ValueError("`model.api_model_name` must be provided when engine_type=openai_api.")
 
     def _check_tinker(self, config: Config) -> None:

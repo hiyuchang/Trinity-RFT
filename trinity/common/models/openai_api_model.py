@@ -17,9 +17,11 @@ class OpenaiAPIModel(InferenceModel):
         self.model_version = 0
         self.client = None
         self.request_count = 0
-        self.request_semaphore = asyncio.Semaphore(max(1, config.api_max_concurrent_requests))
-        self.api_base_url = os.getenv(config.api_base_url_env, "").rstrip("/")
-        self.api_model_name = config.api_model_name or config.model_path
+        self.request_semaphore = asyncio.Semaphore(
+            max(1, config.external_model_config.max_concurrent_requests)
+        )
+        self.api_base_url = os.getenv(config.external_model_config.base_url_env, "").rstrip("/")
+        self.api_model_name = config.external_model_config.model_name or config.model_path
         if self.api_model_name is None:
             raise ValueError("`api_model_name` or `model_path` must be provided for openai_api.")
 
@@ -30,16 +32,16 @@ class OpenaiAPIModel(InferenceModel):
 
         self.client = openai.AsyncOpenAI(
             base_url=self.api_base_url,
-            api_key=os.getenv(self.config.api_key_env, ""),
-            timeout=self.config.api_timeout,
+            api_key=os.getenv(self.config.external_model_config.api_key_env, ""),
+            timeout=self.config.external_model_config.timeout,
         )
         self.logger.info(
-            "Initialized openai_api engine with base_url=%s, api_model_name=%s, "
-            "api_key_env=%s, api_max_concurrent_requests=%d",
+            "Initialized openai_api engine with base_url=%s, model_name=%s, "
+            "api_key_env=%s, max_concurrent_requests=%d",
             self.api_base_url,
             self.api_model_name,
-            self.config.api_key_env,
-            self.config.api_max_concurrent_requests,
+            self.config.external_model_config.api_key_env,
+            self.config.external_model_config.max_concurrent_requests,
         )
 
     def _build_experience(self, response_text: str, prompt_text: str = "") -> Experience:
@@ -108,17 +110,26 @@ class OpenaiAPIModel(InferenceModel):
             "logprobs for external OpenAI-compatible APIs is not implemented."
         )
 
-    async def convert_messages_to_experience(  # type: ignore[override]
+    async def convert_messages_to_experience(
         self,
         messages: List[dict],
         tools: Optional[List[dict]] = None,
         temperature: Optional[float] = None,
     ) -> Experience:
-        kwargs = {}
-        if temperature is not None:
-            kwargs["temperature"] = temperature
-        responses = await self.chat(messages, **kwargs)
-        return responses[0]
+        del temperature
+        if not messages:
+            raise ValueError("`messages` must not be empty.")
+
+        response_text = ""
+        last = messages[-1]
+        if last.get("role") == "assistant":
+            content = last.get("content")
+            response_text = content if isinstance(content, str) else ""
+
+        exp = self._build_experience(response_text=response_text)
+        exp.messages = messages
+        exp.tools = tools
+        return exp
 
     async def sync_model(self, model_version: int) -> int:
         self.model_version = model_version

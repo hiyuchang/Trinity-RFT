@@ -443,6 +443,16 @@ class TinkerConfig:
 
 
 @dataclass
+class ExternalModelConfig:
+    base_url_env: str = "OPENAI_BASE_URL"
+    api_key_env: str = "OPENAI_API_KEY"
+    model_name: Optional[str] = None
+    timeout: int = 60
+    max_concurrent_requests: int = 8
+    support_logprobs: bool = False
+
+
+@dataclass
 class ModelConfig:
     # source model path
     model_path: str = ""
@@ -552,12 +562,7 @@ class InferenceModelConfig:
     reasoning_parser: Optional[str] = None
 
     # For external OpenAI-compatible API engine
-    api_base_url_env: str = "OPENAI_BASE_URL"
-    api_key_env: str = "OPENAI_API_KEY"
-    api_model_name: Optional[str] = None
-    api_timeout: int = 60
-    api_max_concurrent_requests: int = 8
-    api_support_logprobs: bool = False
+    external_model_config: ExternalModelConfig = field(default_factory=ExternalModelConfig)
 
     # ! DO NOT SET
     bundle_indices: str = ""

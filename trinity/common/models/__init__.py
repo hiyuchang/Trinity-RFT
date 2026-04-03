@@ -64,7 +64,7 @@ def create_explorer_models(
         from trinity.common.models.vllm_model import vLLMRolloutModel
 
         engine_cls = vLLMRolloutModel
-    elif config.explorer.rollout_model.engine_type == "openai_api":
+    elif config.explorer.rollout_model.engine_type == "external":
         rollout_engines = create_api_inference_models(
             config=config.explorer.rollout_model,
             actor_name=f"{config.explorer.name}_rollout_model",
