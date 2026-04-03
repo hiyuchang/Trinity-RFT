@@ -226,14 +226,16 @@ class RayClusterConfigValidator(ConfigValidator):
                        the current mode and available resources.
         """
         cluster = config.cluster
+
+        def _required_gpus(model_config) -> int:
+            if model_config.engine_type == "openai_api":
+                return 0
+            return model_config.tensor_parallel_size * model_config.engine_num
+
         if config.mode != "train":
-            cluster.rollout_gpu_num = (
-                config.explorer.rollout_model.tensor_parallel_size
-                * config.explorer.rollout_model.engine_num
-            )
+            cluster.rollout_gpu_num = _required_gpus(config.explorer.rollout_model)
             cluster.auxiliary_model_gpu_num = sum(
-                model.tensor_parallel_size * model.engine_num
-                for model in config.explorer.auxiliary_models
+                _required_gpus(model) for model in config.explorer.auxiliary_models
             )
         cluster.explorer_gpu_num = cluster.rollout_gpu_num + cluster.auxiliary_model_gpu_num
         cluster.total_gpu_num = cluster.node_num * cluster.gpu_per_node
@@ -388,6 +390,9 @@ class ModelConfigValidator(ConfigValidator):
         if not model.critic_model_path:
             model.critic_model_path = model.model_path
 
+        if model.engine_type == "openai_api":
+            self._check_openai_api(config)
+
         if model.tinker.enable:
             self._check_tinker(config)
 
@@ -403,6 +408,25 @@ class ModelConfigValidator(ConfigValidator):
 
         # check max_model_len, max_prompt_tokens, max_response_tokens
         self._check_model_len(config)
+
+    def _check_openai_api(self, config: Config) -> None:
+        """Validate OpenAI API-specific configuration settings.
+
+        - Sets trainer type to `tinker` for skipping trainer validation
+        - Validates that `api_base_url_env` and `api_key_env` are provided
+        - Validates that `api_model_name` is provided
+        """
+        if config.trainer.trainer_type != "tinker":
+            config.trainer.trainer_type = "tinker"
+            self.logger.debug("Trainer type is set to `tinker` for skipping trainer validation.")
+
+        model = config.model
+        if not model.api_base_url_env or os.getenv(model.api_base_url_env) is None:
+            raise ValueError("`api_base_url_env` must be provided when engine_type=openai_api.")
+        if not model.api_key_env or os.getenv(model.api_key_env) is None:
+            raise ValueError("`model.api_key_env` must be provided when engine_type=openai_api.")
+        if not model.api_model_name:
+            raise ValueError("`model.api_model_name` must be provided when engine_type=openai_api.")
 
     def _check_tinker(self, config: Config) -> None:
         """Validate Tinker-specific configuration settings.

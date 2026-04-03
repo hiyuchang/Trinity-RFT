@@ -64,6 +64,19 @@ def create_explorer_models(
         from trinity.common.models.vllm_model import vLLMRolloutModel
 
         engine_cls = vLLMRolloutModel
+    elif config.explorer.rollout_model.engine_type == "openai_api":
+        rollout_engines = create_api_inference_models(
+            config=config.explorer.rollout_model,
+            actor_name=f"{config.explorer.name}_rollout_model",
+        )
+        auxiliary_engines = []
+        for i, model_config in enumerate(config.explorer.auxiliary_models):
+            engines = create_api_inference_models(
+                config=model_config,
+                actor_name=f"{config.explorer.name}_auxiliary_model_{model_config.name or i}",
+            )
+            auxiliary_engines.append(engines)
+        return rollout_engines, auxiliary_engines
     elif config.explorer.rollout_model.engine_type == "tinker":
         from trinity.common.models.tinker_model import TinkerModel
 
@@ -175,6 +188,29 @@ def create_vllm_inference_models(
                     placement_group_capture_child_tasks=True,
                     placement_group_bundle_index=bundles_for_engine[0],
                 ),
+            )
+            .remote(
+                config=config,
+            )
+        )
+    return models
+
+
+def create_api_inference_models(
+    config: InferenceModelConfig,
+    actor_name: str,
+) -> List:
+    from trinity.common.models.openai_api_model import OpenaiAPIModel
+
+    models = []
+    for i in range(config.engine_num):
+        models.append(
+            ray.remote(OpenaiAPIModel)
+            .options(
+                name=f"{actor_name}_{i}",
+                num_cpus=0,
+                num_gpus=0,
+                namespace=config.ray_namespace,
             )
             .remote(
                 config=config,

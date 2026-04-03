@@ -551,6 +551,14 @@ class InferenceModelConfig:
 
     reasoning_parser: Optional[str] = None
 
+    # For external OpenAI-compatible API engine
+    api_base_url_env: str = "OPENAI_BASE_URL"
+    api_key_env: str = "OPENAI_API_KEY"
+    api_model_name: Optional[str] = None
+    api_timeout: int = 60
+    api_max_concurrent_requests: int = 8
+    api_support_logprobs: bool = False
+
     # ! DO NOT SET
     bundle_indices: str = ""
     ray_namespace: Optional[str] = None
