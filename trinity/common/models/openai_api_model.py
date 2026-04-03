@@ -54,7 +54,9 @@ class OpenaiAPIModel(InferenceModel):
             response_text=response_text,
         )
 
-    async def _request_chat_completion(self, messages: List[Dict], **kwargs) -> Sequence[Experience]:
+    async def _request_chat_completion(
+        self, messages: List[Dict], **kwargs
+    ) -> Sequence[Experience]:
         await self.prepare()
         assert self.client is not None
         self.request_count += 1
@@ -102,7 +104,9 @@ class OpenaiAPIModel(InferenceModel):
                 "External API logprobs are disabled. Set `api_support_logprobs=true` "
                 "and implement provider-specific logprob parsing if needed."
             )
-        raise NotImplementedError("logprobs for external OpenAI-compatible APIs is not implemented.")
+        raise NotImplementedError(
+            "logprobs for external OpenAI-compatible APIs is not implemented."
+        )
 
     async def convert_messages_to_experience(  # type: ignore[override]
         self,
