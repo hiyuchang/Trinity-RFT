@@ -30,7 +30,5 @@ buffer:
           temperature: 1.0
           logprobs: 0
     default_eval_workflow_type: math_workflow
-explorer:
-  auxiliary_models: []
 monitor:
   monitor_type: tensorboard

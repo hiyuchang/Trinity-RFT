@@ -409,7 +409,7 @@ explorer:
   max_retry_times: 2
   env_vars: {}
   rollout_model:
-    engine_type: vllm_async
+    engine_type: vllm
     engine_num: 1
     tensor_parallel_size: 1
     enable_history: False
@@ -438,7 +438,7 @@ explorer:
 - `max_retry_times`: Maximum number of retries for a workflow.
 - `env_vars`: Environment variables to be set for every workflow runners.
 - `rollout_model.engine_type`: Type of inference engine. Supported options:
-  - `vllm_async` or `vllm`: Use vLLM asynchronous engine.
+  - `vllm`: Use vLLM asynchronous engine.
   - `tinker`: Use Tinker engine.
   - `external`: Use external API-based model engine.
 - `rollout_model.engine_num`: Number of inference engines.

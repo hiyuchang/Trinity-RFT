@@ -406,7 +406,7 @@ explorer:
   max_retry_times: 2
   env_vars: {}
   rollout_model:
-    engine_type: vllm_async
+    engine_type: vllm
     engine_num: 1
     tensor_parallel_size: 1
     enable_history: False
@@ -435,7 +435,7 @@ explorer:
 - `max_retry_times`: Workflow 失败或超时情况下的最大重试次数。
 - `env_vars`: 为每个 WorkflowRunner 设置的环境变量。
 - `rollout_model.engine_type`: 推理引擎类型。支持选项：
-  - `vllm_async` 或 `vllm`: 使用 vLLM 异步引擎。
+  - `vllm`: 使用 vLLM 异步引擎。
   - `tinker`: 使用 Tinker 引擎。
   - `external`: 使用外部 API 引擎。
 - `rollout_model.engine_num`: 推理引擎实例的数量。
