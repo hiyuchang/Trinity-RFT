@@ -2,6 +2,7 @@
 """Base Model Class"""
 import asyncio
 import copy
+import os
 import socket
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
@@ -295,6 +296,14 @@ class ModelWrapper:
                 "chat_template_kwargs": {"enable_thinking": self.config.enable_thinking}
             }
         self.api_address = await self.model.get_api_server_url.remote()
+        if self._engine_type == "external":
+            base_url_env = self.config.external_model_config.base_url_env
+            api_key_env = self.config.external_model_config.api_key_env
+            # Fallback for external actors that were not started with runtime_env env_vars.
+            if base_url_env and not self.api_address:
+                self.api_address = os.getenv(base_url_env, "").rstrip("/")
+            if api_key_env and self._api_key in (None, "", "EMPTY"):
+                self._api_key = os.getenv(api_key_env, "") or self._api_key
         if self.api_address is None:
             self.logger.info("API server is not enabled for inference model.")
             return

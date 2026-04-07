@@ -97,26 +97,6 @@ class TestExternalModel(unittest.IsolatedAsyncioTestCase):
         self.assertGreater(chat_exps[0].metrics["usage/total_tokens"], 0.0)
 
 
-@ray.remote
-class MockExternalInferenceModelActor:
-    def __init__(self, config, api_server_url, api_key):
-        self._config = config
-        self._api_server_url = api_server_url
-        self._api_key = api_key
-
-    def get_model_config(self):
-        return self._config
-
-    def get_api_key(self):
-        return self._api_key
-
-    def get_api_server_url(self):
-        return self._api_server_url
-
-    def get_model_path(self):
-        return self._config.model_path
-
-
 class TestExternalModelLoad(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
@@ -127,17 +107,30 @@ class TestExternalModelLoad(unittest.IsolatedAsyncioTestCase):
         ray.shutdown(_exiting_interpreter=True)
 
     async def test_external_model_load(self):
-        mock_base_url = "https://mock.external.endpoint/v1/"
+        mock_base_url = "https://mock.external.endpoint/"
         mock_api_key = "dummy-api-key"
+        base_url_env = "TRINITY_OPENAI_BASE_URL_LOAD_TEST"
+        api_key_env = "TRINITY_OPENAI_API_KEY_LOAD_TEST"
+        os.environ[base_url_env] = mock_base_url
+        os.environ[api_key_env] = mock_api_key
+        self.addCleanup(os.environ.pop, base_url_env, None)
+        self.addCleanup(os.environ.pop, api_key_env, None)
         config = InferenceModelConfig(
             model_path="mock-model-name",
             engine_type="external",
-            external_model_config=ExternalModelConfig(enable=True),
+            external_model_config=ExternalModelConfig(
+                enable=True,
+                base_url_env=base_url_env,
+                api_key_env=api_key_env,
+            ),
         )
-        model_actor = MockExternalInferenceModelActor.remote(config, mock_base_url, mock_api_key)
+        model_actor = ray.remote(ExternalModel).remote(config=config)
         wrapper = ModelWrapper(model_actor, enable_history=False)
         await wrapper.prepare()
 
+        self.assertEqual(wrapper.api_address, mock_base_url.rstrip("/"))
+        self.assertEqual(wrapper.api_key, mock_api_key)
+
         client = wrapper.get_openai_client()
-        self.assertEqual(client.api_base_url, f"{mock_base_url}/v1")
+        self.assertEqual(str(client.base_url).rstrip("/"), f"{wrapper.api_address}/v1")
         self.assertEqual(client.api_key, mock_api_key)

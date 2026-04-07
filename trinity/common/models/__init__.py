@@ -1,4 +1,5 @@
 import asyncio
+import os
 from collections import defaultdict
 from typing import Dict, List, Tuple
 
@@ -202,15 +203,30 @@ def create_external_models(
 ) -> List:
     from trinity.common.models.external_model import ExternalModel
 
+    # Ensure external-model env vars are propagated to Ray workers.
+    env_vars = {}
+    base_url_env = config.external_model_config.base_url_env
+    api_key_env = config.external_model_config.api_key_env
+    if base_url_env and base_url_env in os.environ:
+        env_vars[base_url_env] = os.environ[base_url_env]
+    if api_key_env and api_key_env in os.environ:
+        env_vars[api_key_env] = os.environ[api_key_env]
+
+    options_kwargs = {
+        "num_cpus": 0,
+        "num_gpus": 0,
+        "namespace": config.ray_namespace,
+    }
+    if env_vars:
+        options_kwargs["runtime_env"] = {"env_vars": env_vars}
+
     models = []
     for i in range(config.engine_num):
         models.append(
             ray.remote(ExternalModel)
             .options(
                 name=f"{actor_name}_{i}",
-                num_cpus=0,
-                num_gpus=0,
-                namespace=config.ray_namespace,
+                **options_kwargs,
             )
             .remote(
                 config=config,
