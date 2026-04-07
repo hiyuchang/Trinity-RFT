@@ -267,7 +267,7 @@ class ModelWrapper:
         self.config: InferenceModelConfig = None  # init during prepare
         self._model_name: str = None
         self.api_address: str = None
-        self._api_key: str = None
+        self._api_key: str = None  # TODO: pass the env var name
         self.openai_client: openai.OpenAI = None
         self.openai_async_client: openai.AsyncOpenAI = None
         self.logger = get_logger(__name__)
@@ -453,40 +453,6 @@ class ModelWrapper:
     async def get_message_token_len(self, messages: List[dict]) -> int:
         return await self.model.get_message_token_len.remote(messages)
 
-    def _bind_external_openai_client(self, client, is_async: bool) -> None:
-        """Attach external endpoint metadata and default model fallback."""
-        if self._engine_type != "external":
-            return
-        if not self.api_address:
-            return
-
-        base_url = f"{self.api_address}/v1"
-        setattr(client, "api_base_url", base_url)
-        setattr(client, "api_key", self._api_key)
-        setattr(client, "model_name", self.model_path)
-
-        if getattr(client, "_trinity_external_patched", False):
-            return
-
-        if is_async:
-            ori_create = client.chat.completions.create
-
-            async def external_chat_completions_create(*args, **kwargs):
-                kwargs.setdefault("model", client.model_name)
-                return await ori_create(*args, **kwargs)
-
-            client.chat.completions.create = external_chat_completions_create
-        else:
-            ori_create = client.chat.completions.create
-
-            def external_chat_completions_create(*args, **kwargs):
-                kwargs.setdefault("model", client.model_name)
-                return ori_create(*args, **kwargs)
-
-            client.chat.completions.create = external_chat_completions_create
-
-        setattr(client, "_trinity_external_patched", True)
-
     def get_openai_client(self) -> "openai.OpenAI":
         """Get the openai client.
 
@@ -497,7 +463,6 @@ class ModelWrapper:
 
         if self.openai_client is not None:
             setattr(self.openai_client, "model_path", self.model_path)
-            self._bind_external_openai_client(self.openai_client, is_async=False)
             return self.openai_client
         if not self.api_address:
             raise ValueError(
@@ -547,7 +512,6 @@ class ModelWrapper:
 
             self.openai_client.chat.completions.create = record_chat_completions
         setattr(self.openai_client, "model_path", self.model_path)
-        self._bind_external_openai_client(self.openai_client, is_async=False)
         return self.openai_client
 
     def get_openai_async_client(self) -> "openai.AsyncOpenAI":
@@ -560,7 +524,6 @@ class ModelWrapper:
 
         if self.openai_async_client is not None:
             setattr(self.openai_async_client, "model_path", self.model_path)
-            self._bind_external_openai_client(self.openai_async_client, is_async=True)
             return self.openai_async_client
         if not self.api_address:
             raise ValueError(
@@ -613,7 +576,6 @@ class ModelWrapper:
             self.openai_async_client.chat.completions.create = record_chat_completions
         # get model_path from the sync openai client to avoid async call here
         setattr(self.openai_async_client, "model_path", self.model_path)
-        self._bind_external_openai_client(self.openai_async_client, is_async=True)
         return self.openai_async_client
 
     async def get_current_load(self) -> int:
