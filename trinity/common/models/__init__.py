@@ -200,12 +200,12 @@ def create_api_inference_models(
     config: InferenceModelConfig,
     actor_name: str,
 ) -> List:
-    from trinity.common.models.openai_api_model import OpenaiAPIModel
+    from trinity.common.models.external_model import ExternalModel
 
     models = []
     for i in range(config.engine_num):
         models.append(
-            ray.remote(OpenaiAPIModel)
+            ray.remote(ExternalModel)
             .options(
                 name=f"{actor_name}_{i}",
                 num_cpus=0,

@@ -1,12 +1,18 @@
 mode: bench
-project: Trinity-RFT-openai-eval
-name: openai-api-mvp
+project: Trinity-RFT
+name: external-model-qwen3-max
 checkpoint_root_dir: ${oc.env:TRINITY_CHECKPOINT_ROOT_DIR,./checkpoints}
 model:
   model_path: qwen3-max
   max_model_len: 4096
   max_prompt_tokens: 2048
   max_response_tokens: 1024
+  external_model:
+    enable: true
+    model_name: qwen3-max
+    base_url_env: API_BASE_URL
+    api_key_env: OPENAI_API_KEY
+    max_concurrent_requests: 16
 buffer:
   batch_size: 16
   total_epochs: 1
@@ -17,6 +23,7 @@ buffer:
         path: ${oc.env:TRINITY_TASKSET_PATH,openai/gsm8k}
         subset_name: main
         split: test
+        repeat_times: 16
         format:
           prompt_key: question
           response_key: answer
@@ -25,12 +32,6 @@ buffer:
           logprobs: 0
     default_eval_workflow_type: math_workflow
 explorer:
-  rollout_model:
-    engine_type: openai_api
-    api_base_url_env: OPENAI_BASE_URL
-    api_key_env: DASHSCOPE_API_KEY
-    api_model_name: qwen3-max
-    api_max_concurrent_requests: 16
   auxiliary_models: []
 monitor:
   monitor_type: tensorboard

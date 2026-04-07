@@ -444,6 +444,7 @@ class TinkerConfig:
 
 @dataclass
 class ExternalModelConfig:
+    enable: bool = False
     base_url_env: str = "OPENAI_BASE_URL"
     api_key_env: str = "OPENAI_API_KEY"
     model_name: Optional[str] = None
@@ -500,6 +501,9 @@ class ModelConfig:
 
     # tinker config
     tinker: TinkerConfig = field(default_factory=TinkerConfig)
+
+    # external API-based engine
+    external_model: ExternalModelConfig = field(default_factory=ExternalModelConfig)
 
 
 @dataclass
@@ -561,7 +565,7 @@ class InferenceModelConfig:
 
     reasoning_parser: Optional[str] = None
 
-    # For external OpenAI-compatible API engine
+    # For external API-based engine
     external_model_config: ExternalModelConfig = field(default_factory=ExternalModelConfig)
 
     # ! DO NOT SET

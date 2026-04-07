@@ -298,7 +298,7 @@ class ModelWrapper:
         if self.api_address is None:
             self.logger.info("API server is not enabled for inference model.")
             return
-        if self._engine_type in {"tinker", "openai_api"}:
+        if self._engine_type in {"tinker", "external"}:
             return
         max_retries = 30
         interval = 2  # seconds

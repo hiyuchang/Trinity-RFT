@@ -9,7 +9,7 @@ from trinity.common.experience import Experience
 from trinity.common.models.model import InferenceModel
 
 
-class OpenaiAPIModel(InferenceModel):
+class ExternalModel(InferenceModel):
     """Inference model backed by an external OpenAI-compatible API."""
 
     def __init__(self, config: InferenceModelConfig) -> None:
@@ -44,7 +44,14 @@ class OpenaiAPIModel(InferenceModel):
             self.config.external_model_config.max_concurrent_requests,
         )
 
-    def _build_experience(self, response_text: str, prompt_text: str = "") -> Experience:
+    def _build_experience(
+        self,
+        response_text: str,
+        prompt_text: str = "",
+        reward: Optional[float] = 0.0,
+        metrics: Optional[dict[str, float]] = None,
+        info: Optional[dict] = None,
+    ) -> Experience:
         # Keep a minimal valid token tensor so existing pipelines can process single-turn data.
         tokens = torch.tensor([0, 0], dtype=torch.int32)
         logprobs = torch.tensor([0.0], dtype=torch.float32)
@@ -54,6 +61,9 @@ class OpenaiAPIModel(InferenceModel):
             prompt_length=1,
             prompt_text=prompt_text,
             response_text=response_text,
+            reward=reward,
+            metrics=metrics or {},
+            info=info or {},
         )
 
     async def _request_chat_completion(
@@ -82,10 +92,28 @@ class OpenaiAPIModel(InferenceModel):
         async with self.request_semaphore:
             response = await self.client.chat.completions.create(**req_kwargs)
 
+        usage_metrics = {}
+        usage = getattr(response, "usage", None)
+        if usage is not None:
+            for usage_key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+                usage_val = getattr(usage, usage_key, None)
+                if isinstance(usage_val, (int, float)):
+                    usage_metrics[f"usage/{usage_key}"] = float(usage_val)
+
         exps = []
         for choice in response.choices:
             content = choice.message.content or ""
-            exps.append(self._build_experience(response_text=content))
+            exps.append(
+                self._build_experience(
+                    response_text=content,
+                    reward=0.0,
+                    metrics=usage_metrics.copy(),
+                    info={
+                        "finish_reason": choice.finish_reason,
+                        "choice_index": choice.index,
+                    },
+                )
+            )
         return exps
 
     async def chat(self, messages: List[Dict], **kwargs) -> Sequence[Experience]:
