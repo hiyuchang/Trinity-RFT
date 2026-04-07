@@ -67,17 +67,17 @@ class OpenaiAPIModel(InferenceModel):
             "model": self.api_model_name,
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
-            "top_p": kwargs.get("top_p", self.config.top_p),
-            "max_tokens": kwargs.get("max_tokens", self.config.max_response_tokens),
+            "max_completion_tokens": kwargs.get(
+                "max_completion_tokens", self.config.max_response_tokens
+            ),
             "n": kwargs.get("n", 1),
         }
         self.logger.debug(
-            "[openai_api][request=%d] model=%s max_tokens=%s temperature=%s top_p=%s",
+            "[openai_api][request=%d] model=%s max_completion_tokens=%s temperature=%s top_p=%s",
             request_id,
             req_kwargs["model"],
-            req_kwargs["max_tokens"],
+            req_kwargs["max_completion_tokens"],
             req_kwargs["temperature"],
-            req_kwargs["top_p"],
         )
         async with self.request_semaphore:
             response = await self.client.chat.completions.create(**req_kwargs)
