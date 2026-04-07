@@ -448,9 +448,7 @@ class ExternalModelConfig:
     base_url_env: str = "OPENAI_BASE_URL"
     api_key_env: str = "OPENAI_API_KEY"
     model_name: Optional[str] = None
-    timeout: int = 60
-    max_concurrent_requests: int = 8
-    support_logprobs: bool = False
+    # support_prompt_logprobs: bool = False # TODO
 
 
 @dataclass

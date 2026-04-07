@@ -8,8 +8,8 @@ import ray
 from tests.tools import get_model_path, get_template_config
 from trinity.common.config import ExternalModelConfig, InferenceModelConfig
 from trinity.common.models import create_explorer_models
-from trinity.common.models.model import ModelWrapper
 from trinity.common.models.external_model import ExternalModel
+from trinity.common.models.model import ModelWrapper
 
 
 async def prepare_engines(engines, auxiliary_engines):
@@ -95,3 +95,49 @@ class TestExternalModel(unittest.IsolatedAsyncioTestCase):
         self.assertIn("usage/completion_tokens", chat_exps[0].metrics)
         self.assertIn("usage/total_tokens", chat_exps[0].metrics)
         self.assertGreater(chat_exps[0].metrics["usage/total_tokens"], 0.0)
+
+
+@ray.remote
+class MockExternalInferenceModelActor:
+    def __init__(self, config, api_server_url, api_key):
+        self._config = config
+        self._api_server_url = api_server_url
+        self._api_key = api_key
+
+    def get_model_config(self):
+        return self._config
+
+    def get_api_key(self):
+        return self._api_key
+
+    def get_api_server_url(self):
+        return self._api_server_url
+
+    def get_model_path(self):
+        return self._config.model_path
+
+
+class TestExternalModelLoad(unittest.IsolatedAsyncioTestCase):
+    @classmethod
+    def setUpClass(cls):
+        ray.init(ignore_reinit_error=True, namespace="trinity_unittest")
+
+    @classmethod
+    def tearDownClass(cls):
+        ray.shutdown(_exiting_interpreter=True)
+
+    async def test_external_model_load(self):
+        mock_base_url = "https://mock.external.endpoint/v1/"
+        mock_api_key = "dummy-api-key"
+        config = InferenceModelConfig(
+            model_path="mock-model-name",
+            engine_type="external",
+            external_model_config=ExternalModelConfig(enable=True),
+        )
+        model_actor = MockExternalInferenceModelActor.remote(config, mock_base_url, mock_api_key)
+        wrapper = ModelWrapper(model_actor, enable_history=False)
+        await wrapper.prepare()
+
+        client = wrapper.get_openai_client()
+        self.assertEqual(client.api_base_url, f"{mock_base_url}/v1")
+        self.assertEqual(client.api_key, mock_api_key)

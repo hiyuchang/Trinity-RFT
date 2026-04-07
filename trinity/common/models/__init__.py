@@ -65,13 +65,13 @@ def create_explorer_models(
 
         engine_cls = vLLMRolloutModel
     elif config.explorer.rollout_model.engine_type == "external":
-        rollout_engines = create_api_inference_models(
+        rollout_engines = create_external_models(
             config=config.explorer.rollout_model,
             actor_name=f"{config.explorer.name}_rollout_model",
         )
         auxiliary_engines = []
         for i, model_config in enumerate(config.explorer.auxiliary_models):
-            engines = create_api_inference_models(
+            engines = create_external_models(
                 config=model_config,
                 actor_name=f"{config.explorer.name}_auxiliary_model_{model_config.name or i}",
             )
@@ -196,7 +196,7 @@ def create_vllm_inference_models(
     return models
 
 
-def create_api_inference_models(
+def create_external_models(
     config: InferenceModelConfig,
     actor_name: str,
 ) -> List:

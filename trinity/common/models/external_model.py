@@ -1,4 +1,3 @@
-import asyncio
 import os
 from typing import Dict, List, Optional, Sequence, Union
 
@@ -17,9 +16,6 @@ class ExternalModel(InferenceModel):
         self.model_version = 0
         self.client = None
         self.request_count = 0
-        self.request_semaphore = asyncio.Semaphore(
-            max(1, config.external_model_config.max_concurrent_requests)
-        )
         self.api_base_url = os.getenv(config.external_model_config.base_url_env, "").rstrip("/")
         self.api_model_name = config.external_model_config.model_name or config.model_path
         if self.api_model_name is None:
@@ -33,15 +29,12 @@ class ExternalModel(InferenceModel):
         self.client = openai.AsyncOpenAI(
             base_url=self.api_base_url,
             api_key=os.getenv(self.config.external_model_config.api_key_env, ""),
-            timeout=self.config.external_model_config.timeout,
         )
         self.logger.info(
-            "Initialized openai_api engine with base_url=%s, model_name=%s, "
-            "api_key_env=%s, max_concurrent_requests=%d",
+            "Initialized external model engine with base_url=%s, model_name=%s, api_key_env=%s",
             self.api_base_url,
             self.api_model_name,
             self.config.external_model_config.api_key_env,
-            self.config.external_model_config.max_concurrent_requests,
         )
 
     def _build_experience(
@@ -73,13 +66,14 @@ class ExternalModel(InferenceModel):
         assert self.client is not None
         self.request_count += 1
         request_id = self.request_count
+        max_completion_tokens = kwargs.get("max_completion_tokens")
+        if max_completion_tokens is None:
+            max_completion_tokens = kwargs.get("max_tokens", self.config.max_response_tokens)
         req_kwargs = {
             "model": self.api_model_name,
             "messages": messages,
             "temperature": kwargs.get("temperature", self.config.temperature),
-            "max_completion_tokens": kwargs.get(
-                "max_completion_tokens", self.config.max_response_tokens
-            ),
+            "max_completion_tokens": max_completion_tokens,
             "n": kwargs.get("n", 1),
         }
         self.logger.debug(
@@ -89,8 +83,7 @@ class ExternalModel(InferenceModel):
             req_kwargs["max_completion_tokens"],
             req_kwargs["temperature"],
         )
-        async with self.request_semaphore:
-            response = await self.client.chat.completions.create(**req_kwargs)
+        response = await self.client.chat.completions.create(**req_kwargs)
 
         usage_metrics = {}
         usage = getattr(response, "usage", None)
@@ -119,6 +112,14 @@ class ExternalModel(InferenceModel):
     async def chat(self, messages: List[Dict], **kwargs) -> Sequence[Experience]:
         return await self.generate(messages, **kwargs)
 
+    async def chat_async(self, messages: List[Dict], **kwargs) -> Sequence[Experience]:
+        return await self.generate(messages, **kwargs)
+
+    async def generate_async(
+        self, prompt: Union[str, List[Dict]], **kwargs
+    ) -> Sequence[Experience]:
+        return await self.generate(prompt, **kwargs)
+
     async def generate(self, prompt: Union[str, List[Dict]], **kwargs) -> Sequence[Experience]:
         if isinstance(prompt, str):
             messages = [{"role": "user", "content": prompt}]
@@ -129,14 +130,7 @@ class ExternalModel(InferenceModel):
         return await self._request_chat_completion(messages, **kwargs)
 
     async def logprobs(self, token_ids: List[int], **kwargs) -> torch.Tensor:
-        if not self.config.api_support_logprobs:
-            raise NotImplementedError(
-                "External API logprobs are disabled. Set `api_support_logprobs=true` "
-                "and implement provider-specific logprob parsing if needed."
-            )
-        raise NotImplementedError(
-            "logprobs for external OpenAI-compatible APIs is not implemented."
-        )
+        raise NotImplementedError("logprobs for external APIs is not implemented.")
 
     async def convert_messages_to_experience(
         self,
@@ -160,14 +154,20 @@ class ExternalModel(InferenceModel):
         return exp
 
     async def sync_model(self, model_version: int) -> int:
+        # for
         self.model_version = model_version
-        return model_version
+        return self.model_version
 
     def get_model_version(self) -> int:
         return self.model_version
+
+    def get_api_key(self) -> str:
+        return os.getenv(self.config.external_model_config.api_key_env, "EMPTY")
 
     def get_api_server_url(self) -> Optional[str]:
         # ModelWrapper appends `/v1` when building openai client base_url.
         if self.api_base_url.endswith("/v1"):
             return self.api_base_url[: -len("/v1")]
+        elif self.api_base_url.endswith("/v1/"):
+            return self.api_base_url[: -len("/v1/")]
         return self.api_base_url
