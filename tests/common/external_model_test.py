@@ -109,8 +109,8 @@ class TestExternalModelLoad(unittest.IsolatedAsyncioTestCase):
     async def test_external_model_load(self):
         mock_base_url = "https://mock.external.endpoint/"
         mock_api_key = "dummy-api-key"
-        base_url_env = "TRINITY_OPENAI_BASE_URL_LOAD_TEST"
-        api_key_env = "TRINITY_OPENAI_API_KEY_LOAD_TEST"
+        base_url_env = "TRINITY_OPENAI_BASE_URL_TEST"
+        api_key_env = "TRINITY_OPENAI_API_KEY_TEST"
         os.environ[base_url_env] = mock_base_url
         os.environ[api_key_env] = mock_api_key
         self.addCleanup(os.environ.pop, base_url_env, None)
@@ -124,9 +124,7 @@ class TestExternalModelLoad(unittest.IsolatedAsyncioTestCase):
                 api_key_env=api_key_env,
             ),
         )
-        model_actor = create_external_models(config=config, actor_name="test_external_model_load")[
-            0
-        ]
+        model_actor = create_external_models(config=config, actor_name="test_external")[0]
         wrapper = ModelWrapper(model_actor, enable_history=False)
         await wrapper.prepare()
 

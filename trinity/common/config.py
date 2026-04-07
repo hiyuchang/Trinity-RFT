@@ -959,11 +959,11 @@ class Config:
         }
         if self.model.tinker.base_url:
             envs["TINKER_BASE_URL"] = self.model.tinker.base_url
-        if self.model.external_model.base_url_env:
+        if self.model.external_model.enable and self.model.external_model.base_url_env:
             envs[self.model.external_model.base_url_env] = os.getenv(
                 self.model.external_model.base_url_env, ""
             )
-        if self.model.external_model.api_key_env:
+        if self.model.external_model.enable and self.model.external_model.api_key_env:
             envs[self.model.external_model.api_key_env] = os.getenv(
                 self.model.external_model.api_key_env, ""
             )
