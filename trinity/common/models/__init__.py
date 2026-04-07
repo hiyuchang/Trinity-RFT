@@ -212,21 +212,16 @@ def create_external_models(
     if api_key_env and api_key_env in os.environ:
         env_vars[api_key_env] = os.environ[api_key_env]
 
-    options_kwargs = {
-        "num_cpus": 0,
-        "num_gpus": 0,
-        "namespace": config.ray_namespace,
-    }
-    if env_vars:
-        options_kwargs["runtime_env"] = {"env_vars": env_vars}
-
     models = []
     for i in range(config.engine_num):
         models.append(
             ray.remote(ExternalModel)
             .options(
                 name=f"{actor_name}_{i}",
-                **options_kwargs,
+                num_cpus=0,
+                num_gpus=0,
+                namespace=config.ray_namespace,
+                runtime_env={"env_vars": env_vars},
             )
             .remote(
                 config=config,

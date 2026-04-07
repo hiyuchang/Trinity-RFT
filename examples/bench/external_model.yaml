@@ -10,7 +10,7 @@ model:
   external_model:
     enable: true
     model_name: qwen3-max
-    base_url_env: API_BASE_URL
+    base_url_env: OPENAI_BASE_URL
     api_key_env: OPENAI_API_KEY
 buffer:
   batch_size: 16

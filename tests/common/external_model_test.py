@@ -7,7 +7,7 @@ import ray
 
 from tests.tools import get_model_path, get_template_config
 from trinity.common.config import ExternalModelConfig, InferenceModelConfig
-from trinity.common.models import create_explorer_models
+from trinity.common.models import create_explorer_models, create_external_models
 from trinity.common.models.external_model import ExternalModel
 from trinity.common.models.model import ModelWrapper
 
@@ -124,7 +124,9 @@ class TestExternalModelLoad(unittest.IsolatedAsyncioTestCase):
                 api_key_env=api_key_env,
             ),
         )
-        model_actor = ray.remote(ExternalModel).remote(config=config)
+        model_actor = create_external_models(config=config, actor_name="test_external_model_load")[
+            0
+        ]
         wrapper = ModelWrapper(model_actor, enable_history=False)
         await wrapper.prepare()
 

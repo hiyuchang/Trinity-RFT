@@ -28,7 +28,7 @@ class ExternalModel(InferenceModel):
 
         self.client = openai.AsyncOpenAI(
             base_url=self.api_base_url,
-            api_key=os.getenv(self.config.external_model_config.api_key_env, ""),
+            api_key=self.get_api_key(),
         )
         self.logger.info(
             "Initialized external model engine with base_url=%s, model_name=%s, api_key_env=%s",
