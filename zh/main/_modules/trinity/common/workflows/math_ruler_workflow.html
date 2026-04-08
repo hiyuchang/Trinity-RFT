@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>trinity.common.workflows.math_ruler_workflow &#8212; Trinity-RFT 0.5.1 文档</title>
+    <title>trinity.common.workflows.math_ruler_workflow &#8212; Trinity-RFT 0.5.2 文档</title>
   
   
   
@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=c79d47ac"></script>
+    <script src="../../../../_static/documentation_options.js?v=e72cdd47"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -484,7 +484,7 @@ window.runMermaid = runMermaid;</script>
     <link rel="search" title="搜索" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="zh-CN"/>
-  <meta name="docsearch:version" content="0.5.1" />
+  <meta name="docsearch:version" content="0.5.2" />
   </head>
   
   
@@ -565,8 +565,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.1 文档 - Home"/>
-    <img src="../../../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt="Trinity-RFT 0.5.1 文档 - Home"/>
+    <img src="../../../../_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.2 文档 - Home"/>
+    <img src="../../../../_static/logo.svg" class="logo__image only-dark pst-js-only" alt="Trinity-RFT 0.5.2 文档 - Home"/>
   
   
 </a></div>
@@ -796,6 +796,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../../build_api/trinity.common.html">trinity.common package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../build_api/trinity.common.models.html">trinity.common.models package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.common.models.vllm_patch.html">trinity.common.models.vllm_patch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.common.models.external_model.html">trinity.common.models.external_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.common.models.mm_utils.html">trinity.common.models.mm_utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.common.models.model.html">trinity.common.models.model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../build_api/trinity.common.models.tinker_model.html">trinity.common.models.tinker_model module</a></li>
@@ -1101,7 +1102,7 @@ window.runMermaid = runMermaid;</script>
             <span class="bp">self</span><span class="o">.</span><span class="n">auxiliary_models</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">),</span> <span class="s2">&quot;Current implementation of RULER requires that auxiliary_models is not None.&quot;</span>
         <span class="n">judge_success</span><span class="p">,</span> <span class="n">ruler_scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ruler_scores</span><span class="p">(</span>
-            <span class="n">responses</span><span class="o">=</span><span class="n">responses</span><span class="p">,</span> <span class="n">judger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auxiliary_models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">responses</span><span class="o">=</span><span class="n">responses</span><span class="p">,</span> <span class="n">judge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auxiliary_models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">responses</span><span class="p">):</span>
             <span class="n">response</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">ruler_scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -1112,9 +1113,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="MathRULERWorkflow.get_ruler_scores">
 <a class="viewcode-back" href="../../../../build_api/trinity.common.workflows.math_ruler_workflow.html#trinity.common.workflows.math_ruler_workflow.MathRULERWorkflow.get_ruler_scores">[文档]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_ruler_scores</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Experience</span><span class="p">],</span> <span class="n">judger</span><span class="p">:</span> <span class="n">Any</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ruler_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Experience</span><span class="p">],</span> <span class="n">judge</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get RULER scores&quot;&quot;&quot;</span>
 
         <span class="n">num_responses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
@@ -1148,37 +1147,37 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">Conclude your response with a list of scores, in the following format: [score for solution 1, score for solution 2, ..., score for solution </span><span class="si">{</span><span class="n">num_responses</span><span class="si">}</span><span class="s2">]</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="c1"># Step 2: invoke judger LLM</span>
+        <span class="c1"># Step 2: invoke judge LLM</span>
         <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">ruler_system_prompt</span><span class="p">},</span>
             <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">ruler_user_prompt</span><span class="p">},</span>
         <span class="p">]</span>
-        <span class="n">completion</span> <span class="o">=</span> <span class="n">judger</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-            <span class="n">model</span><span class="o">=</span><span class="n">judger</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">False</span>
+        <span class="n">completion</span> <span class="o">=</span> <span class="n">judge</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">judge</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
-        <span class="n">judger_response</span> <span class="o">=</span> <span class="n">completion</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LLM judge response: </span><span class="si">{</span><span class="n">judger_response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">judge_response</span> <span class="o">=</span> <span class="n">completion</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LLM judge response: </span><span class="si">{</span><span class="n">judge_response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Step 3: extract scores from judger&#39;s response</span>
-        <span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span> <span class="o">=</span> <span class="n">judger_response</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">),</span> <span class="n">judger_response</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span>
+        <span class="c1"># Step 3: extract scores from judge&#39;s response</span>
+        <span class="n">idx1</span><span class="p">,</span> <span class="n">idx2</span> <span class="o">=</span> <span class="n">judge_response</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">),</span> <span class="n">judge_response</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">idx1</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">idx2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">idx1</span> <span class="o">&gt;</span> <span class="n">idx2</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Unable to extract a list from judger response, set scores to all zero.&quot;</span>
+                <span class="s2">&quot;Unable to extract a list from judge response, set scores to all zero.&quot;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_responses</span><span class="p">)]</span>
-        <span class="n">lst_as_str</span> <span class="o">=</span> <span class="n">judger_response</span><span class="p">[</span><span class="n">idx1</span> <span class="p">:</span> <span class="p">(</span><span class="n">idx2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="n">lst_as_str</span> <span class="o">=</span> <span class="n">judge_response</span><span class="p">[</span><span class="n">idx1</span> <span class="p">:</span> <span class="p">(</span><span class="n">idx2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">scores</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">lst_as_str</span><span class="p">)</span>
             <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span> <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">]</span>  <span class="c1"># clip to range [0, 1]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_responses</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;The length of list in judger response does not match num_responses.&quot;</span>
+                    <span class="s2">&quot;The length of list in judge response does not match num_responses.&quot;</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_responses</span><span class="p">)]</span>
             <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">scores</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Unable to parse the list in judger response, set scores to all zero.&quot;</span>
+                <span class="s2">&quot;Unable to parse the list in judge response, set scores to all zero.&quot;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_responses</span><span class="p">)]</span></div>
 </div>
@@ -1223,7 +1222,7 @@ window.runMermaid = runMermaid;</script>
             <span class="bp">self</span><span class="o">.</span><span class="n">auxiliary_models</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">),</span> <span class="s2">&quot;Current implementation of RULER requires that auxiliary_models is not None.&quot;</span>
         <span class="n">judge_success</span><span class="p">,</span> <span class="n">ruler_scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ruler_scores</span><span class="p">(</span>
-            <span class="n">responses</span><span class="o">=</span><span class="n">responses</span><span class="p">,</span> <span class="n">judger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auxiliary_models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">responses</span><span class="o">=</span><span class="n">responses</span><span class="p">,</span> <span class="n">judge</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">auxiliary_models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">responses</span><span class="p">):</span>
             <span class="n">response</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">ruler_scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>

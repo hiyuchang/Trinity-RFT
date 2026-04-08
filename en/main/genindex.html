@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; Trinity-RFT 0.5.1 documentation</title>
+    <title>Index &#8212; Trinity-RFT 0.5.2 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=5f152624"></script>
+    <script src="_static/documentation_options.js?v=4861a642"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -484,7 +484,7 @@ window.runMermaid = runMermaid;</script>
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.5.1" />
+  <meta name="docsearch:version" content="0.5.2" />
   </head>
   
   
@@ -565,8 +565,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.1 documentation - Home"/>
-    <img src="_static/logo.svg" class="logo__image only-dark pst-js-only" alt="Trinity-RFT 0.5.1 documentation - Home"/>
+    <img src="_static/logo.svg" class="logo__image only-light" alt="Trinity-RFT 0.5.2 documentation - Home"/>
+    <img src="_static/logo.svg" class="logo__image only-dark pst-js-only" alt="Trinity-RFT 0.5.2 documentation - Home"/>
   
   
 </a></div>
@@ -796,6 +796,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2 has-children"><a class="reference internal" href="build_api/trinity.common.html">trinity.common package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="build_api/trinity.common.models.html">trinity.common.models package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.models.vllm_patch.html">trinity.common.models.vllm_patch package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.models.external_model.html">trinity.common.models.external_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.models.mm_utils.html">trinity.common.models.mm_utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.models.model.html">trinity.common.models.model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="build_api/trinity.common.models.tinker_model.html">trinity.common.models.tinker_model module</a></li>
@@ -1255,6 +1256,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExplorerInput.__init__">(trinity.common.config.ExplorerInput method)</a>
 </li>
+        <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExternalModelConfig.__init__">(trinity.common.config.ExternalModelConfig method)</a>
+</li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.FormatConfig.__init__">(trinity.common.config.FormatConfig method)</a>
 </li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.GenerationConfig.__init__">(trinity.common.config.GenerationConfig method)</a>
@@ -1303,6 +1306,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.__init__">(trinity.common.experience.Experience method)</a>
 </li>
+        <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.__init__">(trinity.common.models.external_model.ExternalModel method)</a>
+</li>
         <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.BaseInferenceModel.__init__">(trinity.common.models.model.BaseInferenceModel method)</a>
 </li>
         <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.HistoryRecordingStream.__init__">(trinity.common.models.model.HistoryRecordingStream method)</a>
@@ -1350,6 +1355,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.common.workflows.on_policy_distill_workflow.html#trinity.common.workflows.on_policy_distill_workflow.OnPolicyDistillWorkflow.__init__">(trinity.common.workflows.on_policy_distill_workflow.OnPolicyDistillWorkflow method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow.__init__">(trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow method)</a>
+</li>
+        <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflowWithAPI.__init__">(trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflowWithAPI method)</a>
 </li>
         <li><a href="build_api/trinity.common.workflows.simple_mm_workflow.html#trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow.__init__">(trinity.common.workflows.simple_mm_workflow.SimpleMMWorkflow method)</a>
 </li>
@@ -1433,8 +1440,6 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Algorithm.__init__">(trinity.trainer.verl.verl_config.Algorithm method)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Checkpoint.__init__">(trinity.trainer.verl.verl_config.Checkpoint method)</a>
-</li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Critic.__init__">(trinity.trainer.verl.verl_config.Critic method)</a>
 </li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.CriticModel.__init__">(trinity.trainer.verl.verl_config.CriticModel method)</a>
@@ -1449,8 +1454,6 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.KL_Ctrl.__init__">(trinity.trainer.verl.verl_config.KL_Ctrl method)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.__init__">(trinity.trainer.verl.verl_config.MegatronConfig method)</a>
-</li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Optim.__init__">(trinity.trainer.verl.verl_config.Optim method)</a>
 </li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.OverrideTransformerConfig.__init__">(trinity.trainer.verl.verl_config.OverrideTransformerConfig method)</a>
@@ -1459,11 +1462,11 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Ref.__init__">(trinity.trainer.verl.verl_config.Ref method)</a>
 </li>
+        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Reward.__init__">(trinity.trainer.verl.verl_config.Reward method)</a>
+</li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RewardModel.__init__">(trinity.trainer.verl.verl_config.RewardModel method)</a>
 </li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Rollout.__init__">(trinity.trainer.verl.verl_config.Rollout method)</a>
-</li>
-        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.__init__">(trinity.trainer.verl.verl_config.RolloutCorrection method)</a>
 </li>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Trainer.__init__">(trinity.trainer.verl.verl_config.Trainer method)</a>
 </li>
@@ -1608,6 +1611,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.api_key">api_key (trinity.common.models.model.ModelWrapper property)</a>
 </li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExternalModelConfig.api_key_env">api_key_env (trinity.common.config.ExternalModelConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.BaseInferenceModel.apply_chat_template">apply_chat_template() (trinity.common.models.model.BaseInferenceModel method)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl.utils.html#trinity.trainer.verl.utils.apply_fsdp2">apply_fsdp2() (in module trinity.trainer.verl.utils)</a>
@@ -1633,8 +1638,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AsymREAlgorithm">AsymREAlgorithm (class in trinity.algorithm.algorithm)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.advantage_fn.asymre_advantage.html#trinity.algorithm.advantage_fn.asymre_advantage.ASYMREGroupAdvantage">ASYMREGroupAdvantage (class in trinity.algorithm.advantage_fn.asymre_advantage)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Checkpoint.async_save">async_save (trinity.trainer.verl.verl_config.Checkpoint attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.workflows.html#trinity.common.workflows.Workflow.asynchronous">asynchronous (trinity.common.workflows.Workflow property)</a>
 
@@ -1698,6 +1701,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.TinkerConfig.base_url">base_url (trinity.common.config.TinkerConfig attribute)</a>
 </li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExternalModelConfig.base_url_env">base_url_env (trinity.common.config.ExternalModelConfig attribute)</a>
+</li>
       <li><a href="build_api/trinity.buffer.selector.difficulty_estimator.html#trinity.buffer.selector.difficulty_estimator.BaseBetaPREstimator">BaseBetaPREstimator (class in trinity.buffer.selector.difficulty_estimator)</a>
 </li>
       <li><a href="build_api/trinity.buffer.reader.file_reader.html#trinity.buffer.reader.file_reader.BaseFileReader">BaseFileReader (class in trinity.buffer.reader.file_reader)</a>
@@ -1736,14 +1741,14 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExplorerConfig.bench_on_latest_checkpoint">bench_on_latest_checkpoint (trinity.common.config.ExplorerConfig attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.explorer.html#trinity.explorer.Explorer.benchmark">benchmark() (trinity.explorer.Explorer method)</a>
 
       <ul>
         <li><a href="build_api/trinity.explorer.explorer.html#trinity.explorer.explorer.Explorer.benchmark">(trinity.explorer.explorer.Explorer method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.buffer.selector.difficulty_estimator.html#trinity.buffer.selector.difficulty_estimator.BaseBetaPREstimator.betas">betas (trinity.buffer.selector.difficulty_estimator.BaseBetaPREstimator attribute)</a>
 
       <ul>
@@ -1791,8 +1796,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.buffer.task_scheduler.html#trinity.buffer.task_scheduler.TasksetScheduler.build_orders">build_orders() (trinity.buffer.task_scheduler.TasksetScheduler method)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.bundle_indices">bundle_indices (trinity.common.config.InferenceModelConfig attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.bypass_mode">bypass_mode (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1861,6 +1864,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.common.workflows.agentscope.react.react_workflow.html#trinity.common.workflows.agentscope.react.react_workflow.AgentScopeReActWorkflow.calculate_reward">calculate_reward() (trinity.common.workflows.agentscope.react.react_workflow.AgentScopeReActWorkflow method)</a>
 </li>
       <li><a href="build_api/trinity.explorer.workflow_runner.html#trinity.explorer.workflow_runner.calculate_run_level_metrics">calculate_run_level_metrics() (in module trinity.explorer.workflow_runner)</a>
+</li>
+      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Actor.calculate_sum_pi_squared">calculate_sum_pi_squared (trinity.trainer.verl.verl_config.Actor attribute)</a>
 </li>
       <li><a href="build_api/trinity.explorer.scheduler.html#trinity.explorer.scheduler.calculate_task_level_metrics">calculate_task_level_metrics() (in module trinity.explorer.scheduler)</a>
 </li>
@@ -1944,14 +1949,20 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.CaseInsensitiveEnumMeta">CaseInsensitiveEnumMeta (class in trinity.common.constants)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.chat">chat() (trinity.common.models.model.InferenceModel method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.chat">chat() (trinity.common.models.external_model.ExternalModel method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.chat">(trinity.common.models.model.InferenceModel method)</a>
+</li>
         <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.chat">(trinity.common.models.model.ModelWrapper method)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.chat_async">chat_async() (trinity.common.models.model.ModelWrapper method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.chat_async">chat_async() (trinity.common.models.external_model.ExternalModel method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.chat_async">(trinity.common.models.model.ModelWrapper method)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.FormatConfig.chat_template">chat_template (trinity.common.config.FormatConfig attribute)</a>
 
       <ul>
@@ -1995,8 +2006,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.manager.config_registry.explorer_config_manager.html#trinity.manager.config_registry.explorer_config_manager.check_tensor_parallel_size">check_tensor_parallel_size() (in module trinity.manager.config_registry.explorer_config_manager)</a>
 </li>
       <li><a href="build_api/trinity.manager.config_registry.buffer_config_manager.html#trinity.manager.config_registry.buffer_config_manager.check_train_batch_size">check_train_batch_size() (in module trinity.manager.config_registry.buffer_config_manager)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Checkpoint">Checkpoint (class in trinity.trainer.verl.verl_config)</a>
 </li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SyncMethod.CHECKPOINT">CHECKPOINT (trinity.common.constants.SyncMethod attribute)</a>
 </li>
@@ -2054,6 +2063,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.clone_with_isolated_history">clone_with_isolated_history() (trinity.common.models.model.ModelWrapper method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.buffer.operators.data_juicer_operator.html#trinity.buffer.operators.data_juicer_operator.DataJuicerOperator.close">close() (trinity.buffer.operators.data_juicer_operator.DataJuicerOperator method)</a>
 
       <ul>
@@ -2102,8 +2113,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.WandbMonitor.close">(trinity.utils.monitor.WandbMonitor method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.cluster">cluster (trinity.common.config.Config attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ClusterConfig">ClusterConfig (class in trinity.common.config)</a>
@@ -2182,8 +2191,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.algorithm.html#trinity.algorithm.AdvantageFn.compute_in_trainer">(trinity.algorithm.AdvantageFn class method)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.trainer.verl.dp_actor.html#trinity.trainer.verl.dp_actor.DataParallelPPOActor.compute_log_prob">compute_log_prob() (trinity.trainer.verl.dp_actor.DataParallelPPOActor method)</a>
-</li>
       <li><a href="build_api/trinity.common.rewards.dapo_reward.html#trinity.common.rewards.dapo_reward.MathDAPORewardFn.compute_overlong_penalty">compute_overlong_penalty() (trinity.common.rewards.dapo_reward.MathDAPORewardFn method)</a>
 </li>
       <li><a href="build_api/trinity.common.workflows.on_policy_distill_workflow.html#trinity.common.workflows.on_policy_distill_workflow.OnPolicyDistillMathWorkflow.compute_reward">compute_reward() (trinity.common.workflows.on_policy_distill_workflow.OnPolicyDistillMathWorkflow method)</a>
@@ -2226,17 +2233,17 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.buffer.schema.sql_schema.html#trinity.buffer.schema.sql_schema.ExperienceModel.consumed">consumed (trinity.buffer.schema.sql_schema.ExperienceModel attribute)</a>
 </li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.context_parallel_size">context_parallel_size (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.Config.continue_from_checkpoint">continue_from_checkpoint (trinity.common.config.Config attribute)</a>
 </li>
       <li><a href="build_api/trinity.manager.checkpoint_converter.html#trinity.manager.checkpoint_converter.Converter.convert">convert() (trinity.manager.checkpoint_converter.Converter method)</a>
 </li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.convert_api_output_to_experience">convert_api_output_to_experience() (in module trinity.common.models.model)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.BaseInferenceModel.convert_messages_to_experience">convert_messages_to_experience() (trinity.common.models.model.BaseInferenceModel method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.convert_messages_to_experience">convert_messages_to_experience() (trinity.common.models.external_model.ExternalModel method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.BaseInferenceModel.convert_messages_to_experience">(trinity.common.models.model.BaseInferenceModel method)</a>
+</li>
         <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.convert_messages_to_experience">(trinity.common.models.model.InferenceModel method)</a>
 </li>
         <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.convert_messages_to_experience">(trinity.common.models.model.ModelWrapper method)</a>
@@ -2265,6 +2272,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.utils.lora_utils.html#trinity.utils.lora_utils.create_dummy_lora">create_dummy_lora() (in module trinity.utils.lora_utils)</a>
 </li>
       <li><a href="build_api/trinity.common.models.html#trinity.common.models.create_explorer_models">create_explorer_models() (in module trinity.common.models)</a>
+</li>
+      <li><a href="build_api/trinity.common.models.html#trinity.common.models.create_external_models">create_external_models() (in module trinity.common.models)</a>
 </li>
       <li><a href="build_api/trinity.buffer.operators.html#trinity.buffer.operators.create_operators">create_operators() (in module trinity.buffer.operators)</a>
 
@@ -2576,12 +2585,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.buffer.selector.selector.html#trinity.buffer.selector.selector.DifficultyBasedSelector">DifficultyBasedSelector (class in trinity.buffer.selector.selector)</a>
 </li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.dist_checkpointing_path">dist_checkpointing_path (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.dist_ckpt_optim_fully_reshardable">dist_ckpt_optim_fully_reshardable (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.distrib_optim_fully_reshardable_mem_efficient">distrib_optim_fully_reshardable_mem_efficient (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.OpType.DIV">DIV (trinity.common.constants.OpType attribute)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.DPOAlgorithm">DPOAlgorithm (class in trinity.algorithm.algorithm)</a>
@@ -2596,8 +2599,6 @@ window.runMermaid = runMermaid;</script>
 
       <ul>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.FSDPConfig.dtype">(trinity.trainer.verl.verl_config.FSDPConfig attribute)</a>
-</li>
-        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.dtype">(trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.algorithm.entropy_loss_fn.entropy_loss_fn.html#trinity.algorithm.entropy_loss_fn.entropy_loss_fn.DummyEntropyLossFn">DummyEntropyLossFn (class in trinity.algorithm.entropy_loss_fn.entropy_loss_fn)</a>
@@ -2625,6 +2626,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.DynamicTimeoutConfig.enable">enable (trinity.common.config.DynamicTimeoutConfig attribute)</a>
 
       <ul>
+        <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExternalModelConfig.enable">(trinity.common.config.ExternalModelConfig attribute)</a>
+</li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.ReplayBufferConfig.enable">(trinity.common.config.ReplayBufferConfig attribute)</a>
 </li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.TinkerConfig.enable">(trinity.common.config.TinkerConfig attribute)</a>
@@ -2746,14 +2749,14 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.rewards.eval_utils.html#trinity.common.rewards.eval_utils.evaluate_equation">evaluate_equation() (in module trinity.common.rewards.eval_utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.LoRAConfig.exclude_modules">exclude_modules (trinity.common.config.LoRAConfig attribute)</a>
 
       <ul>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.ActorModel.exclude_modules">(trinity.trainer.verl.verl_config.ActorModel attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience">Experience (class in trinity.common.experience)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.TrainerInput.experience_buffer">experience_buffer (trinity.common.config.TrainerInput attribute)</a>
@@ -2803,10 +2806,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.utils.annotations.html#trinity.utils.annotations.Experimental">Experimental() (in module trinity.utils.annotations)</a>
 </li>
       <li><a href="build_api/trinity.manager.config_manager.html#trinity.manager.config_manager.ConfigManager.expert_mode">expert_mode() (trinity.manager.config_manager.ConfigManager method)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.expert_model_parallel_size">expert_model_parallel_size (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.expert_tensor_parallel_size">expert_tensor_parallel_size (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.explorer.html#trinity.explorer.Explorer.explore">explore() (trinity.explorer.Explorer method)</a>
 
@@ -2872,6 +2871,14 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.CriticModel.external_lib">(trinity.trainer.verl.verl_config.CriticModel attribute)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.ModelConfig.external_model">external_model (trinity.common.config.ModelConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.external_model_config">external_model_config (trinity.common.config.InferenceModelConfig attribute)</a>
+</li>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel">ExternalModel (class in trinity.common.models.external_model)</a>
+</li>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExternalModelConfig">ExternalModelConfig (class in trinity.common.config)</a>
+</li>
       <li><a href="build_api/trinity.common.rewards.qwen25_eval.html#trinity.common.rewards.qwen25_eval.extract_answer">extract_answer() (in module trinity.common.rewards.qwen25_eval)</a>
 </li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.extract_experience_from_history">extract_experience_from_history() (trinity.common.models.model.ModelWrapper method)</a>
@@ -3080,14 +3087,20 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.gather_token_ids">gather_token_ids() (in module trinity.common.experience)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.generate">generate() (trinity.common.models.model.InferenceModel method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.generate">generate() (trinity.common.models.external_model.ExternalModel method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.generate">(trinity.common.models.model.InferenceModel method)</a>
+</li>
         <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.generate">(trinity.common.models.model.ModelWrapper method)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.generate_async">generate_async() (trinity.common.models.model.ModelWrapper method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.generate_async">generate_async() (trinity.common.models.external_model.ExternalModel method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.generate_async">(trinity.common.models.model.ModelWrapper method)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.manager.config_manager.html#trinity.manager.config_manager.ConfigManager.generate_config">generate_config() (trinity.manager.config_manager.ConfigManager method)</a>
 </li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.generate_kwargs">generate_kwargs (trinity.common.models.model.ModelWrapper property)</a>
@@ -3126,10 +3139,18 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="build_api/trinity.explorer.scheduler.html#trinity.explorer.scheduler.Scheduler.get_all_state">get_all_state() (trinity.explorer.scheduler.Scheduler method)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.get_api_key">get_api_key() (trinity.common.models.model.InferenceModel method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.get_api_key">get_api_key() (trinity.common.models.external_model.ExternalModel method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.get_api_key">(trinity.common.models.model.InferenceModel method)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.get_api_server_url">get_api_server_url() (trinity.common.models.model.InferenceModel method)</a>
+      </ul></li>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.get_api_server_url">get_api_server_url() (trinity.common.models.external_model.ExternalModel method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.get_api_server_url">(trinity.common.models.model.InferenceModel method)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.common.models.html#trinity.common.models.get_auxiliary_model_wrappers">get_auxiliary_model_wrappers() (in module trinity.common.models)</a>
 </li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.get_available_address">get_available_address() (trinity.common.models.model.InferenceModel method)</a>
@@ -3210,12 +3231,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.get_lora_request">get_lora_request() (trinity.common.models.model.ModelWrapper method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.get_lora_request_async">get_lora_request_async() (trinity.common.models.model.ModelWrapper method)</a>
 </li>
       <li><a href="build_api/trinity.common.models.utils.html#trinity.common.models.utils.get_megatron_converter">get_megatron_converter() (in module trinity.common.models.utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.get_message_token_len">get_message_token_len() (trinity.common.models.model.ModelWrapper method)</a>
 </li>
       <li><a href="build_api/trinity.explorer.proxy.client.html#trinity.explorer.proxy.client.TrinityClient.get_metrics">get_metrics() (trinity.explorer.proxy.client.TrinityClient method)</a>
@@ -3232,8 +3253,12 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.manager.synchronizer.html#trinity.manager.synchronizer.Synchronizer.get_model_state_dict">(trinity.manager.synchronizer.Synchronizer method)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.get_model_version">get_model_version() (trinity.common.models.model.InferenceModel method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.get_model_version">get_model_version() (trinity.common.models.external_model.ExternalModel method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.get_model_version">(trinity.common.models.model.InferenceModel method)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.get_openai_async_client">get_openai_async_client() (trinity.common.models.model.ModelWrapper method)</a>
 
       <ul>
@@ -3318,8 +3343,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Critic.grad_clip">(trinity.trainer.verl.verl_config.Critic attribute)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.grad_offload">grad_offload (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
       <li><a href="build_api/trinity.common.rewards.naive_dapo_score.html#trinity.common.rewards.naive_dapo_score.grade_answer">grade_answer() (in module trinity.common.rewards.naive_dapo_score)</a>
 </li>
       <li><a href="build_api/trinity.manager.log_manager.html#trinity.manager.log_manager.Colors.GRAY">GRAY (trinity.manager.log_manager.Colors attribute)</a>
@@ -3638,8 +3661,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.load_config">(in module trinity.trainer.verl.verl_config)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Checkpoint.load_contents">load_contents (trinity.trainer.verl.verl_config.Checkpoint attribute)</a>
-</li>
       <li><a href="build_api/trinity.manager.state_manager.html#trinity.manager.state_manager.StateManager.load_explorer">load_explorer() (trinity.manager.state_manager.StateManager method)</a>
 
       <ul>
@@ -3740,14 +3761,14 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.WandbMonitor.log">(trinity.utils.monitor.WandbMonitor method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Ref.log_prob_max_token_len_per_gpu">log_prob_max_token_len_per_gpu (trinity.trainer.verl.verl_config.Ref attribute)</a>
 
       <ul>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Rollout.log_prob_max_token_len_per_gpu">(trinity.trainer.verl.verl_config.Rollout attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Ref.log_prob_micro_batch_size">log_prob_micro_batch_size (trinity.trainer.verl.verl_config.Ref attribute)</a>
 
       <ul>
@@ -3798,9 +3819,11 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.logprobs">(trinity.common.experience.Experience attribute)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.logprobs">logprobs() (trinity.common.models.model.InferenceModel method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.logprobs">logprobs() (trinity.common.models.external_model.ExternalModel method)</a>
 
       <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.logprobs">(trinity.common.models.model.InferenceModel method)</a>
+</li>
         <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.logprobs">(trinity.common.models.model.ModelWrapper method)</a>
 </li>
       </ul></li>
@@ -3839,8 +3862,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Actor.loss_scale_factor">loss_scale_factor (trinity.trainer.verl.verl_config.Actor attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.loss_type">loss_type (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.kl_fn.kl_fn.html#trinity.algorithm.kl_fn.kl_fn.LowVarKLFn">LowVarKLFn (class in trinity.algorithm.kl_fn.kl_fn)</a>
 </li>
@@ -3996,8 +4017,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Ref.megatron">(trinity.trainer.verl.verl_config.Ref attribute)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig">MegatronConfig (class in trinity.trainer.verl.verl_config)</a>
-</li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.SyncMethod.MEMORY">MEMORY (trinity.common.constants.SyncMethod attribute)</a>
 </li>
       <li><a href="build_api/trinity.explorer.proxy.recorder.html#trinity.explorer.proxy.recorder.MemoryHistoryRecorder">MemoryHistoryRecorder (class in trinity.explorer.proxy.recorder)</a>
@@ -4078,8 +4097,12 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.FSDPConfig.model_dtype">model_dtype (trinity.trainer.verl.verl_config.FSDPConfig attribute)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.model_name">model_name (trinity.common.models.model.ModelWrapper property)</a>
+      <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExternalModelConfig.model_name">model_name (trinity.common.config.ExternalModelConfig attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.model_name">(trinity.common.models.model.ModelWrapper property)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.model_path">model_path (trinity.common.config.InferenceModelConfig attribute)</a>
 
       <ul>
@@ -4292,6 +4315,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="build_api/trinity.common.models.html#module-trinity.common.models">trinity.common.models</a>
 </li>
+        <li><a href="build_api/trinity.common.models.external_model.html#module-trinity.common.models.external_model">trinity.common.models.external_model</a>
+</li>
         <li><a href="build_api/trinity.common.models.mm_utils.html#module-trinity.common.models.mm_utils">trinity.common.models.mm_utils</a>
 </li>
         <li><a href="build_api/trinity.common.models.model.html#module-trinity.common.models.model">trinity.common.models.model</a>
@@ -4483,6 +4508,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.buffer.schema.sql_schema.html#trinity.buffer.schema.sql_schema.ExperienceModel.msg_id">msg_id (trinity.buffer.schema.sql_schema.ExperienceModel attribute)</a>
 </li>
+      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.ActorModel.mtp">mtp (trinity.trainer.verl.verl_config.ActorModel attribute)</a>
+</li>
       <li><a href="build_api/trinity.algorithm.policy_loss_fn.chord_policy_loss.html#trinity.algorithm.policy_loss_fn.chord_policy_loss.mu_schedule_function">mu_schedule_function() (in module trinity.algorithm.policy_loss_fn.chord_policy_loss)</a>
 </li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.OpType.MUL">MUL (trinity.common.constants.OpType attribute)</a>
@@ -4645,14 +4672,14 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Optim">Optim (class in trinity.trainer.verl.verl_config)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Actor.optim">optim (trinity.trainer.verl.verl_config.Actor attribute)</a>
 
       <ul>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Critic.optim">(trinity.trainer.verl.verl_config.Critic attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.AlgorithmConfig.optimizer">optimizer (trinity.common.config.AlgorithmConfig attribute)</a>
 
       <ul>
@@ -4662,11 +4689,7 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Optim.optimizer_impl">optimizer_impl (trinity.trainer.verl.verl_config.Optim attribute)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.FSDPConfig.optimizer_offload">optimizer_offload (trinity.trainer.verl.verl_config.FSDPConfig attribute)</a>
-
-      <ul>
-        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.optimizer_offload">(trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
-      </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.OptimizerConfig.optimizer_type">optimizer_type (trinity.common.config.OptimizerConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.OptimizerConfig">OptimizerConfig (class in trinity.common.config)</a>
@@ -4687,11 +4710,7 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.CriticModel.override_config">(trinity.trainer.verl.verl_config.CriticModel attribute)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.override_ddp_config">override_ddp_config (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Optim.override_optimizer_config">override_optimizer_config (trinity.trainer.verl.verl_config.Optim attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.override_transformer_config">override_transformer_config (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.OverrideTransformerConfig">OverrideTransformerConfig (class in trinity.trainer.verl.verl_config)</a>
 </li>
@@ -4704,11 +4723,7 @@ window.runMermaid = runMermaid;</script>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.FSDPConfig.param_offload">param_offload (trinity.trainer.verl.verl_config.FSDPConfig attribute)</a>
-
-      <ul>
-        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.param_offload">(trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
-      </ul></li>
       <li><a href="build_api/trinity.buffer.viewer.html#trinity.buffer.viewer.parse_args">parse_args() (in module trinity.buffer.viewer)</a>
 </li>
       <li><a href="build_api/trinity.manager.log_manager.html#trinity.manager.log_manager.LogFileTracker.parse_log_level">parse_log_level() (trinity.manager.log_manager.LogFileTracker method)</a>
@@ -4719,11 +4734,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.buffer.operators.mappers.pass_rate_calculator.html#trinity.buffer.operators.mappers.pass_rate_calculator.PassRateCalculator">PassRateCalculator (class in trinity.buffer.operators.mappers.pass_rate_calculator)</a>
 </li>
-      <li><a href="build_api/trinity.trainer.verl.html#trinity.trainer.verl.patch_for_transformers_v5">patch_for_transformers_v5() (in module trinity.trainer.verl)</a>
-</li>
       <li><a href="build_api/trinity.trainer.verl.monkey_patch.html#trinity.trainer.verl.monkey_patch.patch_forward_with_backends">patch_forward_with_backends() (in module trinity.trainer.verl.monkey_patch)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl.monkey_patch.html#trinity.trainer.verl.monkey_patch.patch_fused_kernels">patch_fused_kernels() (in module trinity.trainer.verl.monkey_patch)</a>
+</li>
+      <li><a href="build_api/trinity.trainer.verl.utils.html#trinity.trainer.verl.utils.patch_rope_theta_in_hf_config">patch_rope_theta_in_hf_config() (in module trinity.trainer.verl.utils)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExperienceBufferConfig.path">path (trinity.common.config.ExperienceBufferConfig attribute)</a>
 
@@ -4742,8 +4757,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.algorithm.policy_loss_fn.chord_policy_loss.html#trinity.algorithm.policy_loss_fn.chord_policy_loss.phi_function">phi_function() (in module trinity.algorithm.policy_loss_fn.chord_policy_loss)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.pipeline_model_parallel_size">pipeline_model_parallel_size (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.constants.html#trinity.common.constants.PromptType.PLAINTEXT">PLAINTEXT (trinity.common.constants.PromptType attribute)</a>
 </li>
@@ -4813,6 +4826,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.buffer.pipelines.experience_pipeline.html#trinity.buffer.pipelines.experience_pipeline.ExperiencePipeline.prepare">(trinity.buffer.pipelines.experience_pipeline.ExperiencePipeline method)</a>
 </li>
         <li><a href="build_api/trinity.buffer.pipelines.html#trinity.buffer.pipelines.ExperiencePipeline.prepare">(trinity.buffer.pipelines.ExperiencePipeline method)</a>
+</li>
+        <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.prepare">(trinity.common.models.external_model.ExternalModel method)</a>
 </li>
         <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.prepare">(trinity.common.models.model.InferenceModel method)</a>
 </li>
@@ -5119,6 +5134,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.manager.config_registry.config_registry.html#trinity.manager.config_registry.config_registry.ConfigRegistry.register_check">register_check() (trinity.manager.config_registry.config_registry.ConfigRegistry method)</a>
 </li>
+      <li><a href="build_api/trinity.trainer.verl.fsdp_checkpoint_manager.html#trinity.trainer.verl.fsdp_checkpoint_manager.FSDPCheckpointManager.register_checkpoint">register_checkpoint() (trinity.trainer.verl.fsdp_checkpoint_manager.FSDPCheckpointManager method)</a>
+</li>
       <li><a href="build_api/trinity.manager.config_registry.config_registry.html#trinity.manager.config_registry.config_registry.ConfigRegistry.register_config">register_config() (trinity.manager.config_registry.config_registry.ConfigRegistry method)</a>
 </li>
       <li><a href="build_api/trinity.utils.registry.html#trinity.utils.registry.Registry.register_module">register_module() (trinity.utils.registry.Registry method)</a>
@@ -5243,12 +5260,12 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.common.workflows.workflow.html#trinity.common.workflows.workflow.Workflow.resettable">(trinity.common.workflows.workflow.Workflow property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.FSDPConfig.reshard_after_forward">reshard_after_forward (trinity.trainer.verl.verl_config.FSDPConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.FormatConfig.response_key">response_key (trinity.common.config.FormatConfig attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.common.workflows.agentscope.react.templates.html#trinity.common.workflows.agentscope.react.templates.Template.response_structure">response_structure (trinity.common.workflows.agentscope.react.templates.Template attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.response_text">response_text (trinity.common.experience.Experience attribute)</a>
@@ -5273,10 +5290,14 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.ReplayBufferConfig.reuse_cooldown_time">(trinity.common.config.ReplayBufferConfig attribute)</a>
 </li>
       </ul></li>
+      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Reward">Reward (class in trinity.trainer.verl.verl_config)</a>
+</li>
       <li><a href="build_api/trinity.buffer.schema.sql_schema.html#trinity.buffer.schema.sql_schema.ExperienceModel.reward">reward (trinity.buffer.schema.sql_schema.ExperienceModel attribute)</a>
 
       <ul>
         <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.Experience.reward">(trinity.common.experience.Experience attribute)</a>
+</li>
+        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.veRLConfig.reward">(trinity.trainer.verl.verl_config.veRLConfig attribute)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.workflows.step_wise_workflow.html#trinity.common.workflows.step_wise_workflow.RewardPropagationWorkflow.reward">reward() (trinity.common.workflows.step_wise_workflow.RewardPropagationWorkflow method)</a>
@@ -5313,8 +5334,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RewardModel.reward_manager">reward_manager (trinity.trainer.verl.verl_config.RewardModel attribute)</a>
 </li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.veRLConfig.reward_model">reward_model (trinity.trainer.verl.verl_config.veRLConfig attribute)</a>
+      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Reward.reward_model">reward_model (trinity.trainer.verl.verl_config.Reward attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.veRLConfig.reward_model">(trinity.trainer.verl.verl_config.veRLConfig attribute)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.buffer.operators.filters.reward_filter.html#trinity.buffer.operators.filters.reward_filter.RewardFilter">RewardFilter (class in trinity.buffer.operators.filters.reward_filter)</a>
 </li>
       <li><a href="build_api/trinity.common.rewards.html#trinity.common.rewards.RewardFn">RewardFn (class in trinity.common.rewards)</a>
@@ -5363,25 +5388,9 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ClusterConfig.rollout_gpu_num">rollout_gpu_num (trinity.common.config.ClusterConfig attribute)</a>
 </li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.rollout_is">rollout_is (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.rollout_is_batch_normalize">rollout_is_batch_normalize (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.rollout_is_threshold">rollout_is_threshold (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
-</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.ExplorerConfig.rollout_model">rollout_model (trinity.common.config.ExplorerConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Critic.rollout_n">rollout_n (trinity.trainer.verl.verl_config.Critic attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.rollout_rs">rollout_rs (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.rollout_rs_threshold">rollout_rs_threshold (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.rollout_rs_threshold_lower">rollout_rs_threshold_lower (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection.rollout_token_veto_threshold">rollout_token_veto_threshold (trinity.trainer.verl.verl_config.RolloutCorrection attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RolloutCorrection">RolloutCorrection (class in trinity.trainer.verl.verl_config)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.rope_scaling">rope_scaling (trinity.common.config.InferenceModelConfig attribute)</a>
 
@@ -5410,6 +5419,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflow">RubricJudgeWorkflow (class in trinity.common.workflows.rubric_judge_workflow)</a>
+</li>
+      <li><a href="build_api/trinity.common.workflows.rubric_judge_workflow.html#trinity.common.workflows.rubric_judge_workflow.RubricJudgeWorkflowWithAPI">RubricJudgeWorkflowWithAPI (class in trinity.common.workflows.rubric_judge_workflow)</a>
 </li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.EID.run">run (trinity.common.experience.EID attribute)</a>
 </li>
@@ -5553,8 +5564,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="build_api/trinity.trainer.verl.verl_trainer.html#trinity.trainer.verl.verl_trainer.VerlPPOTrainerWrapper.save_checkpoint">(trinity.trainer.verl.verl_trainer.VerlPPOTrainerWrapper method)</a>
 </li>
       </ul></li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Checkpoint.save_contents">save_contents (trinity.trainer.verl.verl_config.Checkpoint attribute)</a>
-</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.LogConfig.save_dir">save_dir (trinity.common.config.LogConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.manager.state_manager.html#trinity.manager.state_manager.StateManager.save_explorer">save_explorer() (trinity.manager.state_manager.StateManager method)</a>
@@ -5672,8 +5681,6 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="build_api/trinity.common.config.html#trinity.common.config.TinkerConfig.seed">(trinity.common.config.TinkerConfig attribute)</a>
 </li>
-        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.seed">(trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
       </ul></li>
       <li><a href="build_api/trinity.algorithm.policy_loss_fn.chord_policy_loss.html#trinity.algorithm.policy_loss_fn.chord_policy_loss.MIXCHORDPolicyLossFn.select_keys">select_keys (trinity.algorithm.policy_loss_fn.chord_policy_loss.MIXCHORDPolicyLossFn property)</a>
 
@@ -5714,8 +5721,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.DataSelectorConfig.selector_type">selector_type (trinity.common.config.DataSelectorConfig attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.sequence_parallel">sequence_parallel (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.buffer.selector.selector.html#trinity.buffer.selector.selector.SequentialSelector">SequentialSelector (class in trinity.buffer.selector.selector)</a>
 </li>
@@ -5957,12 +5962,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.manager.config_registry.algorithm_config_manager.html#trinity.manager.config_registry.algorithm_config_manager.set_mu_in_policy_loss_fn">set_mu_in_policy_loss_fn() (in module trinity.manager.config_registry.algorithm_config_manager)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.manager.config_registry.model_config_manager.html#trinity.manager.config_registry.model_config_manager.set_node_num">set_node_num() (in module trinity.manager.config_registry.model_config_manager)</a>
 </li>
       <li><a href="build_api/trinity.manager.config_registry.trainer_config_manager.html#trinity.manager.config_registry.trainer_config_manager.set_norm_adv_by_std_in_grpo">set_norm_adv_by_std_in_grpo() (in module trinity.manager.config_registry.trainer_config_manager)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.manager.config_registry.trainer_config_manager.html#trinity.manager.config_registry.trainer_config_manager.set_offload_policy">set_offload_policy() (in module trinity.manager.config_registry.trainer_config_manager)</a>
 </li>
       <li><a href="build_api/trinity.manager.config_registry.algorithm_config_manager.html#trinity.manager.config_registry.algorithm_config_manager.set_opmd_baseline_in_advantage_fn">set_opmd_baseline_in_advantage_fn() (in module trinity.manager.config_registry.algorithm_config_manager)</a>
@@ -6345,6 +6350,8 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="build_api/trinity.common.experience.html#trinity.common.experience.EID.suffix">suffix (trinity.common.experience.EID attribute)</a>
 </li>
+      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Actor.sum_pi_squared_checkpointing">sum_pi_squared_checkpointing (trinity.trainer.verl.verl_config.Actor attribute)</a>
+</li>
       <li><a href="build_api/trinity.utils.monitor.html#trinity.utils.monitor.SwanlabMonitor">SwanlabMonitor (class in trinity.utils.monitor)</a>
 </li>
       <li><a href="build_api/trinity.common.rewards.qwen25_eval.html#trinity.common.rewards.qwen25_eval.symbolic_equal">symbolic_equal() (in module trinity.common.rewards.qwen25_eval)</a>
@@ -6355,8 +6362,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.SynchronizerConfig.sync_method">sync_method (trinity.common.config.SynchronizerConfig attribute)</a>
 </li>
-      <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.sync_model">sync_model() (trinity.common.models.model.InferenceModel method)</a>
+      <li><a href="build_api/trinity.common.models.external_model.html#trinity.common.models.external_model.ExternalModel.sync_model">sync_model() (trinity.common.models.external_model.ExternalModel method)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.InferenceModel.sync_model">(trinity.common.models.model.InferenceModel method)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.common.models.model.html#trinity.common.models.model.ModelWrapper.sync_model_weights">sync_model_weights() (trinity.common.models.model.ModelWrapper method)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.SynchronizerConfig.sync_offset">sync_offset (trinity.common.config.SynchronizerConfig attribute)</a>
@@ -6504,8 +6515,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.common.workflows.agentscope.react.templates.html#trinity.common.workflows.agentscope.react.templates.Template">Template (class in trinity.common.workflows.agentscope.react.templates)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.tensor_model_parallel_size">tensor_model_parallel_size (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.InferenceModelConfig.tensor_parallel_size">tensor_parallel_size (trinity.common.config.InferenceModelConfig attribute)</a>
 </li>
@@ -7352,6 +7361,13 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li>
+    trinity.common.models.external_model
+
+      <ul>
+        <li><a href="build_api/trinity.common.models.external_model.html#module-trinity.common.models.external_model">module</a>
+</li>
+      </ul></li>
+      <li>
     trinity.common.models.mm_utils
 
       <ul>
@@ -8081,10 +8097,6 @@ window.runMermaid = runMermaid;</script>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="build_api/trinity.manager.config_registry.trainer_config_manager.html#trinity.manager.config_registry.trainer_config_manager.use_critic">use_critic() (in module trinity.manager.config_registry.trainer_config_manager)</a>
 </li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.use_dist_checkpointing">use_dist_checkpointing (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.use_distributed_optimizer">use_distributed_optimizer (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
-</li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.TrainerConfig.use_dynamic_bsz">use_dynamic_bsz (trinity.common.config.TrainerConfig attribute)</a>
 
       <ul>
@@ -8101,8 +8113,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Actor.use_kl_loss">use_kl_loss (trinity.trainer.verl.verl_config.Actor attribute)</a>
 </li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.use_mbridge">use_mbridge (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
+      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Actor.use_prefix_grouper">use_prefix_grouper (trinity.trainer.verl.verl_config.Actor attribute)</a>
+
+      <ul>
+        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.Ref.use_prefix_grouper">(trinity.trainer.verl.verl_config.Ref attribute)</a>
 </li>
+      </ul></li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.ProfileConfig.use_profile">use_profile (trinity.trainer.verl.verl_config.ProfileConfig attribute)</a>
 </li>
       <li><a href="build_api/trinity.algorithm.algorithm.html#trinity.algorithm.algorithm.AlgorithmType.use_reference">use_reference (trinity.algorithm.algorithm.AlgorithmType attribute)</a>
@@ -8157,8 +8173,6 @@ window.runMermaid = runMermaid;</script>
 
       <ul>
         <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.CriticModel.use_remove_padding">(trinity.trainer.verl.verl_config.CriticModel attribute)</a>
-</li>
-        <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.use_remove_padding">(trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
       </ul></li>
       <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.RewardModel.use_reward_loop">use_reward_loop (trinity.trainer.verl.verl_config.RewardModel attribute)</a>
@@ -8234,8 +8248,6 @@ window.runMermaid = runMermaid;</script>
       <li><a href="build_api/trinity.trainer.verl.verl_trainer.html#trinity.trainer.verl.verl_trainer.VerlPPOTrainerWrapper">VerlPPOTrainerWrapper (class in trinity.trainer.verl.verl_trainer)</a>
 </li>
       <li><a href="build_api/trinity.common.config.html#trinity.common.config.FormatConfig.video_key">video_key (trinity.common.config.FormatConfig attribute)</a>
-</li>
-      <li><a href="build_api/trinity.trainer.verl.verl_config.html#trinity.trainer.verl.verl_config.MegatronConfig.virtual_pipeline_model_parallel_size">virtual_pipeline_model_parallel_size (trinity.trainer.verl.verl_config.MegatronConfig attribute)</a>
 </li>
   </ul></td>
 </tr></table>
