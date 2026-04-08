@@ -1197,7 +1197,7 @@ class TrainerConfigValidator(ConfigValidator):
                 config.trainer.trainer_config = veRLConfig()
             if config.trainer.max_token_len_per_gpu is None:
                 config.trainer.max_token_len_per_gpu = math.ceil(
-                    2 * config.model.max_model_len / config.trainer.ulysses_sequence_parallel_size  # type: ignore [operator]
+                    config.model.max_model_len / config.trainer.ulysses_sequence_parallel_size  # type: ignore [operator]
                 )
             if config.trainer.save_hf_checkpoint not in {"last", "always", "never"}:
                 raise ValueError(
