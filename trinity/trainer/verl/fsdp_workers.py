@@ -382,20 +382,31 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         if self.rank == 0:
             self.logger.info(f"Model config after override: {actor_model_config}")
 
-        # NOTE(fix me): tie_word_embedding causes meta_tensor init to hang
-        init_context = get_init_weight_context_manager(use_meta_tensor=False, mesh=self.device_mesh)
+        use_meta = (
+            self.rank != 0
+            if self.device_mesh is None
+            else self.device_mesh.get_coordinate()[-1] != 0
+        )
 
-        with init_context(), warnings.catch_warnings():
+        init_context = torch.device("meta") if use_meta else torch.device("cpu")
+
+        with init_context, warnings.catch_warnings():
             warnings.simplefilter("ignore")
             actor_module_class = get_hf_auto_model_class(actor_model_config)
-
-            actor_module = actor_module_class.from_pretrained(
-                pretrained_model_name_or_path=local_path,
-                torch_dtype=torch_dtype,
+            loading_kwargs = dict(
+                dtype=torch_dtype,
                 config=actor_model_config,
                 trust_remote_code=trust_remote_code,
                 attn_implementation=attn_implementation,
             )
+
+            if use_meta:
+                actor_module = actor_module_class.from_config(**loading_kwargs)
+            else:
+                actor_module = actor_module_class.from_pretrained(
+                    pretrained_model_name_or_path=local_path,
+                    **loading_kwargs,
+                )
 
             # Apply Liger kernel to the model if use_liger is set to True
             if use_liger:
