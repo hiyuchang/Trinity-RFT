@@ -334,14 +334,12 @@ def apply_monkey_patch(  # noqa: C901
             patch_vlm_for_ulysses_input_slicing(Qwen3_5MoeTextModel)
 
             from trinity.common.patch.qwen3_5 import (
-                ulysses_gated_delta_net_forward_decorator,
+                ulysses_gate_delta_net_decorator,
             )
 
             for layer in model.model.language_model.layers:
                 if layer.layer_type == "linear_attention":
-                    layer.linear_attn.forward = ulysses_gated_delta_net_forward_decorator(
-                        layer.linear_attn.forward
-                    )
+                    ulysses_gate_delta_net_decorator(layer.linear_attn, ulysses_sp_size)
 
         # Step 3: patch verl.utils.flops_counter
         from verl.utils.flops_counter import (

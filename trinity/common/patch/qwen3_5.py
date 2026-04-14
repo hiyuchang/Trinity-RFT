@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import wraps
 from typing import Any, Optional
 
 import torch
@@ -70,31 +69,97 @@ class Slice(torch.autograd.Function):
         )
 
 
-# TODO: may optimize this function
-def ulysses_gated_delta_net_forward_decorator(func):
-    @wraps(func)
-    def wrapper(
-        hidden_states: torch.Tensor,
-        **kwargs,
-    ):
-        from verl.utils.ulysses import (
-            gather_outputs_and_unpad,
-            get_ulysses_sequence_parallel_group,
-            get_ulysses_sequence_parallel_world_size,
-        )
+_in_gate_delta_net_with_sp = False
 
-        ulysses_sp_size = get_ulysses_sequence_parallel_world_size()
-        if ulysses_sp_size > 1:
-            hidden_states = gather_outputs_and_unpad(hidden_states, gather_dim=1)
 
-        output = func(hidden_states, **kwargs)
+def ulysses_gate_delta_net_decorator(net, ulysses_sp_size):
+    if getattr(net, "_is_patched", False):
+        return
 
-        if ulysses_sp_size > 1:
-            group = get_ulysses_sequence_parallel_group()
-            output = Slice.apply(group, output, 1)
+    net._is_patched = True
+
+    # ulysses sequence parallel setup
+    from verl.utils.ulysses import (
+        gather_heads_scatter_seq,
+        gather_seq_scatter_heads,
+        get_ulysses_sequence_parallel_group,
+    )
+
+    if ulysses_sp_size == 1:
+        # no need to patch
+        return
+
+    # Patch net.forward
+    original_net_forward = net.forward
+
+    def new_net_forward(*args, **kwargs):
+        global _in_gate_delta_net_with_sp
+        _in_gate_delta_net_with_sp = True
+        output = original_net_forward(*args, **kwargs)
+        _in_gate_delta_net_with_sp = False
         return output
 
-    return wrapper
+    net.forward = new_net_forward
+
+    # Patch in_proj_qkv
+    original_in_proj_qkv_forward = net.in_proj_qkv.forward
+
+    def new_in_proj_qkv_forward(input):
+        output = original_in_proj_qkv_forward(input)
+        group = get_ulysses_sequence_parallel_group()
+        output = gather_seq_scatter_heads(output, seq_dim=1, head_dim=2, group=group)
+        return output
+
+    net.in_proj_qkv.forward = new_in_proj_qkv_forward
+
+    # Patch conv1d layer
+    original_conv1d_class = net.conv1d.__class__
+    original_conv1d_getattr = original_conv1d_class.__getattr__
+
+    def new_conv1d_getattr(self, name):
+        global _in_gate_delta_net_with_sp
+        attr = original_conv1d_getattr(self, name)
+        # bias is None in Qwen3.5, so no need to patch for bias
+        if name == "weight" and _in_gate_delta_net_with_sp:
+            group = get_ulysses_sequence_parallel_group()
+            return Slice.apply(group, attr, 0, True)
+        return attr
+
+    new_conv1d_class = type(
+        f"UlyssesGated{original_conv1d_class.__name__}",
+        (original_conv1d_class,),
+        {"__getattr__": new_conv1d_getattr},
+    )
+    net.conv1d.__class__ = new_conv1d_class
+
+    # Patch torch.split
+    if not getattr(torch.split, "_is_patched_by_ulysses_gate_delta_net", False):
+        original_split = torch.split
+
+        def new_split(tensor, split_size_or_sections, dim=0):
+            global _in_gate_delta_net_with_sp
+            if _in_gate_delta_net_with_sp and dim == -1 and len(split_size_or_sections) == 3:
+                tensor = gather_heads_scatter_seq(tensor, seq_dim=1, head_dim=2)
+
+            return original_split(tensor, split_size_or_sections, dim)
+
+        torch.split = new_split
+        torch.split._is_patched_by_ulysses_gate_delta_net = True
+
+    # Patch chunk_gated_delta_rule
+    original_chunk_gated_delta_rule = net.chunk_gated_delta_rule
+
+    def new_chunk_gated_delta_rule(query, key, value, g, beta, **kwargs):
+        query = gather_seq_scatter_heads(query, seq_dim=1, head_dim=2)
+        key = gather_seq_scatter_heads(key, seq_dim=1, head_dim=2)
+        value = gather_seq_scatter_heads(value, seq_dim=1, head_dim=2)
+        g = gather_seq_scatter_heads(g, seq_dim=1, head_dim=2)
+        beta = gather_seq_scatter_heads(beta, seq_dim=1, head_dim=2)
+        output, last_recurrent_state = original_chunk_gated_delta_rule(query, key, value, g, beta, **kwargs)
+        output = gather_heads_scatter_seq(output, seq_dim=1, head_dim=2)
+        return output, last_recurrent_state
+
+    net.chunk_gated_delta_rule = new_chunk_gated_delta_rule
 
 
 @merge_with_config_defaults
