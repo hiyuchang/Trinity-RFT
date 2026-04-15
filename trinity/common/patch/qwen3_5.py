@@ -179,17 +179,7 @@ def gate_delta_net_forward(
     attention_mask: torch.Tensor | None = None,
     **kwargs,
 ):
-    def show(name, step, tensor, gather_dim=None, unpad_dim=None, padding_size=1):
-        if self.layer_idx == 0:  # < 5:
-            from verl.utils.ulysses import get_ulysses_sequence_parallel_world_size
-            sp_size = get_ulysses_sequence_parallel_world_size()
-            if sp_size > 1 and gather_dim is not None:
-                from verl.utils.ulysses import gather_outputs_and_unpad
-                tensor = gather_outputs_and_unpad(tensor.contiguous(), gather_dim, unpad_dim=unpad_dim, padding_size=padding_size)
-            if torch.distributed.get_rank() == 0:
-                print(f"!!!! rank = {torch.distributed.get_rank()}, layer_idx = {self.layer_idx}, step {step}: {name:>15}, shape = {tensor.shape}, sum = {tensor.sum().item():.8f}, std = {tensor.std().item():.8f}")
     hidden_states = apply_mask_to_padding_states(hidden_states, attention_mask)
-    # show("hidden_states", 0, hidden_states, gather_dim=1, unpad_dim=1)
 
     # Set up dimensions for reshapes later
     batch_size, seq_len, _ = hidden_states.shape
@@ -206,7 +196,6 @@ def gate_delta_net_forward(
         recurrent_state = cache_params.layers[self.layer_idx].recurrent_states
 
     mixed_qkv = self.in_proj_qkv(hidden_states)
-    # show("mixed_qkv", 1, mixed_qkv, gather_dim=2, unpad_dim=1)
     mixed_qkv = mixed_qkv.transpose(1, 2)
 
     z = self.in_proj_z(hidden_states)
@@ -238,7 +227,6 @@ def gate_delta_net_forward(
                 activation=self.activation,
                 seq_idx=seq_idx,
             )
-            # show("mixed_qkv", 2, mixed_qkv, gather_dim=1, unpad_dim=2)
         else:
             mixed_qkv = F.silu(self.conv1d(mixed_qkv)[:, :, :seq_len])
 
@@ -268,15 +256,7 @@ def gate_delta_net_forward(
         chunk_kwargs = {}
         if getattr(self.chunk_gated_delta_rule, "__module__", "").startswith("fla."):
             chunk_kwargs["cu_seqlens"] = kwargs.get("cu_seqlens", None)
-        # if torch.distributed.get_rank() == 0 and self.layer_idx == 0:
-        #     print(f'!!!! {getattr(self.chunk_gated_delta_rule, "__module__", "").startswith("fla.") = }')
-        #     print(f"!!!! {chunk_kwargs.get('cu_seqlens', None) = }")
 
-        # show("query", 2, query, gather_dim=1, unpad_dim=1)
-        # show("key", 2, key, gather_dim=1, unpad_dim=1)
-        # show("value", 2, value, gather_dim=1, unpad_dim=1)
-        # show("g", 2, g, gather_dim=1, unpad_dim=1)
-        # show("beta", 2, beta, gather_dim=1, unpad_dim=1)
         core_attn_out, last_recurrent_state = self.chunk_gated_delta_rule(
             query,
             key,
@@ -300,7 +280,6 @@ def gate_delta_net_forward(
             output_final_state=cache_params is not None,
             use_qk_l2norm_in_kernel=True,
         )
-    # show("core_attn_out", 3, core_attn_out, gather_dim=1, unpad_dim=1)
 
     # Update cache
     if cache_params is not None:
@@ -311,10 +290,8 @@ def gate_delta_net_forward(
     z = z.reshape(-1, self.head_v_dim)
     core_attn_out = self.norm(core_attn_out, z)
     core_attn_out = core_attn_out.reshape(batch_size, seq_len, -1)
-    # show("core_attn_out", 4, core_attn_out, gather_dim=1, unpad_dim=1)
 
     output = self.out_proj(core_attn_out)
-    # show("output", 5, output, gather_dim=1, unpad_dim=1)
     return output
 
 
