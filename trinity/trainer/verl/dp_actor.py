@@ -247,6 +247,7 @@ class DataParallelPPOActor(DPActor):
                         )
 
                     if pad_size > 0:
+                        # print(f"!!!! rank = {torch.distributed.get_rank()}, {pad_size = }")
                         seq_idx = torch.cat(
                             [
                                 seq_idx,
@@ -254,6 +255,7 @@ class DataParallelPPOActor(DPActor):
                             ],
                             dim=0,
                         )
+                        cu_seqlens[-1] += pad_size
 
                     input_ids_rmpad_rolled, _, _ = ulysses_pad_and_slice_inputs(
                         input_ids_rmpad_rolled,
@@ -493,7 +495,10 @@ class DataParallelPPOActor(DPActor):
                     # calculate the total number of response tokens in the minibatch
                     mini_batch_token_num = torch.sum(
                         mini_batch.batch["response_mask"].to(get_device_id())
-                    ).item()
+                    )
+                    torch.distributed.all_reduce(mini_batch_token_num, op=torch.distributed.ReduceOp.SUM)
+                    if mini_batch_token_num == 0:
+                        mini_batch_token_num += 1e-6  # to avoid division by zero
 
                 self.actor_optimizer.zero_grad()
 
@@ -577,13 +582,15 @@ class DataParallelPPOActor(DPActor):
                         # original implementation of microbatch loss scale
                         if self.config.use_dynamic_bsz:
                             loss_scale = response_mask.shape[0] / self.config.ppo_mini_batch_size
+                            # print(f"!!!! {torch.distributed.get_rank() = }, {policy_loss.item() = }, {do_fix_actor_microbatch_loss_scale = }, {loss_scale = }, {response_mask.shape[0] = }, {self.config.ppo_mini_batch_size = }")
                         else:
                             loss_scale = 1.0 / self.gradient_accumulation
                     else:
                         # EXPERIMENTAL: fix for token-mean loss aggregation
                         # scale microbatch loss according to the number of tokens (rather than sequences)
-                        loss_scale = torch.sum(response_mask).item() / (mini_batch_token_num + 1e-6)
-
+                        cur_token_num = torch.sum(response_mask.to(get_device_id()))
+                        loss_scale = cur_token_num / mini_batch_token_num * torch.distributed.get_world_size()
+                        # print(f"!!!! {torch.distributed.get_rank() = }, {policy_loss.item() = }, {do_fix_actor_microbatch_loss_scale = }, {loss_scale = }, {response_mask.shape[0] = }, {self.config.ppo_mini_batch_size = }, {mini_batch_token_num = }")
                     loss = policy_loss * loss_scale
                     micro_batch_metrics["actor/final_loss"] = loss.detach().item()
                     if "actor/kl_loss" in micro_batch_metrics:
