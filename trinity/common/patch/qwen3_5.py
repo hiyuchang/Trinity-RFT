@@ -7,11 +7,13 @@ from torch import Tensor
 from transformers.models.qwen3_5.modeling_qwen3_5 import (
     BaseModelOutputWithPast,
     Cache,
+    F,
     Qwen3_5CausalLMOutputWithPast,
     Qwen3_5ForConditionalGeneration,
     Qwen3_5ModelOutputWithPast,
     TransformersKwargs,
     Unpack,
+    apply_mask_to_padding_states,
     capture_outputs,
     create_causal_mask,
     merge_with_config_defaults,
@@ -155,11 +157,179 @@ def ulysses_gate_delta_net_decorator(net, ulysses_sp_size):
         value = gather_seq_scatter_heads(value, seq_dim=1, head_dim=2)
         g = gather_seq_scatter_heads(g, seq_dim=1, head_dim=2)
         beta = gather_seq_scatter_heads(beta, seq_dim=1, head_dim=2)
-        output, last_recurrent_state = original_chunk_gated_delta_rule(query, key, value, g, beta, **kwargs)
+        output, last_recurrent_state = original_chunk_gated_delta_rule(
+            query, key, value, g, beta, **kwargs
+        )
         output = gather_heads_scatter_seq(output, seq_dim=1, head_dim=2)
         return output, last_recurrent_state
 
     net.chunk_gated_delta_rule = new_chunk_gated_delta_rule
+
+
+def gate_delta_net_forward(
+    self,
+    hidden_states: torch.Tensor,
+    cache_params: Cache | None = None,
+    attention_mask: torch.Tensor | None = None,
+    **kwargs,
+):
+    hidden_states = apply_mask_to_padding_states(hidden_states, attention_mask)
+
+    # Set up dimensions for reshapes later
+    batch_size, seq_len, _ = hidden_states.shape
+
+    use_precomputed_states = (
+        cache_params is not None
+        and cache_params.has_previous_state(self.layer_idx)
+        and seq_len == 1
+    )
+
+    # getting projected states from cache if it exists
+    if use_precomputed_states:
+        conv_state = cache_params.layers[self.layer_idx].conv_states
+        recurrent_state = cache_params.layers[self.layer_idx].recurrent_states
+
+    mixed_qkv = self.in_proj_qkv(hidden_states)
+    mixed_qkv = mixed_qkv.transpose(1, 2)
+
+    z = self.in_proj_z(hidden_states)
+    z = z.reshape(batch_size, seq_len, -1, self.head_v_dim)
+
+    b = self.in_proj_b(hidden_states)
+    a = self.in_proj_a(hidden_states)
+
+    if use_precomputed_states:
+        # 2. Convolution sequence transformation
+        # NOTE: the conv state is updated in `causal_conv1d_update`
+        mixed_qkv = self.causal_conv1d_update(
+            mixed_qkv,
+            conv_state,
+            self.conv1d.weight.squeeze(1),
+            self.conv1d.bias,
+            self.activation,
+        )
+    else:
+        if cache_params is not None:
+            conv_state = F.pad(mixed_qkv, (self.conv_kernel_size - mixed_qkv.shape[-1], 0))
+            conv_state = cache_params.update_conv_state(conv_state, self.layer_idx)
+        if self.causal_conv1d_fn is not None:
+            seq_idx = kwargs.get("seq_idx", None)
+            mixed_qkv = self.causal_conv1d_fn(
+                x=mixed_qkv,
+                weight=self.conv1d.weight.squeeze(1),
+                bias=self.conv1d.bias,
+                activation=self.activation,
+                seq_idx=seq_idx,
+            )
+        else:
+            mixed_qkv = F.silu(self.conv1d(mixed_qkv)[:, :, :seq_len])
+
+    mixed_qkv = mixed_qkv.transpose(1, 2)
+    query, key, value = torch.split(
+        mixed_qkv,
+        [
+            self.key_dim,
+            self.key_dim,
+            self.value_dim,
+        ],
+        dim=-1,
+    )
+
+    query = query.reshape(batch_size, seq_len, -1, self.head_k_dim)
+    key = key.reshape(batch_size, seq_len, -1, self.head_k_dim)
+    value = value.reshape(batch_size, seq_len, -1, self.head_v_dim)
+
+    beta = b.sigmoid()
+    # If the model is loaded in fp16, without the .float() here, A might be -inf
+    g = -self.A_log.float().exp() * F.softplus(a.float() + self.dt_bias)
+    if self.num_v_heads // self.num_k_heads > 1:
+        query = query.repeat_interleave(self.num_v_heads // self.num_k_heads, dim=2)
+        key = key.repeat_interleave(self.num_v_heads // self.num_k_heads, dim=2)
+
+    if not use_precomputed_states:
+        chunk_kwargs = {}
+        if getattr(self.chunk_gated_delta_rule, "__module__", "").startswith("fla."):
+            chunk_kwargs["cu_seqlens"] = kwargs.get("cu_seqlens", None)
+
+        core_attn_out, last_recurrent_state = self.chunk_gated_delta_rule(
+            query,
+            key,
+            value,
+            g=g,
+            beta=beta,
+            initial_state=None,
+            output_final_state=cache_params is not None,
+            use_qk_l2norm_in_kernel=True,
+            **chunk_kwargs,
+        )
+
+    else:
+        core_attn_out, last_recurrent_state = self.recurrent_gated_delta_rule(
+            query,
+            key,
+            value,
+            g=g,
+            beta=beta,
+            initial_state=recurrent_state,
+            output_final_state=cache_params is not None,
+            use_qk_l2norm_in_kernel=True,
+        )
+
+    # Update cache
+    if cache_params is not None:
+        cache_params.update_recurrent_state(last_recurrent_state, self.layer_idx)
+
+    # reshape input data into 2D tensor
+    core_attn_out = core_attn_out.reshape(-1, self.head_v_dim)
+    z = z.reshape(-1, self.head_v_dim)
+    core_attn_out = self.norm(core_attn_out, z)
+    core_attn_out = core_attn_out.reshape(batch_size, seq_len, -1)
+
+    output = self.out_proj(core_attn_out)
+    return output
+
+
+def decoder_layer_forward(
+    self,
+    hidden_states: torch.Tensor,
+    position_embeddings: tuple[torch.Tensor, torch.Tensor],
+    attention_mask: torch.Tensor | None = None,
+    position_ids: torch.LongTensor | None = None,
+    past_key_values: Cache | None = None,
+    **kwargs: Unpack[TransformersKwargs],
+) -> torch.FloatTensor:
+    residual = hidden_states
+
+    hidden_states = self.input_layernorm(hidden_states)
+
+    # Token Mixer
+    if self.layer_type == "linear_attention":
+        hidden_states = self.linear_attn(
+            hidden_states=hidden_states,
+            cache_params=past_key_values,
+            attention_mask=attention_mask,
+            **kwargs,
+        )
+    elif self.layer_type == "full_attention":
+        # Self Attention
+        hidden_states, _ = self.self_attn(
+            hidden_states=hidden_states,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            past_key_values=past_key_values,
+            position_embeddings=position_embeddings,
+            **kwargs,
+        )
+
+    hidden_states = residual + hidden_states
+
+    # Fully Connected
+    residual = hidden_states
+    hidden_states = self.post_attention_layernorm(hidden_states)
+    hidden_states = self.mlp(hidden_states)
+    hidden_states = residual + hidden_states
+
+    return hidden_states
 
 
 @merge_with_config_defaults
