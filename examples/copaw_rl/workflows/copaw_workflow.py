@@ -30,12 +30,11 @@ class CoPawWorkflow(MultiTurnWorkflow):
         )
 
         sandbox_id = self.task.workflow_args.get("sandbox_id", None)
-        url = self.task.workflow_args["url"]
         token = self.task.workflow_args["token"]
         domain = self.task.workflow_args["domain"]
         template = self.task.workflow_args["template"]
 
-        sandbox, created = get_or_create_sandbox(sandbox_id, url, token, domain, template)
+        sandbox, created = get_or_create_sandbox(sandbox_id, token, domain, template)
 
         oss_config = self.task.workflow_args["oss"]
         dashscope_api_key = self.task.workflow_args["dashscope_api_key"]
@@ -43,7 +42,7 @@ class CoPawWorkflow(MultiTurnWorkflow):
         api_server_url = f"{self.model.api_address}/v1"
         model_path = self.model.model_path
         dataset = run_workflow(
-            sandbox, task_id, oss_config, dashscope_api_key, api_server_url, model_path
+            sandbox, task_id, oss_config, dashscope_api_key, api_server_url, model_path, self.logger
         )
         exps = []
         for data in dataset:

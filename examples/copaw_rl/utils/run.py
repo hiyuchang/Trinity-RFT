@@ -19,6 +19,7 @@ from urllib import request as urllib_request
 
 import bench_client
 import requests
+from setup_provider import config_provider
 
 # 脚本自身所在目录
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +43,8 @@ def parse_args():
     parser.add_argument("--session-id", default=None, help="Session ID (auto-generated if not set)")
     parser.add_argument("--user-id", default="default", help="User ID (default: default)")
     parser.add_argument("--url", default="http://127.0.0.1:8088", help="API endpoint URL")
+    parser.add_argument("--rl-url", required=True, help="RL API endpoint URL")
+    parser.add_argument("--rl-model-id", required=True, help="RL model ID")
     parser.add_argument(
         "--sessions-dir",
         default="/app/working/workspaces/default/sessions",
@@ -108,7 +111,14 @@ def deploy_environment(extract_dir: str) -> None:
         log.info("deploy: %s -> %s", env_dir, home)
 
 
-def call_agent(url: str, user_input: str, session_id: str, user_id: str) -> None:
+def call_agent(
+    url: str,
+    user_input: str,
+    session_id: str,
+    user_id: str,
+    provider_base_url: str,
+    provider_model_id: str,
+) -> None:
     payload = {
         "input": [
             {
@@ -125,22 +135,14 @@ def call_agent(url: str, user_input: str, session_id: str, user_id: str) -> None
 
     headers = {"Referer": f"{url}/chat", "content-type": "application/json"}
 
-    # check url reachability
-    for _ in range(30):
-        try:
-            print(f"Checking API endpoint: {url} ...")
-            response = requests.get(url, headers=headers, timeout=5)
-            if response.status_code == 200:
-                break
-        except requests.exceptions.RequestException:
-            time.sleep(5)
-    # exit(0)  # 临时退出，避免误调用 agent API
-
-    # active model first
-    response = requests.put(
-        f"{url}/api/models/active", headers=headers, json={"provider_id": "_", "model": "_"}
+    result = config_provider(
+        qwenpaw_url=url,
+        provider_name="rl-server",
+        provider_base_url=provider_base_url,
+        provider_model_id=provider_model_id,
+        provider_model_name="rl-model",
     )
-    log.info("model activation response: %s", response.text)
+    log.info("Provider configured and model activated successfully: %s", result)
     # call agent
     response = requests.post(f"{url}/api/agent/process", json=payload, headers=headers, stream=True)
     response.raise_for_status()
@@ -162,69 +164,6 @@ def extract_trajectories(session_data: dict) -> list:
     return model_trajectory
 
 
-# this is another version of trajectory parser
-def _parse_structured_trajectory(session_data: dict) -> list:
-    """
-    从 session JSON 的 _model_trajectory 中解析出结构化的 trajectory，
-    格式与 run_benchmark.py 的输出一致:
-    [{"step": int, "thought": str, "tool_calls": [...], "tool_results": [...]}, ...]
-    """
-    raw_trajectory = session_data.get("agent", {}).get("_model_trajectory", [])
-    if not raw_trajectory:
-        return []
-
-    trajectory = []
-    for i, entry in enumerate(raw_trajectory):
-        next_entry = raw_trajectory[i + 1] if i + 1 < len(raw_trajectory) else None
-        response = entry.get("response", [])
-
-        thought = ""
-        tool_calls = []
-
-        if isinstance(response, str):
-            thought = response
-        elif isinstance(response, list):
-            for item in response:
-                if isinstance(item, dict):
-                    item_type = item.get("type", "")
-                    if item_type == "text":
-                        thought = item.get("text", "")
-                    elif item_type == "tool_use":
-                        tool_calls.append(
-                            {
-                                "name": item.get("name", ""),
-                                "input": item.get("input", {}),
-                            }
-                        )
-
-        tool_results = []
-        if next_entry and tool_calls:
-            next_messages = next_entry.get("messages", [])
-            current_messages = entry.get("messages", [])
-            new_msg_count = len(next_messages) - len(current_messages)
-            if new_msg_count >= 1:
-                for msg in next_messages[-new_msg_count:]:
-                    if msg.get("role") == "tool":
-                        content = msg.get("content", "")
-                        if isinstance(content, str):
-                            tool_results.append(content[:500])
-                        elif isinstance(content, list):
-                            for c in content:
-                                if isinstance(c, dict) and c.get("type") == "text":
-                                    tool_results.append(c.get("text", "")[:500])
-
-        trajectory.append(
-            {
-                "step": i,
-                "thought": thought,
-                "tool_calls": tool_calls,
-                "tool_results": tool_results,
-            }
-        )
-
-    return trajectory
-
-
 def extract_final_text(session_data: dict) -> str:
     """从 session 的最后一条 trajectory entry 中提取 agent 最终回复文本。"""
     raw_trajectory = session_data.get("agent", {}).get("_model_trajectory", [])
@@ -241,42 +180,6 @@ def extract_final_text(session_data: dict) -> str:
             if isinstance(item, dict) and item.get("type") == "text":
                 return item.get("text", "")
     return ""
-
-
-def _strip_ansi_codes(text: str) -> str:
-    return re.sub(r"\x1b\[[0-9;]*m", "", text)
-
-
-def parse_pytest_result(stdout: str) -> dict:
-    """从 pytest 输出中解析测试结果，返回 total/passed/failed/skipped/errors/score。"""
-    result = {
-        "total": 0,
-        "passed": 0,
-        "failed": 0,
-        "skipped": 0,
-        "errors": 0,
-        "score": 0.0,
-    }
-
-    patterns = [
-        (r"(\d+)\s+passed", "passed"),
-        (r"(\d+)\s+failed", "failed"),
-        (r"(\d+)\s+skipped", "skipped"),
-        (r"(\d+)\s+error", "errors"),
-    ]
-
-    for pattern, key in patterns:
-        match = re.search(pattern, stdout, re.IGNORECASE)
-        if match:
-            result[key] = int(match.group(1))
-
-    result["total"] = result["passed"] + result["failed"] + result["skipped"] + result["errors"]
-
-    denominator = result["passed"] + result["failed"] + result["errors"]
-    if denominator > 0:
-        result["score"] = round(result["passed"] / denominator * 100, 1)
-
-    return result
 
 
 JUDGE_MODEL = "qwen-plus"
@@ -374,115 +277,6 @@ def _llm_judge(sample_id: str, trajectory: list) -> tuple[bool, str]:
     return _llm_judge_sync(sample_id, first_user_message, last_response)
 
 
-def fix_messages(item):
-    base_messages = item["messages"]
-    response_blocks = item.get("response") or []
-
-    # 把 response 也当成一条 assistant 消息拼到最后，一起走 chat_template
-    # 注意：response 是一组 blocks（thinking / tool_use / text），需要转换成
-    # Qwen chat_template 期望的格式：reasoning_content + tool_calls + content(str)
-    if response_blocks:
-        reasoning_content = ""
-        text_parts: list[str] = []
-        tool_calls: list[dict] = []
-
-        for block in response_blocks:
-            if not isinstance(block, dict):
-                continue
-            btype = block.get("type")
-            if btype == "thinking":
-                reasoning_content = block.get("thinking", "") or reasoning_content
-            elif btype == "text":
-                text_parts.append(block.get("text", ""))
-            elif btype == "tool_use":
-                tool_id = block.get("id", "")
-                tool_name = block.get("name", "")
-                tool_input = block.get("input", {})
-                tool_calls.append(
-                    {
-                        "id": tool_id,
-                        "type": "function",
-                        "function": {
-                            "name": tool_name,
-                            # 这里先保持为 dict，后面统一做 str->dict 修复
-                            "arguments": tool_input,
-                        },
-                    },
-                )
-
-        response_msg: dict = {
-            "role": "assistant",
-            "content": "\n".join(text_parts) if text_parts else "",
-        }
-        if reasoning_content:
-            response_msg["reasoning_content"] = reasoning_content
-        if tool_calls:
-            response_msg["tool_calls"] = tool_calls
-
-        messages = base_messages + [response_msg]
-    else:
-        messages = base_messages
-
-    # 修复 tool_calls 中的 arguments（从字符串转为字典），保证符合 Qwen chat_template 的预期
-    fixed_messages = []
-    for msg in messages:
-        fixed_msg = msg.copy()
-        if "tool_calls" in fixed_msg and fixed_msg["tool_calls"]:
-            fixed_tool_calls = []
-            for tc in fixed_msg["tool_calls"]:
-                fixed_tc = tc.copy()
-                if "function" in fixed_tc and isinstance(
-                    fixed_tc["function"].get("arguments"), str
-                ):
-                    try:
-                        fixed_tc["function"] = fixed_tc["function"].copy()
-                        fixed_tc["function"]["arguments"] = json.loads(
-                            fixed_tc["function"]["arguments"]
-                        )
-                    except json.JSONDecodeError:
-                        pass  # 如果解析失败，保持原样
-                fixed_tool_calls.append(fixed_tc)
-            fixed_msg["tool_calls"] = fixed_tool_calls
-        fixed_messages.append(fixed_msg)
-
-    return fixed_messages
-
-
-def simplify_text_content(content):
-    if isinstance(content, list):
-        text = ""
-        for c in content:
-            text += simplify_text_content(c)
-        return text
-    if isinstance(content, dict) and content.get("type", None) == "text":
-        return content.get("text", content)
-    return content or ""
-
-
-def is_prefix(old_messages, new_messages):
-    if len(old_messages) > len(new_messages):
-        return False
-    for old_message, new_message in zip(old_messages, new_messages):
-        if old_message.keys() != new_message.keys():
-            # print("key mismatch")
-            return False
-        for key in old_message.keys():
-            old_value = old_message[key]
-            new_value = new_message[key]
-            old_json = json.dumps(old_value, sort_keys=True)
-            new_json = json.dumps(new_value, sort_keys=True)
-            if old_json != new_json:
-                if key != "content":
-                    # print(f"{key} content mismatch")
-                    return False
-                old_text = simplify_text_content(old_value)
-                new_text = simplify_text_content(new_value)
-                if old_text != new_text:
-                    # print(f"{old_text = }, {new_text = }")
-                    return False
-    return True
-
-
 def main():
     args = parse_args()
 
@@ -533,8 +327,16 @@ def main():
         log.info("调用 agent API ...")
         t_start = time.time()
         for user_input in user_inputs:
-            call_agent(args.url.strip("/"), user_input, args.session_id, args.user_id)
+            call_agent(
+                args.url.strip("/"),
+                user_input,
+                args.session_id,
+                args.user_id,
+                args.rl_url,
+                args.rl_model_id,
+            )
         duration_seconds = round(time.time() - t_start, 2)
+        log.info("完成调用 agent API，耗时: %.2f 秒", duration_seconds)
 
         # Step 5: 读取 session JSON 并提取 trajectories
         test_dir = os.path.join(_SCRIPT_DIR, "tests")
@@ -551,7 +353,7 @@ def main():
         log.info("原始 session 已导出到: %s", session_export_path)
 
         final_text = extract_final_text(session_data)
-        print(f"Agent 最终回复文本:\n{final_text}\n")
+        log.info(f"Agent 最终回复文本:\n{final_text}\n")
 
         trajectories = extract_trajectories(session_data)
         # ── LLM 判断是否执行成功 ──────────────────────────────────────────
@@ -560,34 +362,21 @@ def main():
         except Exception as judge_exc:
             # 判断出错时保守处理：视为成功，避免误丢弃
             judge_ok, judge_reason = True, f"LLM判断异常(视为成功): {judge_exc}"
+        log.info("LLM judge result: %s, reason: %s", judge_ok, judge_reason)
 
-        # latest_messages = None
         dataset = []
         for trajectory in trajectories:
-            messages = fix_messages(trajectory)
-            tools = trajectory["tools"]
             logprobs = trajectory["logprobs"]
             prompt_token_ids = trajectory["prompt_token_ids"]
             token_ids = trajectory["token_ids"]
 
             data = {
-                # "messages": messages,
-                # "tools": tools,
                 "logprobs": logprobs,
                 "prompt_token_ids": prompt_token_ids,
                 "token_ids": token_ids,
                 "judge_ok": judge_ok,
             }
             dataset.append(data)
-            # if latest_messages is None or not is_prefix(latest_messages, messages):
-            #     data["logprobs"] = [logprobs]
-            #     data["tokens"] = [tokens]
-            #     dataset.append(data)
-            # else:
-            #     data["logprobs"] = dataset[-1]["logprobs"] + [logprobs]
-            #     data["tokens"] = dataset[-1]["tokens"] + [tokens]
-            #     dataset[-1] = data
-            latest_messages = messages
 
         with open(os.path.join(_SCRIPT_DIR, "dataset.json"), "w", encoding="utf-8") as f:
             json.dump(dataset, f, ensure_ascii=False)  # , indent=2

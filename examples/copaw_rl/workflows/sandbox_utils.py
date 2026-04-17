@@ -1,7 +1,6 @@
 import json
 import os
 import time
-from pathlib import Path
 
 import httpx
 from e2b import Sandbox
@@ -73,7 +72,7 @@ def connect_sandbox(sandbox_id, token, domain):
     return sandbox
 
 
-def create_sandbox(url, token, domain, template="sandbox7"):
+def create_sandbox(token, domain, template="sandbox7"):
     """Create sandbox with authorization header"""
     if domain:
         os.environ["E2B_DOMAIN"] = domain
@@ -92,7 +91,7 @@ def create_sandbox(url, token, domain, template="sandbox7"):
     return sandbox
 
 
-def get_or_create_sandbox(sandbox_id, url, token, domain, template="sandbox7"):
+def get_or_create_sandbox(sandbox_id, token, domain, template="sandbox7"):
     """Get existing sandbox or create new one"""
     if sandbox_id:
         # print(f"\n{Colors.OKCYAN}[1] Connecting to existing sandbox:{Colors.ENDC} {Colors.BOLD}{sandbox_id}{Colors.ENDC}")
@@ -101,7 +100,7 @@ def get_or_create_sandbox(sandbox_id, url, token, domain, template="sandbox7"):
         return sandbox, False
     else:
         # print(f"\n{Colors.OKCYAN}[1] Creating sandbox with template:{Colors.ENDC} {Colors.BOLD}{template}{Colors.ENDC}")
-        sandbox = create_sandbox(url, token, domain, template)
+        sandbox = create_sandbox(token, domain, template)
 
         # print(f"\n{Colors.OKCYAN}[2] Waiting for sandbox to be ready...{Colors.ENDC}")
         max_attempts = 60
@@ -126,34 +125,27 @@ def get_or_create_sandbox(sandbox_id, url, token, domain, template="sandbox7"):
         return sandbox, True
 
 
-def run_workflow(sandbox, task_id, oss_config, dashscope_api_key, api_server_url, model_path):
+def run_workflow(
+    sandbox, task_id, oss_config, dashscope_api_key, api_server_url, model_path, logger
+):
     # Prepare sandbox before running the workflow
-    # modify /app/working.secret/providers/custom/rl-server.json
-    # modify /app/working.secret/providers/active_model.json
-    # modify /app/working/config.json
+    # upload /app/working/config.json
+    # upload bench_client.py, run.py, setup_provider.py to /root/
+    # pip uninstall copaw -y
+    # pip install qwenpaw==1.1.2
     # pip install oss2
     # patch /app/venv/lib/python3.11/site-packages/qwenpaw/agents/react_agent.py < /root/patch/model_trajectory.patch
     # patch /app/venv/lib/python3.11/site-packages/agentscope/model/_openai_model.py < /root/patch/openai_model.patch
     # patch /app/venv/lib/python3.11/site-packages/agentscope/model/_model_response.py < /root/patch/model_response.patch
+    # qwenpaw app &
 
-    # Step 1: Start the QwenPaw in the sandbox
-    process = sandbox.commands.run(
-        f"python /root/setup_env.py --base-url {api_server_url} --model_path {model_path} && copaw app",
-        background=True,
-        timeout=3600,
-    )
-
-    bench_client_path = Path(__file__).parent.parent / "utils" / "bench_client.py"
-    with open(bench_client_path, "r") as f:
-        sandbox.files.write("/root/bench_client.py", f)
-
-    run_path = Path(__file__).parent.parent / "utils" / "run.py"
-    with open(run_path, "r") as f:
-        sandbox.files.write("/root/run.py", f)
+    # run_path = Path(__file__).parent.parent / "utils" / "run.py"
+    # with open(run_path, "r") as f:
+    #     sandbox.files.write("/root/run.py", f)
 
     result = sandbox.commands.run(
-        f"python run.py --task_id {task_id} --oss-prefix {oss_config['prefix']}",
-        envs={  # TODO: get from env or config
+        f"python run.py --task_id {task_id} --oss-prefix {oss_config['prefix']} --rl-url {api_server_url} --rl-model-id {model_path}",
+        envs={
             "OSS_ACCESS_KEY_ID": oss_config["access_key_id"],
             "OSS_ACCESS_KEY_SECRET": oss_config["key_secret"],
             "OSS_REGION": oss_config["region"],
@@ -165,8 +157,8 @@ def run_workflow(sandbox, task_id, oss_config, dashscope_api_key, api_server_url
     )
     # print(f"    {Colors.OKGREEN}✓ run.py executed (exit code: {result.exit_code}){Colors.ENDC}")
     # print(f"    Output: {result.stdout.strip()}")
-
-    process.kill()
+    logger.info("result.stdout: %s", result.stdout.strip())
+    logger.info("result.stderr: %s", result.stderr.strip())
 
     content = sandbox.files.read("/root/dataset.json")
     dataset = json.loads(content)

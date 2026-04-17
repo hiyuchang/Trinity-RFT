@@ -545,7 +545,7 @@ class BenchmarkClient:
 # ======================== CLI 命令行入口 ========================
 
 
-def main():
+def main():  # noqa: C901
     import argparse
 
     parser = argparse.ArgumentParser(
