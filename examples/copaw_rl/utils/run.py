@@ -346,7 +346,7 @@ def _llm_judge_sync(
     return bool(obj.get("success", False)), str(obj.get("reason", "")).strip()
 
 
-async def _llm_judge(sample_id: str, trajectory: list) -> tuple[bool, str]:
+def _llm_judge(sample_id: str, trajectory: list) -> tuple[bool, str]:
     """异步 LLM 判断 trajectory 是否成功。"""
     if not has_tool_calls(trajectory):
         return False, "trajectory中没有工具调用"
@@ -561,57 +561,36 @@ def main():
             # 判断出错时保守处理：视为成功，避免误丢弃
             judge_ok, judge_reason = True, f"LLM判断异常(视为成功): {judge_exc}"
 
-        latest_messages = None
+        # latest_messages = None
         dataset = []
         for trajectory in trajectories:
             messages = fix_messages(trajectory)
             tools = trajectory["tools"]
+            logprobs = trajectory["logprobs"]
+            prompt_token_ids = trajectory["prompt_token_ids"]
+            token_ids = trajectory["token_ids"]
 
             data = {
-                "messages": messages,
-                "tools": tools,
+                # "messages": messages,
+                # "tools": tools,
+                "logprobs": logprobs,
+                "prompt_token_ids": prompt_token_ids,
+                "token_ids": token_ids,
                 "judge_ok": judge_ok,
             }
-            if latest_messages is None or not is_prefix(latest_messages, messages):
-                dataset.append(data)
-            else:
-                dataset[-1] = data
+            dataset.append(data)
+            # if latest_messages is None or not is_prefix(latest_messages, messages):
+            #     data["logprobs"] = [logprobs]
+            #     data["tokens"] = [tokens]
+            #     dataset.append(data)
+            # else:
+            #     data["logprobs"] = dataset[-1]["logprobs"] + [logprobs]
+            #     data["tokens"] = dataset[-1]["tokens"] + [tokens]
+            #     dataset[-1] = data
             latest_messages = messages
 
         with open(os.path.join(_SCRIPT_DIR, "dataset.json"), "w", encoding="utf-8") as f:
             json.dump(dataset, f, ensure_ascii=False)  # , indent=2
-        # Step 6: 保存 traj 到 judge 所在的目录 /traj.json
-        # raw_trajectories = extract_trajectories(session_data)
-        # traj_path = os.path.join(test_dir, "traj.json")
-        # with open(traj_path, "w", encoding="utf-8") as f:
-        #     json.dump(raw_trajectories, f, ensure_ascii=False, indent=2)
-        # log.info("trajectory 已保存到: %s", traj_path)
-
-        # # Step 7: 打包日志文件
-        # log.info("打包日志文件...")
-        # shutil.make_archive(os.path.join(_SCRIPT_DIR, "tests"), "zip", os.path.join(_SCRIPT_DIR, "tests"))
-
-        # # Step 8: 运行 tests/test_outputs.py 并输出结果（控制台保持原样）
-        # test_script = os.path.join(test_dir, "test_outputs.py")
-        # if not os.path.exists(test_script):
-        #     log.error("tests/test_outputs.py 不存在: %s", test_script)
-        #     sys.exit(1)
-        # log.info("运行测试: %s", test_script)
-        # test_env = os.environ.copy()
-        # test_env["SESSION_FILE"] = session_file
-        # result = subprocess.run(
-        #     [sys.executable, "-m", "pytest", "-v", test_script],
-        #     capture_output=True,
-        #     text=True,
-        #     cwd=_SCRIPT_DIR,
-        #     env=test_env,
-        # )
-        # print(result.stdout)
-        # if result.stderr:
-        #     log.warning("test_outputs.py stderr:\n%s", result.stderr.rstrip())
-        # log.info("测试退出码: %d", result.returncode)
-
-        # sys.exit(result.returncode)
 
     except SystemExit:
         raise

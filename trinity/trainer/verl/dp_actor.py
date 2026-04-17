@@ -105,12 +105,12 @@ class DataParallelPPOActor(DPActor):
             **algorithm_config.entropy_loss_fn_args
         )
 
-    def _forward_micro_batch(
+    def _forward_micro_batch(  # noqa: C901
         self,
         micro_batch: dict[str, torch.Tensor],
         temperature: float,
         calculate_entropy: bool = False,
-    ) -> dict[str, torch.Tensor]:  # noqa: C901
+    ) -> dict[str, torch.Tensor]:
         """
         Returns:
             dict[str, torch.Tensor]:
@@ -495,7 +495,9 @@ class DataParallelPPOActor(DPActor):
                     mini_batch_token_num = torch.sum(
                         mini_batch.batch["response_mask"].to(get_device_id())
                     )
-                    torch.distributed.all_reduce(mini_batch_token_num, op=torch.distributed.ReduceOp.SUM)
+                    torch.distributed.all_reduce(
+                        mini_batch_token_num, op=torch.distributed.ReduceOp.SUM
+                    )
                     if mini_batch_token_num == 0:
                         mini_batch_token_num += 1e-6  # to avoid division by zero
 
@@ -587,7 +589,11 @@ class DataParallelPPOActor(DPActor):
                         # EXPERIMENTAL: fix for token-mean loss aggregation
                         # scale microbatch loss according to the number of tokens (rather than sequences)
                         cur_token_num = torch.sum(response_mask.to(get_device_id()))
-                        loss_scale = cur_token_num / mini_batch_token_num * torch.distributed.get_world_size()
+                        loss_scale = (
+                            cur_token_num
+                            / mini_batch_token_num
+                            * torch.distributed.get_world_size()
+                        )
                     loss = policy_loss * loss_scale
                     micro_batch_metrics["actor/final_loss"] = loss.detach().item()
                     if "actor/kl_loss" in micro_batch_metrics:

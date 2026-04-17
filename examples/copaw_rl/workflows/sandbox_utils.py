@@ -44,19 +44,19 @@ def get_sandbox_info(sandbox_id, token, domain):
             if not dashboard_url and "dashboard_url" in data:
                 dashboard_url = data["dashboard_url"]
 
-            if dashboard_url:
-                print(f"\n{Colors.HEADER}{Colors.BOLD}🌐 Dashboard URL:{Colors.ENDC}")
-                print(f"{Colors.OKGREEN}{Colors.UNDERLINE}{dashboard_url}{Colors.ENDC}\n")
-            else:
-                print(f"{Colors.WARNING}Dashboard URL not found in metadata{Colors.ENDC}")
+            # if dashboard_url:
+            #     print(f"\n{Colors.HEADER}{Colors.BOLD}🌐 Dashboard URL:{Colors.ENDC}")
+            #     print(f"{Colors.OKGREEN}{Colors.UNDERLINE}{dashboard_url}{Colors.ENDC}\n")
+            # else:
+            #     print(f"{Colors.WARNING}Dashboard URL not found in metadata{Colors.ENDC}")
 
             return data
         else:
-            print(f"{Colors.FAIL}Failed to get sandbox info: {resp.status_code}{Colors.ENDC}")
+            # print(f"{Colors.FAIL}Failed to get sandbox info: {resp.status_code}{Colors.ENDC}")
             return None
 
     except Exception as e:
-        print(f"{Colors.WARNING}Could not fetch dashboard URL: {e}{Colors.ENDC}")
+        # print(f"{Colors.WARNING}Could not fetch dashboard URL: {e}{Colors.ENDC}")
         return None
 
 
@@ -81,7 +81,7 @@ def create_sandbox(url, token, domain, template="sandbox7"):
 
     sandbox = Sandbox.create(
         template=template,
-        timeout=300000,
+        timeout=3600,  # 1 hour ; TODO: make this configurable
         headers={
             "template": template,
         },
@@ -98,7 +98,7 @@ def get_or_create_sandbox(sandbox_id, url, token, domain, template="sandbox7"):
         # print(f"\n{Colors.OKCYAN}[1] Connecting to existing sandbox:{Colors.ENDC} {Colors.BOLD}{sandbox_id}{Colors.ENDC}")
         sandbox = connect_sandbox(sandbox_id, token, domain)
         get_sandbox_info(sandbox_id, token, domain)
-        return sandbox, False, 2
+        return sandbox, False
     else:
         # print(f"\n{Colors.OKCYAN}[1] Creating sandbox with template:{Colors.ENDC} {Colors.BOLD}{template}{Colors.ENDC}")
         sandbox = create_sandbox(url, token, domain, template)
@@ -113,7 +113,7 @@ def get_or_create_sandbox(sandbox_id, url, token, domain, template="sandbox7"):
                 if is_running:
                     # print(f"    {Colors.OKGREEN}✓ Sandbox is now running!{Colors.ENDC}")
                     get_sandbox_info(sandbox.sandbox_id, token, domain)
-                    return sandbox, True, 3
+                    return sandbox, True
             except Exception as e:
                 pass
                 # print(f"    [{attempt}/{max_attempts}] {Colors.WARNING}Failed to check status:{Colors.ENDC} {e}")
@@ -123,57 +123,33 @@ def get_or_create_sandbox(sandbox_id, url, token, domain, template="sandbox7"):
 
         # print(f"    {Colors.WARNING}Warning: Sandbox did not reach Running state within timeout{Colors.ENDC}")
         get_sandbox_info(sandbox.sandbox_id, token, domain)
-        return sandbox, True, 3
+        return sandbox, True
 
 
-def run_workflow(sandbox, task_id, oss_config, dashscope_api_key, api_server_url):
-    # print(f"!!!! {api_server_url = }")
-    # Step 1:
-    dashscope_json_path = Path(__file__).parent.parent / "envs" / "dashscope.json"
-    with open(dashscope_json_path, "r") as f:
-        sandbox.files.write("/app/working.secret/providers/builtin/dashscope.json", f)
+def run_workflow(sandbox, task_id, oss_config, dashscope_api_key, api_server_url, model_path):
+    # Prepare sandbox before running the workflow
+    # modify /app/working.secret/providers/custom/rl-server.json
+    # modify /app/working.secret/providers/active_model.json
+    # modify /app/working/config.json
+    # pip install oss2
+    # patch /app/venv/lib/python3.11/site-packages/qwenpaw/agents/react_agent.py < /root/patch/model_trajectory.patch
+    # patch /app/venv/lib/python3.11/site-packages/agentscope/model/_openai_model.py < /root/patch/openai_model.patch
+    # patch /app/venv/lib/python3.11/site-packages/agentscope/model/_model_response.py < /root/patch/model_response.patch
 
-    active_model_json_path = Path(__file__).parent.parent / "envs" / "active_model.json"
-    with open(active_model_json_path, "r") as f:
-        sandbox.files.write("/app/working.secret/models/active.json", f)
-    with open(active_model_json_path, "r") as f:
-        sandbox.files.write("/app/working.secret/providers/active_model.json", f)
-
-    copaw_config_json_path = Path(__file__).parent.parent / "envs" / "copaw_config.json"
-    with open(copaw_config_json_path, "r") as f:
-        sandbox.files.write("/app/working/config.json", f)
-
-    patch_path = Path(__file__).parent / "model_trajectory.patch"
-    with open(patch_path, "r") as f:
-        sandbox.files.write("/root/model_trajectory.patch", f)
-
+    # Step 1: Start the QwenPaw in the sandbox
     process = sandbox.commands.run(
-        "patch /app/venv/lib/python3.11/site-packages/copaw/agents/react_agent.py < /root/model_trajectory.patch && copaw app",
+        f"python /root/setup_env.py --base-url {api_server_url} --model_path {model_path} && copaw app",
         background=True,
         timeout=3600,
     )
 
-    # Step 2: Install OSS2 (as an example dependency)
-    # print(f"    Installing OSS2...")
-    result = sandbox.commands.run("pip install oss2 -q", timeout=60)
-    if result.exit_code != 0:
-        # print(f"{Colors.FAIL}Failed to install OSS2.{Colors.ENDC}")
-        return False
-    # print(f"{Colors.OKGREEN}✓ OSS2 installed successfully.{Colors.ENDC}")
-
-    bench_client_path = Path(__file__).parent / "bench_client.py"
+    bench_client_path = Path(__file__).parent.parent / "utils" / "bench_client.py"
     with open(bench_client_path, "r") as f:
         sandbox.files.write("/root/bench_client.py", f)
 
-    run_path = Path(__file__).parent / "run.py"
+    run_path = Path(__file__).parent.parent / "utils" / "run.py"
     with open(run_path, "r") as f:
         sandbox.files.write("/root/run.py", f)
-
-    # result = sandbox.commands.run("apt install unzip -y && curl -o ossutil-2.2.2-linux-amd64.zip https://gosspublic.alicdn.com/ossutil/v2/2.2.2/ossutil-2.2.2-linux-amd64.zip && unzip ossutil-2.2.2-linux-amd64.zip && cd ossutil-2.2.2-linux-amd64 && chmod 755 ossutil && sudo mv ossutil /usr/local/bin/ && sudo ln -s /usr/local/bin/ossutil /usr/bin/ossutil && cd ..", timeout=360)
-    # if result.exit_code != 0:
-    #     print(f"{Colors.FAIL}Failed to install ossutil.{Colors.ENDC}")
-    #     return False
-    # print(f"{Colors.OKGREEN}✓ ossutil installed successfully.{Colors.ENDC}")
 
     result = sandbox.commands.run(
         f"python run.py --task_id {task_id} --oss-prefix {oss_config['prefix']}",
@@ -185,7 +161,7 @@ def run_workflow(sandbox, task_id, oss_config, dashscope_api_key, api_server_url
             "OSS_BUCKET_NAME": oss_config["bucket_name"],
             "DASHSCOPE_API_KEY": dashscope_api_key,
         },
-        timeout=None,
+        timeout=3600,
     )
     # print(f"    {Colors.OKGREEN}✓ run.py executed (exit code: {result.exit_code}){Colors.ENDC}")
     # print(f"    Output: {result.stdout.strip()}")

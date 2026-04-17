@@ -1,5 +1,8 @@
 from typing import List, Optional
 
+import torch
+
+from trinity.common.experience import Experience
 from trinity.common.models.model import ModelWrapper
 from trinity.common.workflows import WORKFLOWS
 from trinity.common.workflows.workflow import MultiTurnWorkflow, Task
@@ -32,21 +35,33 @@ class CoPawWorkflow(MultiTurnWorkflow):
         domain = self.task.workflow_args["domain"]
         template = self.task.workflow_args["template"]
 
-        sandbox, created, step = get_or_create_sandbox(sandbox_id, url, token, domain, template)
+        sandbox, created = get_or_create_sandbox(sandbox_id, url, token, domain, template)
 
-        # oss_prefix = self.task.workflow_args["oss_prefix"]
         oss_config = self.task.workflow_args["oss"]
         dashscope_api_key = self.task.workflow_args["dashscope_api_key"]
         task_id = self.task.raw_task["task_id"]
         api_server_url = f"{self.model.api_address}/v1"
-        dataset = run_workflow(sandbox, task_id, oss_config, dashscope_api_key, api_server_url)
+        model_path = self.model.model_path
+        dataset = run_workflow(
+            sandbox, task_id, oss_config, dashscope_api_key, api_server_url, model_path
+        )
         exps = []
         for data in dataset:
-            exp = self.model.convert_messages_to_experience(data["messages"], data["tools"])
-            exp.reward = float(data.get("judge_ok", 0.0))
+            prompt_token_ids = torch.tensor(data["prompt_token_ids"])
+            response_token_ids = torch.tensor(data["token_ids"])
+            token_ids = torch.cat([prompt_token_ids, response_token_ids])
+            logprobs = torch.tensor(data["logprobs"])
+            prompt_length = len(prompt_token_ids)
+            action_mask = torch.ones(len(response_token_ids), dtype=torch.int)
+            exp = Experience(
+                tokens=token_ids,
+                logprobs=logprobs,
+                prompt_length=prompt_length,
+                action_mask=action_mask,
+            )
             exps.append(exp)
 
-        # sandbox.kill()  # 先不杀掉沙箱，方便调试和查看结果
+        sandbox.kill()
         self.logger.info(
             f"Workflow finished. Sandbox {'created' if created else 'connected'} (ID: {sandbox.sandbox_id}). Collected {len(exps)} experiences."
         )
