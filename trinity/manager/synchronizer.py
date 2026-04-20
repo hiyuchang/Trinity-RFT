@@ -322,12 +322,13 @@ class Synchronizer:
             await self.set_explorer_status(
                 RunningStatus.REQUIRE_SYNC, old_status=RunningStatus.RUNNING
             )
-            if self.model_version == current_version:
-                if self.trainer_status != RunningStatus.STOPPED:
-                    await asyncio.wait_for(
-                        self._ready_condition.wait(),
-                        timeout=self.config.synchronizer.sync_timeout,
-                    )
+            # TODO: add no wait for fully async
+            # if self.model_version == current_version:
+            #     if self.trainer_status != RunningStatus.STOPPED:
+            #         await asyncio.wait_for(
+            #             self._ready_condition.wait(),
+            #             timeout=self.config.synchronizer.sync_timeout,
+            #         )
             await self.set_explorer_status(
                 RunningStatus.RUNNING, old_status=RunningStatus.REQUIRE_SYNC
             )

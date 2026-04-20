@@ -132,7 +132,11 @@ def tokenize_and_mask_messages_default(
         prompt_token_ids_list[0] = []
 
     for prompt_token_ids, response_token_ids in zip(prompt_token_ids_list, response_token_ids_list):
-        assistant_token_mask[len(prompt_token_ids) : len(response_token_ids)] = 1
+        prompt_len = len(prompt_token_ids)
+        response_len = len(response_token_ids)
+        while response_token_ids[response_len - 1] != tokenizer.eos_token_id:
+            response_len -= 1
+        assistant_token_mask[prompt_len:response_len] = 1
 
     prompt_length = torch.argmax(assistant_token_mask).item()
     return torch.tensor(response_token_ids_list[-1]), assistant_token_mask, prompt_length

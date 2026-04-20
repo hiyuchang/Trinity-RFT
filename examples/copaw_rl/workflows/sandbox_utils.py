@@ -139,6 +139,7 @@ def run_workflow(
     # patch /app/venv/lib/python3.11/site-packages/agentscope/model/_model_response.py < /root/patch/model_response.patch
     # qwenpaw app &
 
+    # from pathlib import Path
     # run_path = Path(__file__).parent.parent / "utils" / "run.py"
     # with open(run_path, "r") as f:
     #     sandbox.files.write("/root/run.py", f)

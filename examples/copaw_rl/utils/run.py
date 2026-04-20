@@ -18,6 +18,7 @@ import time
 from urllib import request as urllib_request
 
 import bench_client
+import numpy as np
 import requests
 from setup_provider import config_provider
 
@@ -146,7 +147,7 @@ def call_agent(
     # call agent
     response = requests.post(f"{url}/api/agent/process", json=payload, headers=headers, stream=True)
     response.raise_for_status()
-    log.info("agent response: %s", response.text)
+    # log.info("agent response: %s", response.text)
 
     # Consume the streaming response
     for chunk in response.iter_content(chunk_size=None):
@@ -365,18 +366,46 @@ def main():
         log.info("LLM judge result: %s, reason: %s", judge_ok, judge_reason)
 
         dataset = []
+        last_full_token_ids = last_full_length = None
         for trajectory in trajectories:
             logprobs = trajectory["logprobs"]
             prompt_token_ids = trajectory["prompt_token_ids"]
             token_ids = trajectory["token_ids"]
+            assert len(logprobs) == len(
+                token_ids
+            ), f"logprobs和token_ids长度不匹配, {len(logprobs)=} {len(token_ids)=}"
 
-            data = {
-                "logprobs": logprobs,
-                "prompt_token_ids": prompt_token_ids,
-                "token_ids": token_ids,
-                "judge_ok": judge_ok,
-            }
-            dataset.append(data)
+            np_prompt_token_ids = np.array(prompt_token_ids)
+            if last_full_token_ids is not None and np.array_equal(
+                last_full_token_ids, np_prompt_token_ids[:last_full_length]
+            ):
+                log.info("与上一条完全匹配，合并数据")
+                last_data = dataset[-1]
+                pad_len = len(np_prompt_token_ids) - last_full_length
+                last_data["token_ids"] += prompt_token_ids[last_full_length:] + token_ids
+                last_data["logprobs"] += [0.0] * pad_len + logprobs
+                last_data["response_mask"] += [0] * pad_len + [1] * len(token_ids)
+            else:
+                if last_full_token_ids is not None and last_full_length <= len(np_prompt_token_ids):
+                    mismatch_position = np.where(
+                        (last_full_token_ids != np_prompt_token_ids[:last_full_length])
+                    )[0][0]
+                    log.info(
+                        f"添加新数据, {mismatch_position.item() = }, "
+                        f"{last_full_token_ids[mismatch_position:mismatch_position+10].tolist()} vs "
+                        f"{np_prompt_token_ids[mismatch_position:mismatch_position+10].tolist()}"
+                    )
+                data = {
+                    "logprobs": logprobs,
+                    "prompt_token_ids": prompt_token_ids,
+                    "token_ids": token_ids,
+                    "response_mask": [1] * len(token_ids),
+                    "judge_ok": judge_ok,
+                }
+                dataset.append(data)
+
+            last_full_token_ids = np.array(prompt_token_ids + token_ids)
+            last_full_length = len(last_full_token_ids)
 
         with open(os.path.join(_SCRIPT_DIR, "dataset.json"), "w", encoding="utf-8") as f:
             json.dump(dataset, f, ensure_ascii=False)  # , indent=2

@@ -1,5 +1,6 @@
-import requests
 import argparse
+
+import requests
 
 
 def _detect_api_base(qwenpaw_url: str, timeout: int = 10) -> str:
@@ -41,6 +42,7 @@ def _add_model_if_needed(base: str, provider_id: str, model_id: str) -> None:
     )
     # 201: added; 400: maybe already exists; ignore here.
     _ = resp
+
 
 def config_provider(
     qwenpaw_url: str,
@@ -123,15 +125,51 @@ def config_provider(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Configure and activate a custom model provider in QwenPaw.")
-    parser.add_argument("--qwenpaw_url", type=str, required=True, help="Base URL of the QwenPaw service.")
-    parser.add_argument("--provider_name", type=str, required=True, help="Name of the custom provider to create.")
-    parser.add_argument("--provider_base_url", type=str, required=True, help="Base URL for the custom provider's API.")
-    parser.add_argument("--provider_model_id", type=str, required=True, help="Model ID to activate for the provider.")
-    parser.add_argument("--provider_model_name", type=str, required=True, help="Name of the model to activate for the provider.")
-    parser.add_argument("--provider_api_key", type=str, default="", help="API key for the custom provider (if required).")
-    parser.add_argument("--provider_chat_model", type=str, default="OpenAIChatModel", help="Chat model type for the provider.")
-    parser.add_argument("--agent_id", type=str, default=None, help="Agent ID to scope the model activation (optional).")
+    parser = argparse.ArgumentParser(
+        description="Configure and activate a custom model provider in QwenPaw."
+    )
+    parser.add_argument(
+        "--qwenpaw_url", type=str, required=True, help="Base URL of the QwenPaw service."
+    )
+    parser.add_argument(
+        "--provider_name", type=str, required=True, help="Name of the custom provider to create."
+    )
+    parser.add_argument(
+        "--provider_base_url",
+        type=str,
+        required=True,
+        help="Base URL for the custom provider's API.",
+    )
+    parser.add_argument(
+        "--provider_model_id",
+        type=str,
+        required=True,
+        help="Model ID to activate for the provider.",
+    )
+    parser.add_argument(
+        "--provider_model_name",
+        type=str,
+        required=True,
+        help="Name of the model to activate for the provider.",
+    )
+    parser.add_argument(
+        "--provider_api_key",
+        type=str,
+        default="",
+        help="API key for the custom provider (if required).",
+    )
+    parser.add_argument(
+        "--provider_chat_model",
+        type=str,
+        default="OpenAIChatModel",
+        help="Chat model type for the provider.",
+    )
+    parser.add_argument(
+        "--agent_id",
+        type=str,
+        default=None,
+        help="Agent ID to scope the model activation (optional).",
+    )
 
     args = parser.parse_args()
     result = config_provider(

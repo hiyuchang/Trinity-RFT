@@ -35,15 +35,27 @@ class CoPawWorkflow(MultiTurnWorkflow):
         template = self.task.workflow_args["template"]
 
         sandbox, created = get_or_create_sandbox(sandbox_id, token, domain, template)
+        self.logger.info(f"Sandbox {sandbox.sandbox_id} created: {created}")
 
         oss_config = self.task.workflow_args["oss"]
         dashscope_api_key = self.task.workflow_args["dashscope_api_key"]
         task_id = self.task.raw_task["task_id"]
         api_server_url = f"{self.model.api_address}/v1"
         model_path = self.model.model_path
-        dataset = run_workflow(
-            sandbox, task_id, oss_config, dashscope_api_key, api_server_url, model_path, self.logger
-        )
+        try:
+            dataset = run_workflow(
+                sandbox,
+                task_id,
+                oss_config,
+                dashscope_api_key,
+                api_server_url,
+                model_path,
+                self.logger,
+            )
+        except Exception as e:
+            self.logger.error(f"Error running workflow (ID: {sandbox.sandbox_id}): {e}")
+            sandbox.kill()
+            raise e
         exps = []
         for data in dataset:
             prompt_token_ids = torch.tensor(data["prompt_token_ids"])
@@ -51,18 +63,21 @@ class CoPawWorkflow(MultiTurnWorkflow):
             token_ids = torch.cat([prompt_token_ids, response_token_ids])
             logprobs = torch.tensor(data["logprobs"])
             prompt_length = len(prompt_token_ids)
-            action_mask = torch.ones(len(response_token_ids), dtype=torch.int)
+            action_mask = torch.tensor(data["response_mask"], dtype=torch.int)
+            reward = float(data.get("judge_ok", 0.0))
             exp = Experience(
                 tokens=token_ids,
                 logprobs=logprobs,
                 prompt_length=prompt_length,
                 action_mask=action_mask,
+                reward=reward,
             )
             exps.append(exp)
 
         sandbox.kill()
         self.logger.info(
-            f"Workflow finished. Sandbox {'created' if created else 'connected'} (ID: {sandbox.sandbox_id}). Collected {len(exps)} experiences."
+            f"Workflow finished. Sandbox {'created' if created else 'connected'} "
+            f"(ID: {sandbox.sandbox_id}). Collected {len(exps)} experiences."
         )
 
         return exps

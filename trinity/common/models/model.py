@@ -2,6 +2,7 @@
 """Base Model Class"""
 import asyncio
 import copy
+import random
 import socket
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple, Union
@@ -61,13 +62,29 @@ class InferenceModel(ABC):
     def get_model_version(self) -> int:
         """Get the checkpoint version."""
 
-    def get_available_address(self) -> Tuple[str, int]:
-        """Get the address of the actor."""
-        address = ray.util.get_node_ip_address()
-        with socket.socket() as s:
-            s.bind(("", 0))
-            port = s.getsockname()[1]
-        return address, port
+    def get_available_address(
+        self, min_port: int = 25000, max_port: int = 25020
+    ) -> Tuple[str, int]:
+        """Get the address of the actor within a constrained port range."""
+        if not (1 <= min_port <= max_port <= 65535):
+            raise ValueError(f"Invalid port range: {min_port}-{max_port}")
+
+        # TODO: workaround for ray.util.get_node_ip_address() in DLC
+        # address = ray.util.get_node_ip_address()
+        import subprocess
+
+        address = subprocess.getoutput("hostname -I").strip().split()[0]
+        ports = list(range(min_port, max_port + 1))
+        random.shuffle(ports)
+        for port in ports:
+            with socket.socket() as s:
+                try:
+                    s.bind(("", port))
+                    return address, port
+                except OSError:
+                    continue
+
+        raise RuntimeError(f"No available port in range {min_port}-{max_port}")
 
     def get_api_server_url(self) -> Optional[str]:
         """Get the API server URL if available."""
@@ -175,7 +192,7 @@ class BaseInferenceModel(InferenceModel):
         if self.tokenizer is None:
             await self._initialize_tokenizer()
         token_ids, action_mask, prompt_length = self.action_mask_method(
-            tokenizer=self.tokenizer,
+            tokenizer=copy.deepcopy(self.tokenizer),
             messages=messages,
             tools=tools,
             chat_template=self.chat_template,

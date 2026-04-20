@@ -268,6 +268,9 @@ class Explorer:
             await self.shutdown()
             return False
         self.explore_step_num += 1
+
+        if self.scheduler is None:
+            return False
         self.scheduler.schedule(tasks, batch_id=self.explore_step_num)
         return True
 
@@ -388,6 +391,9 @@ class Explorer:
                 self.monitor.log(metric, step=end_step)
 
     async def _finish_explore_step(self, step: int, model_version: int) -> None:
+        if self.scheduler is None:
+            return
+
         metric = {"rollout/model_version": model_version}
         with Timer(metric, "time/wait_explore_step"):
             statuses, exps = await self.scheduler.get_results(
