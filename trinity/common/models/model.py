@@ -146,35 +146,34 @@ class BaseInferenceModel(InferenceModel):
     def _handle_prompt_truncation(self, prompt: str, **kwargs) -> Tuple[Sequence, bool]:
         """Handle prompt truncation if needed."""
         # Tokenize once without truncation to check if truncation is needed
-        token_ids = self.tokenizer(  # type: ignore
-            prompt,
-            truncation=False,
-            return_tensors="pt",
-        )[
-            "input_ids"
-        ][0].tolist()
+        prompt_token_ids = self.tokenizer(  # type: ignore
+            prompt, truncation=False, return_tensors="pt"
+        )["input_ids"][0].tolist()
 
         # Check if truncation is needed and apply it
         if (
             self.config.enable_prompt_truncation
             and self.config.max_prompt_tokens is not None
-            and len(token_ids) > self.config.max_prompt_tokens
+            and len(prompt_token_ids) > self.config.max_prompt_tokens
         ):
             self.logger.warning(f"Prompt was truncated to {self.config.max_prompt_tokens} tokens")
-            token_ids = token_ids[: self.config.max_prompt_tokens + 1]  # leave one for response
+
+            dummy_response = "[This experience is masked out due to overlong prompt]"
+
+            token_ids = prompt_token_ids[: self.config.max_prompt_tokens + 1]
             return [
                 Experience(
                     tokens=token_ids,
                     logprobs=torch.zeros(1, dtype=torch.float32),
-                    prompt_length=len(token_ids) - 1,
+                    prompt_length=self.config.max_prompt_tokens,  # Use truncated length
                     prompt_text=self.tokenizer.decode(token_ids[:-1]),
-                    response_text=self.tokenizer.decode(token_ids[-1]),
+                    response_text=dummy_response,
                     truncate_status="prompt_truncated",
                     reward=0.0,
                 )
                 for _ in range(kwargs.get("n", 1))
-            ], False
-        return token_ids, True
+            ], False  # If prompt truncation is activated, return a list of dummy experiences & False
+        return prompt_token_ids, True  # Otherwise, return prompt_token_ids & True
 
     async def convert_messages_to_experience(
         self,

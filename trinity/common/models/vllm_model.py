@@ -219,10 +219,14 @@ class vLLMRolloutModel(BaseInferenceModel):
             if self.tokenizer is None:
                 await self._initialize_tokenizer()
 
-            token_ids, is_valid = self._handle_prompt_truncation(prompt, **kwargs)
+            returned_seq, is_valid = self._handle_prompt_truncation(prompt, **kwargs)
             if not is_valid:
-                return token_ids
-            prompt = {"prompt_token_ids": token_ids}
+                return (
+                    returned_seq  # is_valid is False: returned_seq is a list of dummy experiences
+                )
+            prompt = {
+                "prompt_token_ids": returned_seq
+            }  # is_valid is True: returned_seq is token_ids
             multi_modal_inputs = None
         else:  # multi modal
             multi_modal_inputs = build_mm_input_for_training(self.processor, **prompt)

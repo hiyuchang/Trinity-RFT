@@ -203,13 +203,24 @@ class TestModelLen(RayUnittestBaseAsync):
             self.assertEqual(len(encoded_prompt), exp.prompt_length)
             self.assertLessEqual(exp.prompt_length, self.config.model.max_prompt_tokens)
             # check response content and length
-            encoded_response = self.tokenizer.encode(exp.response_text, add_special_tokens=False)
-            self.assertEqual(len(encoded_response), len(exp.tokens) - exp.prompt_length)
-            self.assertLessEqual(
-                len(exp.tokens) - exp.prompt_length, self.config.model.max_response_tokens
-            )
-            # check full sequence
-            self.assertLessEqual(len(exp.tokens), self.config.model.max_model_len)
+            if exp.truncate_status == "prompt_truncated":
+                self.assertEqual(
+                    exp.response_text, "[This experience is masked out due to overlong prompt]"
+                )
+                self.assertEqual(exp.prompt_text, self.tokenizer.decode(exp.tokens[:-1]))
+                self.assertEqual(len(exp.tokens), self.config.model.max_prompt_tokens + 1)
+                self.assertEqual(exp.prompt_length, self.config.model.max_prompt_tokens)
+                self.assertTrue(torch.equal(exp.logprobs, torch.zeros(1, dtype=torch.float32)))
+            else:
+                encoded_response = self.tokenizer.encode(
+                    exp.response_text, add_special_tokens=False
+                )
+                self.assertEqual(len(encoded_response), len(exp.tokens) - exp.prompt_length)
+                self.assertLessEqual(
+                    len(exp.tokens) - exp.prompt_length, self.config.model.max_response_tokens
+                )
+                # check full sequence
+                self.assertLessEqual(len(exp.tokens), self.config.model.max_model_len)
 
         # For vllm engine, max_prompt_tokens and max_response_tokens work
         response = self.model_wrapper.chat(messages)
@@ -240,6 +251,30 @@ class TestModelLen(RayUnittestBaseAsync):
             len(exps[0].tokens) - response.usage.prompt_tokens,
             self.config.model.max_response_tokens,
         )
+
+        # test prompt truncation branch in generate
+        if self.max_prompt_tokens == 5:
+            await prepare_engines(self.engines, self.auxiliary_engines)
+            await self.model_wrapper.prepare()
+
+            prompt = "This is a deliberately long prompt for truncation coverage."
+            prompt_token_ids = self.tokenizer(prompt, truncation=False, return_tensors="pt")[
+                "input_ids"
+            ][0].tolist()
+            self.assertGreater(len(prompt_token_ids), self.config.model.max_prompt_tokens)
+
+            responses = self.model_wrapper.generate([prompt], n=2)
+            self.assertEqual(len(responses), 2)
+
+            for response in responses:
+                self.assertEqual(response.truncate_status, "prompt_truncated")
+                _check_experience(response)
+
+            exps = self.model_wrapper.extract_experience_from_history()
+            self.assertEqual(len(exps), 2)
+            for exp in exps:
+                self.assertEqual(exp.truncate_status, "prompt_truncated")
+                _check_experience(exp)
 
 
 class TestModelLenWithoutPromptTruncation(RayUnittestBaseAsync):
