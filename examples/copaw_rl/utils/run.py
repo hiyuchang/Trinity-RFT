@@ -357,13 +357,13 @@ def main():
         log.info(f"Agent 最终回复文本:\n{final_text}\n")
 
         trajectories = extract_trajectories(session_data)
-        # ── LLM 判断是否执行成功 ──────────────────────────────────────────
-        try:
-            judge_ok, judge_reason = _llm_judge(args.task_id, trajectories)
-        except Exception as judge_exc:
-            # 判断出错时保守处理：视为成功，避免误丢弃
-            judge_ok, judge_reason = True, f"LLM判断异常(视为成功): {judge_exc}"
-        log.info("LLM judge result: %s, reason: %s", judge_ok, judge_reason)
+        # # ── LLM 判断是否执行成功 ──────────────────────────────────────────
+        # try:
+        #     judge_ok, judge_reason = _llm_judge(args.task_id, trajectories)
+        # except Exception as judge_exc:
+        #     # 判断出错时保守处理：视为成功，避免误丢弃
+        #     judge_ok, judge_reason = True, f"LLM判断异常(视为成功): {judge_exc}"
+        # log.info("LLM judge result: %s, reason: %s", judge_ok, judge_reason)
 
         dataset = []
         last_full_token_ids = last_full_length = None
@@ -400,9 +400,13 @@ def main():
                     "prompt_token_ids": prompt_token_ids,
                     "token_ids": token_ids,
                     "response_mask": [1] * len(token_ids),
-                    "judge_ok": judge_ok,
+                    # "judge_ok": judge_ok,
                 }
                 dataset.append(data)
+            
+            # TODO: pass session and trajectory to dataset
+            dataset[-1]["session"] = session_data
+            dataset[-1]["trajectories"] = trajectories
 
             last_full_token_ids = np.array(prompt_token_ids + token_ids)
             last_full_length = len(last_full_token_ids)
