@@ -34,7 +34,7 @@ class CoPawWorkflow(MultiTurnWorkflow):
         domain = self.task.workflow_args["domain"]
         template = self.task.workflow_args["template"]
 
-        sandbox, created = get_or_create_sandbox(sandbox_id, token, domain, template)
+        sandbox, created = get_or_create_sandbox(sandbox_id, token, domain, template, self.logger)
         self.logger.info(f"Sandbox {sandbox.sandbox_id} created: {created}")
 
         oss_config = self.task.workflow_args["oss"]

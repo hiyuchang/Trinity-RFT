@@ -19,7 +19,7 @@ class Colors:
     UNDERLINE = "\033[4m"
 
 
-def get_sandbox_info(sandbox_id, token, domain):
+def get_sandbox_info(sandbox_id, token, domain, logger):
     """Get sandbox info via API to retrieve dashboard URL"""
     try:
         url = f"https://api.{domain}/sandboxes/{sandbox_id}"
@@ -43,23 +43,25 @@ def get_sandbox_info(sandbox_id, token, domain):
             if not dashboard_url and "dashboard_url" in data:
                 dashboard_url = data["dashboard_url"]
 
-            # if dashboard_url:
-            #     print(f"\n{Colors.HEADER}{Colors.BOLD}🌐 Dashboard URL:{Colors.ENDC}")
-            #     print(f"{Colors.OKGREEN}{Colors.UNDERLINE}{dashboard_url}{Colors.ENDC}\n")
-            # else:
-            #     print(f"{Colors.WARNING}Dashboard URL not found in metadata{Colors.ENDC}")
+            if dashboard_url:
+                logger.info(f"\n{Colors.HEADER}{Colors.BOLD}🌐 Dashboard URL:{Colors.ENDC}")
+                logger.info(f"{Colors.OKGREEN}{Colors.UNDERLINE}{dashboard_url}{Colors.ENDC}\n")
+            else:
+                logger.warning(f"{Colors.WARNING}Dashboard URL not found in metadata{Colors.ENDC}")
 
             return data
         else:
-            # print(f"{Colors.FAIL}Failed to get sandbox info: {resp.status_code}{Colors.ENDC}")
+            logger.error(
+                f"{Colors.FAIL}Failed to get sandbox info: {resp.status_code}{Colors.ENDC}"
+            )
             return None
 
     except Exception as e:
-        # print(f"{Colors.WARNING}Could not fetch dashboard URL: {e}{Colors.ENDC}")
+        logger.error(f"{Colors.WARNING}Could not fetch dashboard URL: {e}{Colors.ENDC}")
         return None
 
 
-def connect_sandbox(sandbox_id, token, domain):
+def connect_sandbox(sandbox_id, token, domain, logger):
     """Connect to existing sandbox"""
     if domain:
         os.environ["E2B_DOMAIN"] = domain
@@ -67,12 +69,12 @@ def connect_sandbox(sandbox_id, token, domain):
 
     sandbox = Sandbox.connect(sandbox_id)
 
-    # print(f"    {Colors.OKGREEN}✓ Connected to sandbox{Colors.ENDC}")
+    logger.info(f"    {Colors.OKGREEN}✓ Connected to sandbox{Colors.ENDC}")
 
     return sandbox
 
 
-def create_sandbox(token, domain, template="sandbox7"):
+def create_sandbox(token, domain, template, logger):
     """Create sandbox with authorization header"""
     if domain:
         os.environ["E2B_DOMAIN"] = domain
@@ -86,42 +88,55 @@ def create_sandbox(token, domain, template="sandbox7"):
         },
     )
 
-    # print(f"    {Colors.OKGREEN}✓ Sandbox created{Colors.ENDC} (ID: {Colors.BOLD}{sandbox.sandbox_id}{Colors.ENDC})")
+    logger.info(
+        f"    {Colors.OKGREEN}✓ Sandbox created{Colors.ENDC} (ID: {Colors.BOLD}{sandbox.sandbox_id}{Colors.ENDC})"
+    )
 
     return sandbox
 
 
-def get_or_create_sandbox(sandbox_id, token, domain, template="sandbox7"):
+def get_or_create_sandbox(sandbox_id, token, domain, template, logger):
     """Get existing sandbox or create new one"""
     if sandbox_id:
-        # print(f"\n{Colors.OKCYAN}[1] Connecting to existing sandbox:{Colors.ENDC} {Colors.BOLD}{sandbox_id}{Colors.ENDC}")
-        sandbox = connect_sandbox(sandbox_id, token, domain)
-        get_sandbox_info(sandbox_id, token, domain)
+        logger.info(
+            f"\n{Colors.OKCYAN}[1] Connecting to existing sandbox:{Colors.ENDC} {Colors.BOLD}{sandbox_id}{Colors.ENDC}"
+        )
+        sandbox = connect_sandbox(sandbox_id, token, domain, logger)
+        get_sandbox_info(sandbox_id, token, domain, logger)
         return sandbox, False
     else:
-        # print(f"\n{Colors.OKCYAN}[1] Creating sandbox with template:{Colors.ENDC} {Colors.BOLD}{template}{Colors.ENDC}")
-        sandbox = create_sandbox(token, domain, template)
+        logger.info(
+            f"\n{Colors.OKCYAN}[1] Creating sandbox with template:{Colors.ENDC} {Colors.BOLD}{template}{Colors.ENDC}"
+        )
+        sandbox = create_sandbox(token, domain, template, logger)
 
-        # print(f"\n{Colors.OKCYAN}[2] Waiting for sandbox to be ready...{Colors.ENDC}")
+        logger.info(f"\n{Colors.OKCYAN}[2] Waiting for sandbox to be ready...{Colors.ENDC}")
         max_attempts = 60
         for attempt in range(1, max_attempts + 1):
             try:
                 is_running = sandbox.is_running()
-                # status_str = f"{Colors.OKGREEN}Running{Colors.ENDC}" if is_running else f"{Colors.WARNING}Not Running{Colors.ENDC}"
-                # print(f"    [{attempt}/{max_attempts}] Sandbox status: {status_str}")
+                status_str = (
+                    f"{Colors.OKGREEN}Running{Colors.ENDC}"
+                    if is_running
+                    else f"{Colors.WARNING}Not Running{Colors.ENDC}"
+                )
+                logger.info(f"    [{attempt}/{max_attempts}] Sandbox status: {status_str}")
                 if is_running:
-                    # print(f"    {Colors.OKGREEN}✓ Sandbox is now running!{Colors.ENDC}")
-                    get_sandbox_info(sandbox.sandbox_id, token, domain)
+                    logger.info(f"    {Colors.OKGREEN}✓ Sandbox is now running!{Colors.ENDC}")
+                    get_sandbox_info(sandbox.sandbox_id, token, domain, logger)
                     return sandbox, True
             except Exception as e:
-                pass
-                # print(f"    [{attempt}/{max_attempts}] {Colors.WARNING}Failed to check status:{Colors.ENDC} {e}")
+                logger.error(
+                    f"    [{attempt}/{max_attempts}] {Colors.WARNING}Failed to check status:{Colors.ENDC} {e}"
+                )
 
             if attempt < max_attempts:
                 time.sleep(2)
 
-        # print(f"    {Colors.WARNING}Warning: Sandbox did not reach Running state within timeout{Colors.ENDC}")
-        get_sandbox_info(sandbox.sandbox_id, token, domain)
+        logger.warning(
+            f"    {Colors.WARNING}Warning: Sandbox did not reach Running state within timeout{Colors.ENDC}"
+        )
+        get_sandbox_info(sandbox.sandbox_id, token, domain, logger)
         return sandbox, True
 
 
