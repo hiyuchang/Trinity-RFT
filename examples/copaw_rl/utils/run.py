@@ -20,6 +20,8 @@ from urllib import request as urllib_request
 import bench_client
 import numpy as np
 import requests
+import yaml
+from judge import llm_judge as dispatch_llm_judge
 from setup_provider import config_provider
 
 # 脚本自身所在目录
@@ -57,6 +59,23 @@ def parse_args():
 def read_file(path: str) -> str:
     with open(path, "r", encoding="utf-8") as f:
         return f.read().strip()
+
+
+def read_task_input_answer(task_yaml_path: str):
+    """读取 task.yaml 中 evaluation.inputs.answer。"""
+    if not os.path.exists(task_yaml_path):
+        return None
+    with open(task_yaml_path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    if not isinstance(data, dict):
+        return None
+    evaluation = data.get("evaluation") or {}
+    if not isinstance(evaluation, dict):
+        return None
+    inputs = evaluation.get("inputs") or {}
+    if not isinstance(inputs, dict):
+        return None
+    return inputs.get("answer")
 
 
 def _extract_task_description(instruction_text: str) -> list[str]:
@@ -250,32 +269,21 @@ def _llm_judge_sync(
     return bool(obj.get("success", False)), str(obj.get("reason", "")).strip()
 
 
-def _llm_judge(sample_id: str, trajectory: list) -> tuple[bool, str]:
-    """异步 LLM 判断 trajectory 是否成功。"""
-    if not has_tool_calls(trajectory):
-        return False, "trajectory中没有工具调用"
-
-    first_user_message = ""
-    if trajectory and isinstance(trajectory[0], dict):
-        for m in trajectory[0].get("messages", []):
-            if isinstance(m, dict) and m.get("role") == "user":
-                c = m.get("content", "")
-                if isinstance(c, str):
-                    first_user_message = c
-                elif isinstance(c, list):
-                    parts = [
-                        item.get("text", "")
-                        for item in c
-                        if isinstance(item, dict) and item.get("type") == "text"
-                    ]
-                    first_user_message = "\n".join(parts)
-                break
-
-    last_response = None
-    if trajectory and isinstance(trajectory[-1], dict) and "response" in trajectory[-1]:
-        last_response = trajectory[-1]["response"]
-
-    return _llm_judge_sync(sample_id, first_user_message, last_response)
+def _llm_judge(
+    query: str,
+    session_data: dict,
+    final_response: str,
+    task_id: str,
+    input_answer,
+) -> tuple[bool, str]:
+    """通过 utils/judge.py 分发到对应 grader。"""
+    return dispatch_llm_judge(
+        query=query,
+        session=session_data,
+        final_response=final_response,
+        task_id=task_id,
+        input_answer=input_answer,
+    )
 
 
 def main():
@@ -323,6 +331,7 @@ def main():
         full_instruction = read_file(instruction_path)
         user_inputs = _extract_task_description(full_instruction)
         log.info("读取 instruction.md，query 长度: %d", len(user_inputs))
+        judge_query = "\n\n".join([q for q in user_inputs if isinstance(q, str)]).strip()
 
         # Step 4: 调用 agent API
         log.info("调用 agent API ...")
@@ -355,15 +364,23 @@ def main():
 
         final_text = extract_final_text(session_data)
         log.info(f"Agent 最终回复文本:\n{final_text}\n")
+        task_yaml_path = os.path.join(_SCRIPT_DIR, "task.yaml")
+        input_answer = read_task_input_answer(task_yaml_path)
 
         trajectories = extract_trajectories(session_data)
         # # ── LLM 判断是否执行成功 ──────────────────────────────────────────
-        # try:
-        #     judge_ok, judge_reason = _llm_judge(args.task_id, trajectories)
-        # except Exception as judge_exc:
-        #     # 判断出错时保守处理：视为成功，避免误丢弃
-        #     judge_ok, judge_reason = True, f"LLM判断异常(视为成功): {judge_exc}"
-        # log.info("LLM judge result: %s, reason: %s", judge_ok, judge_reason)
+        try:
+            reward, info = _llm_judge(
+                session_data,
+                final_text,
+                args.task_id,
+                input_answer,
+                judge_query,
+            )
+        except Exception as e:
+            # 判断出错时保守处理：视为0.5分，避免误丢弃
+            reward, info = 0.5, f"LLM判断异常: {e}"
+        log.info("LLM judge result: %s, info: %s", reward, info)
 
         dataset = []
         last_full_token_ids = last_full_length = None
@@ -400,13 +417,9 @@ def main():
                     "prompt_token_ids": prompt_token_ids,
                     "token_ids": token_ids,
                     "response_mask": [1] * len(token_ids),
-                    # "judge_ok": judge_ok,
+                    "reward": reward,
                 }
                 dataset.append(data)
-            
-            # TODO: pass session and trajectory to dataset
-            dataset[-1]["session"] = session_data
-            dataset[-1]["trajectories"] = trajectories
 
             last_full_token_ids = np.array(prompt_token_ids + token_ids)
             last_full_length = len(last_full_token_ids)
