@@ -275,7 +275,7 @@ def _llm_judge(
     final_response: str,
     task_id: str,
     input_answer,
-) -> tuple[bool, str]:
+) -> tuple[float, str]:
     """通过 utils/judge.py 分发到对应 grader。"""
     return dispatch_llm_judge(
         query=query,
@@ -371,12 +371,13 @@ def main():
         # # ── LLM 判断是否执行成功 ──────────────────────────────────────────
         try:
             reward, info = _llm_judge(
-                session_data,
-                final_text,
-                args.task_id,
-                input_answer,
-                judge_query,
+                query=judge_query,
+                session_data=session_data,
+                final_response=final_text,
+                task_id=args.task_id,
+                input_answer=input_answer,
             )
+            reward = max(0.0, min(1.0, float(reward)))
         except Exception as e:
             # 判断出错时保守处理：视为0.5分，避免误丢弃
             reward, info = 0.5, f"LLM判断异常: {e}"
