@@ -41,8 +41,8 @@ Trinity-RFT 面向不同背景和目标的用户提供相应功能：
 
 ## 🚀 新闻
 
+* [2026-04] [[发布说明]](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.5.2) Trinity-RFT v0.5.2 发布：支持 Qwen3.5 系列，修复 Bug 并进行多项优化。
 * [2026-03] 🤖 Trinity-RFT 助力 CoPaw-Flash 训练，打造更懂本地化场景的智能体小模型。欢迎到 [CoPaw](https://github.com/agentscope-ai/CoPaw) 试用 CoPaw-Flash，模型下载请见 [ModelScope](https://www.modelscope.cn/organization/AgentScope) 和 [HuggingFace](https://huggingface.co/agentscope-ai)（[新闻](https://mp.weixin.qq.com/s/-BXNU_PMi6QJuwSB5BqTbQ)）。
-* [2026-03] Trinity-RFT 现在已经支持 Qwen3.5 系列模型。
 * [2026-02] [[发布说明]](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.5.1) Trinity-RFT v0.5.1 发布：增强 VLM 支持，改进日志系统，修复若干 Bug。
 * [2026-02] [[发布说明]](https://github.com/agentscope-ai/Trinity-RFT/releases/tag/v0.5.0) Trinity-RFT v0.5.0 发布：单 GPU 场景下的 colocate 模式，trainer 驱动的权重同步，自动并行设置建议等新功能。
 * [2026-01] 🎉 三篇论文被 ICLR 2026 接收：[CHORD](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/mix_chord)、[BOTS](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/bots) 和 [Group-relative REINFORCE 系列变种](https://github.com/agentscope-ai/Trinity-RFT/tree/main/examples/rec_gsm8k)。在 Trinity-RFT 中尝试这些新算法吧！

@@ -5,7 +5,7 @@ import sys
 
 import numpy as np
 from urllib import request as urllib_request
-
+from judge import llm_judge as dispatch_llm_judge
 
 logging.basicConfig(
     level=logging.INFO,
@@ -86,42 +86,94 @@ def _llm_judge_sync(
     return bool(obj.get("success", False)), str(obj.get("reason", "")).strip()
 
 
-def _llm_judge(sample_id: str, trajectory: list) -> tuple[bool, str]:
-    """异步 LLM 判断 trajectory 是否成功。"""
-    if not has_tool_calls(trajectory):
-        return False, "trajectory中没有工具调用"
-
-    first_user_message = ""
-    if trajectory and isinstance(trajectory[0], dict):
-        for m in trajectory[0].get("messages", []):
-            if isinstance(m, dict) and m.get("role") == "user":
-                c = m.get("content", "")
-                if isinstance(c, str):
-                    first_user_message = c
-                elif isinstance(c, list):
-                    parts = [
-                        item.get("text", "")
-                        for item in c
-                        if isinstance(item, dict) and item.get("type") == "text"
-                    ]
-                    first_user_message = "\n".join(parts)
-                break
-
-    last_response = None
-    if trajectory and isinstance(trajectory[-1], dict) and "response" in trajectory[-1]:
-        last_response = trajectory[-1]["response"]
-
-    return _llm_judge_sync(sample_id, first_user_message, last_response)
+def _llm_judge(
+    query: str,
+    session_data: dict,
+    final_response: str,
+    task_id: str,
+    input_answer,
+) -> tuple[float, str]:
+    """通过 utils/judge.py 分发到对应 grader。"""
+    return dispatch_llm_judge(
+        query=query,
+        session=session_data,
+        final_response=final_response,
+        task_id=task_id,
+        input_answer=input_answer,
+    )
 
 
-def export_training_data(task_id, trajectories) -> None:
-    # ── LLM 判断是否执行成功 ──────────────────────────────────────────
+def _extract_text(content) -> str:
+    """尽量把 message/response 的 content 抽成纯文本。"""
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, dict):
+                if isinstance(item.get("text"), str):
+                    parts.append(item["text"])
+                elif isinstance(item.get("content"), str):
+                    parts.append(item["content"])
+            elif isinstance(item, str):
+                parts.append(item)
+        return "\n".join(p for p in parts if p).strip()
+    if isinstance(content, dict):
+        if isinstance(content.get("text"), str):
+            return content["text"]
+        if isinstance(content.get("content"), str):
+            return content["content"]
+    return str(content)
+
+
+def _extract_first_user_query(trajectories: list) -> str:
+    """从 trajectories 中提取首条 user 消息文本。"""
+    for entry in trajectories:
+        if not isinstance(entry, dict):
+            continue
+        for msg in entry.get("messages", []):
+            if isinstance(msg, dict) and msg.get("role") == "user":
+                text = _extract_text(msg.get("content"))
+                if text:
+                    return text
+    return ""
+
+
+def _extract_final_response(trajectories: list):
+    """提取最后一轮 response 的文本；没有时返回空字符串。"""
+    if not trajectories:
+        return ""
+    last = trajectories[-1]
+    if not isinstance(last, dict):
+        return ""
+    response = last.get("response", "")
+    if isinstance(response, str):
+        return response
+    return _extract_text(response)
+
+
+def export_training_data(task_id, trajectories, session_data=None) -> None:
     try:
-        judge_ok, judge_reason = _llm_judge(task_id, trajectories)
+        query = _extract_first_user_query(trajectories)
+        final_response = _extract_final_response(trajectories)
+        judge_session = (
+            session_data
+            if isinstance(session_data, dict)
+            else {"agent": {"_model_trajectory": trajectories}}
+        )
+        reward, judge_reason = _llm_judge(
+            query=query,
+            session_data=judge_session,
+            final_response=final_response,
+            task_id=task_id,
+            input_answer=None,
+        )
     except Exception as judge_exc:
-        # 判断出错时保守处理：视为成功，避免误丢弃
-        judge_ok, judge_reason = True, f"LLM判断异常(视为成功): {judge_exc}"
-    log.info("LLM judge result: %s, reason: %s", judge_ok, judge_reason)
+        # 判断出错时保守处理：视为失败
+        reward, judge_reason = 0.0, f"LLM判断异常(失败): {judge_exc}"
+    log.info("LLM judge result: %s, reason: %s", reward, judge_reason)
 
     dataset = []
     last_full_token_ids = last_full_length = None
@@ -158,7 +210,7 @@ def export_training_data(task_id, trajectories) -> None:
                 "prompt_token_ids": prompt_token_ids,
                 "token_ids": token_ids,
                 "response_mask": [1] * len(token_ids),
-                "judge_ok": judge_ok,
+                "reward": reward,
             }
             dataset.append(data)
 

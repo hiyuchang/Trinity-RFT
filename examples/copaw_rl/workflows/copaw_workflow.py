@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import torch
 
@@ -64,7 +64,7 @@ class CoPawWorkflow(MultiTurnWorkflow):
             logprobs = torch.tensor(data["logprobs"])
             prompt_length = len(prompt_token_ids)
             action_mask = torch.tensor(data["response_mask"], dtype=torch.int)
-            reward = float(data.get("judge_ok", 0.0))
+            reward = float(data.get("reward", 0.0))
             exp = Experience(
                 tokens=token_ids,
                 logprobs=logprobs,

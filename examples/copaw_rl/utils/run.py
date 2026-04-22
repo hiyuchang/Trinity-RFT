@@ -1004,7 +1004,7 @@ def main():
         trajectories = extract_trajectories(session_data)
 
         if not args.evaluation:
-            export_training_data(args.task_id, trajectories)
+            export_training_data(args.task_id, trajectories, session_data=session_data)
             return
 
         structured_trajectory = parse_structured_trajectory(session_data)
