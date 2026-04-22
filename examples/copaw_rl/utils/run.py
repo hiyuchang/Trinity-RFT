@@ -65,40 +65,6 @@ def read_file(path: str) -> str:
         return f.read().strip()
 
 
-def read_task_input_answer(task_yaml_path: str):
-    """读取 task.yaml 中 evaluation.inputs.answer。"""
-    if not os.path.exists(task_yaml_path):
-        return None
-    with open(task_yaml_path, "r", encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
-    if not isinstance(data, dict):
-        return None
-    evaluation = data.get("evaluation") or {}
-    if not isinstance(evaluation, dict):
-        return None
-    inputs = evaluation.get("inputs") or {}
-    if not isinstance(inputs, dict):
-        return None
-    return inputs.get("answer")
-
-
-def read_task_input_answer(task_yaml_path: str):
-    """读取 task.yaml 中 evaluation.inputs.answer。"""
-    if not os.path.exists(task_yaml_path):
-        return None
-    with open(task_yaml_path, "r", encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
-    if not isinstance(data, dict):
-        return None
-    evaluation = data.get("evaluation") or {}
-    if not isinstance(evaluation, dict):
-        return None
-    inputs = evaluation.get("inputs") or {}
-    if not isinstance(inputs, dict):
-        return None
-    return inputs.get("answer")
-
-
 # ---------------------------------------------------------------------------
 # 公共评测模块注入
 # ---------------------------------------------------------------------------
@@ -1034,8 +1000,6 @@ def main():
 
         final_text = extract_final_text(session_data)
         log.info(f"Agent 最终回复文本:\n{final_text}\n")
-        task_yaml_path = os.path.join(_SCRIPT_DIR, "task.yaml")
-        input_answer = read_task_input_answer(task_yaml_path)
 
         trajectories = extract_trajectories(session_data)
 

@@ -155,7 +155,6 @@ def _extract_final_response(trajectories: list):
 
 
 def export_training_data(task_id, trajectories, session_data=None) -> None:
-    # ── LLM 判断是否执行成功 ──────────────────────────────────────────
     try:
         query = _extract_first_user_query(trajectories)
         final_response = _extract_final_response(trajectories)
@@ -172,8 +171,8 @@ def export_training_data(task_id, trajectories, session_data=None) -> None:
             input_answer=None,
         )
     except Exception as judge_exc:
-        # 判断出错时保守处理：视为成功，避免误丢弃
-        reward, judge_reason = 0.0, f"LLM判断异常(视为成功): {judge_exc}"
+        # 判断出错时保守处理：视为失败
+        reward, judge_reason = 0.0, f"LLM判断异常(失败): {judge_exc}"
     log.info("LLM judge result: %s, reason: %s", reward, judge_reason)
 
     dataset = []
