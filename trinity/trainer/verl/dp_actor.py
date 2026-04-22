@@ -606,6 +606,10 @@ class DataParallelPPOActor(DPActor):
                     else:
                         loss.backward()
 
+                    micro_batch_metrics = {
+                        key: (value.detach().item() if isinstance(value, torch.Tensor) else value)
+                        for key, value in micro_batch_metrics.items()
+                    }
                     append_to_dict(metrics, micro_batch_metrics)
 
                 grad_norm = self._optimizer_step()
