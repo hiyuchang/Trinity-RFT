@@ -9,6 +9,9 @@ from typing import Any, Dict, Mapping, Optional, Union
 
 import yaml
 
+import logging
+logger = logging.getLogger(__name__)
+
 try:
     from copaw_eval import (
         evaluate_correctness,
@@ -97,61 +100,33 @@ PREFIX_DOMAIN: Dict[str, str] = {
     "sp": "systemprompt",
 }
 
-GRADER_PLAN_BY_PREFIX: Dict[str, list[GraderSpec]] = {
+GRADER_PLAN_BY_DOMAIN: Dict[str, list[GraderSpec]] = {
     "search": [
         GraderSpec("SearchHallucinationGrader", "search_hallucination"),
         GraderSpec("SearchRelevanceGrader", "search_relevance"),
         GraderSpec("TrajectoryGrader", "trajectory"),
     ],
-    "honey": [
+    "multimodal": [
         GraderSpec("CorrectnessGrader", "correctness"),
         GraderSpec("TrajectoryGrader", "trajectory", include_in_score=False),
     ],
-    "mat": [
-        GraderSpec("CorrectnessGrader", "correctness"),
-        GraderSpec("TrajectoryGrader", "trajectory", include_in_score=False),
-    ],
-    "mm-tool": [
+    "multimodal+search": [
         GraderSpec("CorrectnessGrader", "correctness"),
         GraderSpec("SearchHallucinationGrader", "search_hallucination"),
         GraderSpec("TrajectoryGrader", "trajectory", include_in_score=False),
     ],
-    "screen": [
+    "screenshot": [
         GraderSpec("ScreenshotCoherenceGrader", "screenshot_coherence"),
         GraderSpec("TrajectoryGrader", "trajectory"),
     ],
     "safety": [
         GraderSpec("SafetyTrajectoryGrader", "safety_trajectory"),
     ],
-    "fr": [
-        GraderSpec("FileCorrectnessGrader", "file_correctness"),
-        GraderSpec("TrajectoryGrader", "trajectory"),
-    ],
-    "docx": [
-        GraderSpec("FileCorrectnessGrader", "file_correctness"),
-        GraderSpec("TrajectoryGrader", "trajectory"),
-    ],
-    "gov": [
-        GraderSpec("FileCorrectnessGrader", "file_correctness"),
-        GraderSpec("TrajectoryGrader", "trajectory"),
-    ],
-    "pdf": [
-        GraderSpec("FileCorrectnessGrader", "file_correctness"),
-        GraderSpec("TrajectoryGrader", "trajectory"),
-    ],
-    "xlsx": [
+    "fileprocess": [
         GraderSpec("FileCorrectnessGrader", "file_correctness"),
         GraderSpec("TrajectoryGrader", "trajectory"),
     ],
     "qa": [
-        GraderSpec(
-            "FileCorrectnessGrader(HallucinationMode)",
-            "file_correctness",
-            force_hallucination_mode=True,
-        ),
-        GraderSpec("TrajectoryGrader", "trajectory"),
-    ],
-    "chinese_qa": [
         GraderSpec(
             "FileCorrectnessGrader(HallucinationMode)",
             "file_correctness",
@@ -179,7 +154,7 @@ GRADER_PLAN_BY_PREFIX: Dict[str, list[GraderSpec]] = {
         ),
         GraderSpec("TrajectoryGrader", "trajectory"),
     ],
-    "sp": [
+    "systemprompt": [
         GraderSpec("TrajectoryGrader", "trajectory"),
     ],
 }
@@ -287,9 +262,10 @@ def load_task_info(task_yaml_path: Union[str, Path]) -> tuple[TaskInfo, Dict[str
 
 
 def select_judge_grader(task_info: TaskInfo) -> list[GraderSpec]:
-    plan = GRADER_PLAN_BY_PREFIX.get(task_info.prefix)
+    plan = GRADER_PLAN_BY_DOMAIN.get(task_info.domain)
+    logger.info(f"{task_info.task_id} 属于 {task_info.domain} 域，使用 grader 配置: {plan}")
     if not plan:
-        raise KeyError(f"未找到 prefix '{task_info.prefix}' 的 grader 组合配置")
+        raise KeyError(f"未找到 domain '{task_info.domain}' 的 grader 组合配置")
     return plan
 
 
@@ -457,7 +433,7 @@ def llm_judge(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="根据 metadata.task_id 前缀选择 CoPaw 组合 grader（归一化到 0~1）"
+        description="根据 metadata.task_id 推导 domain 并选择 CoPaw 组合 grader（归一化到 0~1）"
     )
     parser.add_argument(
         "task_yaml",
