@@ -78,6 +78,8 @@ class BenchmarkClient:
         assert self.endpoint, "No OSS_ENDPOINT provided"
         assert self.bucket_name, "No OSS_BUCKET_NAME provided"
 
+        if oss_prefix and not oss_prefix.endswith("/"):
+            oss_prefix += "/"
         self.oss_prefix = oss_prefix
 
         auth = oss2.Auth(self.access_key_id, self.access_key_secret)

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import List, Optional
 
 import torch
 
@@ -35,7 +35,8 @@ class CoPawWorkflow(MultiTurnWorkflow):
         template = self.task.workflow_args["template"]
 
         sandbox, created = get_or_create_sandbox(sandbox_id, token, domain, template, self.logger)
-        self.logger.info(f"Sandbox {sandbox.sandbox_id} created: {created}")
+        sandbox_id = sandbox.sandbox_id
+        self.logger.info(f"Sandbox {sandbox_id} created: {created}")
 
         oss_config = self.task.workflow_args["oss"]
         dashscope_api_key = self.task.workflow_args["dashscope_api_key"]
@@ -53,9 +54,12 @@ class CoPawWorkflow(MultiTurnWorkflow):
                 self.logger,
             )
         except Exception as e:
-            self.logger.error(f"Error running workflow (ID: {sandbox.sandbox_id}): {e}")
-            sandbox.kill()
+            self.logger.error(f"Error running workflow (ID: {sandbox_id}): {e}")
             raise e
+        finally:
+            sandbox.kill()
+            pass
+
         exps = []
         for data in dataset:
             prompt_token_ids = torch.tensor(data["prompt_token_ids"])
@@ -65,19 +69,22 @@ class CoPawWorkflow(MultiTurnWorkflow):
             prompt_length = len(prompt_token_ids)
             action_mask = torch.tensor(data["response_mask"], dtype=torch.int)
             reward = float(data.get("reward", 0.0))
+            metrics = {
+                "reward": reward,
+            }
             exp = Experience(
                 tokens=token_ids,
                 logprobs=logprobs,
                 prompt_length=prompt_length,
                 action_mask=action_mask,
                 reward=reward,
+                metrics=metrics,
             )
             exps.append(exp)
 
-        sandbox.kill()
         self.logger.info(
             f"Workflow finished. Sandbox {'created' if created else 'connected'} "
-            f"(ID: {sandbox.sandbox_id}). Collected {len(exps)} experiences."
+            f"(ID: {sandbox_id}). Collected {len(exps)} experiences."
         )
 
         return exps

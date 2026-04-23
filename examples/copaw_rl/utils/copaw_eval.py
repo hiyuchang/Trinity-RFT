@@ -47,10 +47,10 @@ from datetime import date
 from enum import Enum
 from typing import Any, Callable, Coroutine
 
-from openjudge.graders.llm_grader import LLMGrader
 from openjudge.graders.common.correctness import CorrectnessGrader
 from openjudge.graders.common.hallucination import HallucinationGrader
 from openjudge.graders.common.relevance import RelevanceGrader
+from openjudge.graders.llm_grader import LLMGrader
 from openjudge.graders.schema import GraderError, GraderMode, GraderScore
 from openjudge.models.openai_chat_model import OpenAIChatModel
 from openjudge.models.schema.oai.message import ChatMessage
@@ -102,9 +102,11 @@ def get_vl_model() -> OpenAIChatModel:
 # Session helpers
 # ---------------------------------------------------------------------------
 
+
 def read_session(path: str | None = None) -> dict | None:
     """读取 session JSON 文件，带重试以应对文件未完全写入的情况。"""
     import time as _time
+
     path = path or os.environ.get("SESSION_FILE", "")
     if not path or not os.path.isfile(path):
         return None
@@ -248,16 +250,16 @@ def build_trajectory_messages(session: dict) -> list[dict] | None:
                 if item.get("type") == "text":
                     text_parts.append(item.get("text", ""))
                 elif item.get("type") == "tool_use":
-                    tool_calls.append({
-                        "type": "function",
-                        "id": item.get("id", ""),
-                        "function": {
-                            "name": item.get("name", ""),
-                            "arguments": json.dumps(
-                                item.get("input", {}), ensure_ascii=False
-                            ),
-                        },
-                    })
+                    tool_calls.append(
+                        {
+                            "type": "function",
+                            "id": item.get("id", ""),
+                            "function": {
+                                "name": item.get("name", ""),
+                                "arguments": json.dumps(item.get("input", {}), ensure_ascii=False),
+                            },
+                        }
+                    )
                 elif item.get("type") == "thinking":
                     txt = item.get("thinking") or item.get("text") or ""
                     if txt:
@@ -416,7 +418,12 @@ async def _trial_llm_grader(
             results.append(result)
         else:
             last_error = result
-            logger.warning("Trial %d/%d returned GraderError: %s", i + 1, trials, getattr(result, "error", result))
+            logger.warning(
+                "Trial %d/%d returned GraderError: %s",
+                i + 1,
+                trials,
+                getattr(result, "error", result),
+            )
 
     if not results:
         return last_error  # type: ignore[return-value]
@@ -429,7 +436,9 @@ async def _trial_llm_grader(
         selected = min(results, key=lambda r: abs(r.score - median_score))
         logger.info(
             "LLM grader trials: scores=%s, median=%.2f, selected=%.2f",
-            scores, median_score, selected.score,
+            scores,
+            median_score,
+            selected.score,
         )
 
     trial_scores = [r.score for r in results]
@@ -444,7 +453,9 @@ async def _trial_llm_grader(
                 "High variance in LLM grader '%s': trial_scores=%s, range=%.2f >= %.2f. "
                 "评分极不稳定，建议人工复核此样本。",
                 getattr(selected, "name", "?"),
-                trial_scores, score_range, _HIGH_VARIANCE_RANGE_THRESHOLD,
+                trial_scores,
+                score_range,
+                _HIGH_VARIANCE_RANGE_THRESHOLD,
             )
 
     metadata = selected.metadata if isinstance(selected.metadata, dict) else {}
@@ -459,7 +470,10 @@ async def _trial_llm_grader(
 # Grader execution engine — 所有 _evaluate_X_once 共用的 retry + language 工具
 # ---------------------------------------------------------------------------
 
-def _coerce_language(language: LanguageEnum | str, default: LanguageEnum = LanguageEnum.ZH) -> LanguageEnum:
+
+def _coerce_language(
+    language: LanguageEnum | str, default: LanguageEnum = LanguageEnum.ZH
+) -> LanguageEnum:
     """将 str 类型的 language 转为 LanguageEnum，无效值回退到 default。"""
     if isinstance(language, LanguageEnum):
         return language
@@ -485,17 +499,21 @@ async def _run_grader_once(
             if attempt > 0:
                 logger.info(
                     "%s grading succeeded on attempt %d/%d",
-                    label, attempt + 1, max_retries + 1,
+                    label,
+                    attempt + 1,
+                    max_retries + 1,
                 )
             return result
         last_result = result
         if attempt < max_retries:
             logger.warning(
                 "%s grading attempt %d/%d returned GraderError: %s, retrying...",
-                label, attempt + 1, max_retries + 1,
+                label,
+                attempt + 1,
+                max_retries + 1,
                 getattr(result, "error", result),
             )
-            await asyncio.sleep(5 * (3 ** attempt))
+            await asyncio.sleep(5 * (3**attempt))
 
     return last_result  # type: ignore[return-value]
 
@@ -504,12 +522,14 @@ async def _run_grader_once(
 # Context type — 统一正确性/幻觉评估的 context 来源
 # ---------------------------------------------------------------------------
 
+
 class ContextType(str, Enum):
     """评估上下文来源类型。
 
     每种类型对应一个 context 提取函数，evaluate_correctness / evaluate_hallucination
     等公共 API 通过此枚举选择上下文，而非为每种 context 各写一套函数。
     """
+
     ALL = "all"
     COMMAND = "command"
     FILE = "file"
@@ -534,6 +554,7 @@ def _get_context(session: dict, context_type: ContextType | str) -> str:
 # ---------------------------------------------------------------------------
 # Unified correctness core (replaces 4 separate _evaluate_X_correctness_once)
 # ---------------------------------------------------------------------------
+
 
 async def _evaluate_correctness_core_once(
     session: dict,
@@ -593,6 +614,7 @@ async def _evaluate_correctness_core(
 # Unified hallucination core (replaces file-hallucination + search-hallucination)
 # ---------------------------------------------------------------------------
 
+
 async def _evaluate_hallucination_core_once(
     session: dict,
     query: str,
@@ -622,17 +644,23 @@ async def _evaluate_hallucination_core_once(
     context = "\n\n".join(parts)
 
     grader = HallucinationGrader(
-        model=get_llm_model(), threshold=threshold,
-        template=_COPAW_HALLUCINATION_TEMPLATE, language=language,
+        model=get_llm_model(),
+        threshold=threshold,
+        template=_COPAW_HALLUCINATION_TEMPLATE,
+        language=language,
     )
     eval_kwargs: dict[str, Any] = dict(
-        response=extract_final_response(session), query=query, context=context,
+        response=extract_final_response(session),
+        query=query,
+        context=context,
     )
     if reference_response.strip():
         eval_kwargs["reference_response"] = reference_response
 
     return await _run_grader_once(
-        grader, eval_kwargs, max_retries=max_retries,
+        grader,
+        eval_kwargs,
+        max_retries=max_retries,
         label=f"Hallucination[{ContextType(context_type).value}]",
     )
 
@@ -780,12 +808,17 @@ async def _evaluate_trajectory_once(
         return GraderError(name="trajectory_quality", error="无法从 session 提取 trajectory 数据")
 
     grader = LLMGrader(
-        name="trajectory_quality", mode=GraderMode.POINTWISE,
-        model=get_llm_model(), template=TRAJ_GRADER_TEMPLATE, language=LanguageEnum.ZH,
+        name="trajectory_quality",
+        mode=GraderMode.POINTWISE,
+        model=get_llm_model(),
+        template=TRAJ_GRADER_TEMPLATE,
+        language=LanguageEnum.ZH,
     )
     return await _run_grader_once(
-        grader, dict(messages=_format_trajectory_messages(messages)),
-        max_retries=max_retries, label="Trajectory",
+        grader,
+        dict(messages=_format_trajectory_messages(messages)),
+        max_retries=max_retries,
+        label="Trajectory",
     )
 
 
@@ -893,6 +926,7 @@ SAFETY_TRAJ_QUALITY_PROMPT_ZH = """
 JSON:
 """.strip()
 
+
 def _build_safety_traj_template(expected_behavior: str = "") -> PromptTemplate:
     if expected_behavior:
         block = (
@@ -912,6 +946,7 @@ def _build_safety_traj_template(expected_behavior: str = "") -> PromptTemplate:
         }
     )
 
+
 SAFETY_TRAJ_GRADER_TEMPLATE = _build_safety_traj_template()
 
 
@@ -927,14 +962,23 @@ async def _evaluate_safety_trajectory_once(
     if not messages:
         return GraderError(name="safety_trajectory_quality", error="无法从 session 提取 trajectory 数据")
 
-    template = _build_safety_traj_template(expected_behavior) if expected_behavior else SAFETY_TRAJ_GRADER_TEMPLATE
+    template = (
+        _build_safety_traj_template(expected_behavior)
+        if expected_behavior
+        else SAFETY_TRAJ_GRADER_TEMPLATE
+    )
     grader = LLMGrader(
-        name="safety_trajectory_quality", mode=GraderMode.POINTWISE,
-        model=get_llm_model(), template=template, language=LanguageEnum.ZH,
+        name="safety_trajectory_quality",
+        mode=GraderMode.POINTWISE,
+        model=get_llm_model(),
+        template=template,
+        language=LanguageEnum.ZH,
     )
     return await _run_grader_once(
-        grader, dict(messages=_format_trajectory_messages(messages)),
-        max_retries=max_retries, label="Safety trajectory",
+        grader,
+        dict(messages=_format_trajectory_messages(messages)),
+        max_retries=max_retries,
+        label="Safety trajectory",
     )
 
 
@@ -970,6 +1014,7 @@ async def evaluate_safety_trajectory(
 # Correctness evaluation (delegates to _evaluate_correctness_core)
 # ---------------------------------------------------------------------------
 
+
 async def evaluate_correctness(
     session: dict,
     query: str,
@@ -985,16 +1030,21 @@ async def evaluate_correctness(
     context = 全部工具输出。
     """
     return await _evaluate_correctness_core(
-        session, query, reference_response,
+        session,
+        query,
+        reference_response,
         context_type=ContextType.ALL,
-        max_retries=max_retries, threshold=threshold,
-        language=language, trials=trials,
+        max_retries=max_retries,
+        threshold=threshold,
+        language=language,
+        trials=trials,
     )
 
 
 # ---------------------------------------------------------------------------
 # Shell/Command-oriented correctness evaluation
 # ---------------------------------------------------------------------------
+
 
 def extract_shell_command_summary(session: dict) -> str:
     """从 session._model_trajectory 中提取 execute_shell_command 调用及其输出。
@@ -1057,16 +1107,21 @@ async def evaluate_command_correctness(
     context = 仅 shell 命令输出。
     """
     return await _evaluate_correctness_core(
-        session, query, reference_response,
+        session,
+        query,
+        reference_response,
         context_type=ContextType.COMMAND,
-        max_retries=max_retries, threshold=threshold,
-        language=language, trials=trials,
+        max_retries=max_retries,
+        threshold=threshold,
+        language=language,
+        trials=trials,
     )
 
 
 # ---------------------------------------------------------------------------
 # Generic tool-result extraction (shared by file / search evaluations)
 # ---------------------------------------------------------------------------
+
 
 def _extract_tool_call_results(
     session: dict,
@@ -1090,12 +1145,14 @@ def _extract_tool_call_results(
             name = item.get("name", "")
             if tool_names and name not in tool_names:
                 continue
-            calls.append({
-                "id": item.get("id", ""),
-                "name": name,
-                "input": json.dumps(item.get("input", {}), ensure_ascii=False)[:5000],
-                "output": "",
-            })
+            calls.append(
+                {
+                    "id": item.get("id", ""),
+                    "name": name,
+                    "input": json.dumps(item.get("input", {}), ensure_ascii=False)[:5000],
+                    "output": "",
+                }
+            )
 
     for entry in traj:
         for msg in entry.get("messages", []):
@@ -1118,8 +1175,20 @@ def _extract_tool_call_results(
 _FILE_READ_TOOLS = {"read_file", "execute_shell_command"}
 
 _FILE_CMD_KEYWORDS = (
-    "cat ", "head ", "tail ", "less ", "pdftotext", "python3", "python ",
-    "pypdf", "pdfplumber", "docx", "xlsx", "csv", "awk ", "grep ",
+    "cat ",
+    "head ",
+    "tail ",
+    "less ",
+    "pdftotext",
+    "python3",
+    "python ",
+    "pypdf",
+    "pdfplumber",
+    "docx",
+    "xlsx",
+    "csv",
+    "awk ",
+    "grep ",
 )
 
 
@@ -1297,6 +1366,7 @@ def extract_agent_capability_context(session: dict, max_chars: int = 3000) -> st
 
     skill_lines: list[str] = []
     import re as _re
+
     _skill_pattern = _re.compile(
         r"## ([\w_-]+)\n((?:(?!\n## ).)*?)Check\s+\"[^\"]*?/skills/[^\"]*?/SKILL\.md\"",
         _re.DOTALL,
@@ -1316,7 +1386,8 @@ def extract_agent_capability_context(session: dict, max_chars: int = 3000) -> st
             content = msgs[0].get("content", "")
             if isinstance(content, list):
                 content = " ".join(
-                    b.get("text", "") for b in content
+                    b.get("text", "")
+                    for b in content
                     if isinstance(b, dict) and b.get("type") == "text"
                 )
             if isinstance(content, str):
@@ -1360,16 +1431,24 @@ async def evaluate_file_correctness(
     """
     if reference_response.strip():
         return await _evaluate_correctness_core(
-            session, query, reference_response,
+            session,
+            query,
+            reference_response,
             context_type=ContextType.ALL,
-            max_retries=max_retries, threshold=threshold,
-            language=language, trials=trials,
+            max_retries=max_retries,
+            threshold=threshold,
+            language=language,
+            trials=trials,
         )
     return await _evaluate_hallucination_core(
-        session, query, reference_response,
+        session,
+        query,
+        reference_response,
         context_type=ContextType.ALL,
-        max_retries=max_retries, threshold=threshold,
-        language=language, trials=trials,
+        max_retries=max_retries,
+        threshold=threshold,
+        language=language,
+        trials=trials,
     )
 
 
@@ -1380,16 +1459,23 @@ async def evaluate_file_correctness(
 _SEARCH_TOOLS = {"tavily_search", "tavily_research", "browser_use"}
 
 _BROWSER_SKIP_ACTIONS = {
-    "open", "click", "wait_for", "stop", "navigate",
-    "handle_dialog", "start", "type", "fill", "scroll",
+    "open",
+    "click",
+    "wait_for",
+    "stop",
+    "navigate",
+    "handle_dialog",
+    "start",
+    "type",
+    "fill",
+    "scroll",
 }
 
 _SNAPSHOT_STRIP_RES: list[re.Pattern] = [
     re.compile(r"^\s*- /url:.*$", re.MULTILINE),
     re.compile(r"^\s*- img\b.*$", re.MULTILINE),
     re.compile(
-        r"^\s*- (?:document|iframe|banner|complementary|navigation"
-        r"|button|searchbox)\b[^\"]*$",
+        r"^\s*- (?:document|iframe|banner|complementary|navigation" r"|button|searchbox)\b[^\"]*$",
         re.MULTILINE,
     ),
     re.compile(r"^\s*- (?:list|listitem):?\s*$", re.MULTILINE),
@@ -1507,13 +1593,18 @@ async def evaluate_search_correctness(
     """
     warnings.warn(
         "evaluate_search_correctness 已无活跃调用方，建议直接使用 evaluate_correctness",
-        DeprecationWarning, stacklevel=2,
+        DeprecationWarning,
+        stacklevel=2,
     )
     return await _evaluate_correctness_core(
-        session, query, reference_response,
+        session,
+        query,
+        reference_response,
         context_type=ContextType.SEARCH,
-        max_retries=max_retries, threshold=threshold,
-        language=language, trials=trials,
+        max_retries=max_retries,
+        threshold=threshold,
+        language=language,
+        trials=trials,
     )
 
 
@@ -1556,7 +1647,13 @@ def _content_part_is_image_block(part: Any) -> bool:
     if src and src.get("type") in ("base64", "url", "file"):
         return True
     # 顶层 image 字段（非纯文本块）
-    if part.get("image") is not None and t not in ("text", "thinking", "tool_use", "tool_result", None):
+    if part.get("image") is not None and t not in (
+        "text",
+        "thinking",
+        "tool_use",
+        "tool_result",
+        None,
+    ):
         return True
     return False
 
@@ -1614,7 +1711,9 @@ def session_has_multimodal_image_signal(session: dict) -> bool:
 
     用于判断是否按多模态检索任务注入幻觉评测的 grounding 文案（不依赖像素输入 grader）。
     """
-    return _session_user_message_has_attached_image(session) or _session_used_view_image_tool(session)
+    return _session_user_message_has_attached_image(session) or _session_used_view_image_tool(
+        session
+    )
 
 
 def build_multimodal_search_hallucination_extra_context(
@@ -1635,9 +1734,7 @@ def build_multimodal_search_hallucination_extra_context(
         if len(thinking) > max_thinking_chars:
             thinking = thinking[:max_thinking_chars] + "\n[... thinking 已截断 ...]"
         return (
-            _MM_SEARCH_HALLUCINATION_GROUNDING_ZH
-            + "\n\n[Agent 视觉相关 thinking / 内部推理]\n"
-            + thinking
+            _MM_SEARCH_HALLUCINATION_GROUNDING_ZH + "\n\n[Agent 视觉相关 thinking / 内部推理]\n" + thinking
         )
     return _MM_SEARCH_HALLUCINATION_GROUNDING_FALLBACK_ZH
 
@@ -1662,17 +1759,22 @@ async def evaluate_search_hallucination(
     """
     extra = build_multimodal_search_hallucination_extra_context(session)
     return await _evaluate_hallucination_core(
-        session, query, reference_response,
+        session,
+        query,
+        reference_response,
         context_type=ContextType.SEARCH,
         context_extra=extra,
-        max_retries=max_retries, threshold=threshold,
-        language=language, trials=trials,
+        max_retries=max_retries,
+        threshold=threshold,
+        language=language,
+        trials=trials,
     )
 
 
 # ---------------------------------------------------------------------------
 # Search/News-oriented relevance evaluation (RelevanceGrader — 独立，无可合并对象)
 # ---------------------------------------------------------------------------
+
 
 async def _evaluate_search_relevance_once(
     session: dict,
@@ -1687,12 +1789,15 @@ async def _evaluate_search_relevance_once(
     language = _coerce_language(language)
     grader = RelevanceGrader(model=get_llm_model(), threshold=threshold, language=language)
     eval_kwargs: dict[str, Any] = dict(
-        response=extract_final_response(session), query=query,
+        response=extract_final_response(session),
+        query=query,
         context=_get_context(session, ContextType.SEARCH),
     )
     if reference_response.strip():
         eval_kwargs["reference_response"] = reference_response
-    return await _run_grader_once(grader, eval_kwargs, max_retries=max_retries, label="Search relevance")
+    return await _run_grader_once(
+        grader, eval_kwargs, max_retries=max_retries, label="Search relevance"
+    )
 
 
 async def evaluate_search_relevance(
@@ -1726,7 +1831,8 @@ async def evaluate_search_relevance(
 # Screenshot coherence evaluation (multimodal: query + response + image)
 # ---------------------------------------------------------------------------
 
-def extract_screenshot_paths(session: dict) -> list[str]:
+
+def extract_screenshot_paths(session: dict) -> list[str]:  # noqa: C901
     """从 session 中提取 desktop_screenshot 工具产生的截图路径。"""
     paths: list[str] = []
     for turn in session.get("agent", {}).get("memory", {}).get("content", []):
@@ -1745,6 +1851,7 @@ def extract_screenshot_paths(session: dict) -> list[str]:
                             if isinstance(item, dict) and item.get("type") == "text":
                                 text = item.get("text", "")
                                 import re as _re
+
                                 m = _re.search(r'"path"\s*:\s*"([^"]+)"', text)
                                 if m:
                                     paths.append(m.group(1))
@@ -1775,10 +1882,13 @@ def extract_screenshot_paths(session: dict) -> list[str]:
 def _image_to_base64(path: str) -> tuple[str, str] | None:
     """读取本地图片文件为 base64，返回 (b64_str, format)。"""
     import base64 as _b64
+
     if not os.path.isfile(path):
         return None
     ext = os.path.splitext(path)[1].lower().lstrip(".")
-    fmt = {"jpg": "jpeg", "jpeg": "jpeg", "png": "png", "gif": "gif", "webp": "webp"}.get(ext, "png")
+    fmt = {"jpg": "jpeg", "jpeg": "jpeg", "png": "png", "gif": "gif", "webp": "webp"}.get(
+        ext, "png"
+    )
     with open(path, "rb") as f:
         data = _b64.standard_b64encode(f.read()).decode("ascii")
     return data, fmt
@@ -1816,8 +1926,7 @@ async def _evaluate_screenshot_coherence_once(
         f"不要被 Agent 的自述所误导——即使 Agent 声称完成了任务，"
         f"如果截图内容与用户原始请求不符，也应给低分。",
         image,
-        f"（注意：以下是 Agent 的自述，仅供参考，请以截图实际内容为准）\n"
-        f"Agent 回复: {final_response}",
+        f"（注意：以下是 Agent 的自述，仅供参考，请以截图实际内容为准）\n" f"Agent 回复: {final_response}",
     ]
 
     grader = ImageCoherenceGrader(
@@ -1834,7 +1943,7 @@ async def _evaluate_screenshot_coherence_once(
         except Exception as e:
             logger.warning("screenshot_coherence attempt %d error: %s", attempt, e)
             last_result = GraderError(name="screenshot_coherence", error=str(e))
-            await asyncio.sleep(2 * (2 ** attempt))
+            await asyncio.sleep(2 * (2**attempt))
 
     return last_result  # type: ignore[return-value]
 
@@ -1867,6 +1976,7 @@ async def evaluate_screenshot_coherence(
 # ---------------------------------------------------------------------------
 # Assertion helpers (for use in test_outputs.py)
 # ---------------------------------------------------------------------------
+
 
 def log_grader_score_line(
     result: GraderScore | GraderError | Any,
@@ -1925,15 +2035,11 @@ def assert_grader_score(
 
     if isinstance(result, GraderError):
         log_grader_score_line(result, label=label)
-        raise AssertionError(
-            f"{label}失败 (GraderError): {result.error}"
-        )
+        raise AssertionError(f"{label}失败 (GraderError): {result.error}")
 
     log_grader_score_line(result, label=label)
 
-    assert result.score >= min_score, (
-        f"{label}未通过: score={result.score}, reason={result.reason}"
-    )
+    assert result.score >= min_score, f"{label}未通过: score={result.score}, reason={result.reason}"
 
 
 def assert_check(

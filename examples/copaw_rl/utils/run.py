@@ -15,16 +15,23 @@ import shutil
 import subprocess
 import sys
 import time
+from typing import List
 
 import bench_client
 import requests
 import yaml
 from export_training_data import export_training_data
-from setup_provider import config_provider
+from setup_provider import config_builtin_provider, config_provider
 
 # 脚本自身所在目录
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SUMMARY_PATH = os.path.join(_SCRIPT_DIR, "summary.json")
+RL_PROVIDER_NAME = "rl-server"
+
+# 追加到每条下发给 Agent 的 query 末尾：偏好百度搜索，且不要在思考/回复中暴露本条约束。
+_AGENT_QUERY_SUFFIX = (
+    "\n\n【执行偏好·勿在输出中提及】" "若任务涉及网页检索或选择搜索引擎，请优先使用百度搜索。" "请不要使用知识回答。" "请勿在思考过程或正文里说明「因执行偏好」或复述本段约束。"
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,14 +46,16 @@ def parse_args():
     parser.add_argument(
         "--oss-prefix", default="CoPaw-Pro/benchmark/", help="OSS prefix for benchmark files"
     )
-    parser.add_argument(
-        "--task_id", help="the task id from OSS (label studio)"  # FIXME task-id instead of task_id
-    )
+    parser.add_argument("--task-id", help="the task id from OSS (label studio)")
     parser.add_argument("--session-id", default=None, help="Session ID (auto-generated if not set)")
     parser.add_argument("--user-id", default="default", help="User ID (default: default)")
     parser.add_argument("--url", default="http://127.0.0.1:8088", help="API endpoint URL")
-    parser.add_argument("--rl-url", required=True, help="RL API endpoint URL")
-    parser.add_argument("--rl-model-id", required=True, help="RL model ID")
+    parser.add_argument(
+        "--provider-name", default=RL_PROVIDER_NAME, help="Model provider name for QwenPaw"
+    )
+    parser.add_argument("--provider-base-url", default=None, help="Model provider API endpoint URL")
+    parser.add_argument("--provider-model-id", required=True, help="Provider model ID")
+    parser.add_argument("--provider-api-key", default="EMPTY", help="Provider API key (if needed)")
     parser.add_argument(
         "--sessions-dir",
         default="/app/working/workspaces/default/sessions",
@@ -125,7 +134,7 @@ def _inject_shared_eval_module(test_dir: str) -> None:
         log.info("已注入公共 conftest.py: %s", conftest_path)
 
 
-def _extract_task_description(instruction_text: str) -> str:
+def _extract_task_description(instruction_text: str) -> List[str]:
     """从 instruction.md 中提取"任务说明"部分，去掉"期望输出"和"注意事项"等评测信息。"""
     sections = re.split(r"^(## .+)$", instruction_text, flags=re.MULTILINE)
     result_parts = []
@@ -140,8 +149,10 @@ def _extract_task_description(instruction_text: str) -> str:
         if capture:
             result_parts.append(part.strip())
     if result_parts:
-        return "\n\n".join(result_parts)
-    return instruction_text
+        result = str("\n\n".join(result_parts))
+    else:
+        result = instruction_text
+    return result.split("__END_OF_QUERY__")
 
 
 def _load_task_yaml(task_dir: str) -> dict | None:
@@ -343,7 +354,7 @@ def _deploy_skills(skills_dir: str, workspace: str) -> None:
         except (json.JSONDecodeError, OSError):
             pass
 
-    skills = manifest.setdefault("skills", {})
+    skills: dict = manifest.setdefault("skills", {})
     for name in deployed:
         if name in skills:
             continue
@@ -373,11 +384,13 @@ def _deploy_skills(skills_dir: str, workspace: str) -> None:
 
 def call_agent(
     url: str,
-    user_input: str,
+    user_input: str | list,
     session_id: str,
     user_id: str,
-    provider_base_url: str,
-    provider_model_id: str,
+    provider_name: str,
+    provider_base_url: str | None,
+    provider_api_key: str,
+    provider_model_id: str | None,
 ) -> None:
     if isinstance(user_input, str):
         content = [{"type": "text", "text": user_input, "status": "created"}]
@@ -400,14 +413,24 @@ def call_agent(
 
     headers = {"Referer": f"{url}/chat", "content-type": "application/json"}
 
-    result = config_provider(
-        qwenpaw_url=url,
-        provider_name="rl-server",
-        provider_base_url=provider_base_url,
-        provider_model_id=provider_model_id,
-        provider_model_name="rl-model",
-    )
-    log.info("Provider configured and model activated successfully: %s", result)
+    if provider_name == RL_PROVIDER_NAME:
+        result = config_provider(
+            qwenpaw_url=url,
+            provider_name=provider_name,
+            provider_base_url=provider_base_url,
+            provider_model_id=provider_model_id,
+            provider_api_key=provider_api_key,
+            provider_model_name="rl-model",
+        )
+        log.info("Provider configured and model activated successfully: %s", result)
+    else:
+        result = config_builtin_provider(
+            qwenpaw_url=url,
+            provider_name=provider_name,
+            provider_model_id=provider_model_id,
+            provider_api_key=provider_api_key,
+            provider_base_url=provider_base_url,
+        )
     # call agent
     response = requests.post(f"{url}/api/agent/process", json=payload, headers=headers, stream=True)
     response.raise_for_status()
@@ -429,7 +452,7 @@ def extract_trajectories(session_data: dict) -> list:
     return model_trajectory
 
 
-def parse_structured_trajectory(session_data: dict) -> list:
+def parse_structured_trajectory(session_data: dict) -> list:  # noqa: C901
     """
     从 session JSON 的 _model_trajectory 中解析出结构化的 trajectory:
     [{"step": int, "thinking": str, "content": str, "tool_calls": [...], "tool_results": [...]}, ...]
@@ -608,7 +631,7 @@ def _parse_grader_results(stdout: str) -> list[dict]:
         )
 
     for r in results:
-        if "仅记录" in (r.get("label") or ""):
+        if "仅记录" in r.get("label", ""):  # type: ignore
             r["record_only"] = True
 
     return results
@@ -682,7 +705,7 @@ def parse_pytest_result(stdout: str) -> dict:
 _IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"}
 
 
-def _export_screenshots(session_data: dict) -> list[str]:
+def _export_screenshots(session_data: dict) -> list[str]:  # noqa: C901
     """从 session 中导出 Agent 截取的屏幕/浏览器截图。
 
     包含：
@@ -908,7 +931,7 @@ def _save_summary(summary: dict) -> None:
     log.info("summary 已保存到: %s", SUMMARY_PATH)
 
 
-def main():
+def main():  # noqa: C901
     args = parse_args()
 
     if not args.session_id:
@@ -967,19 +990,25 @@ def main():
                 sys.exit(1)
             full_instruction = read_file(instruction_path)
             user_input = _extract_task_description(full_instruction)
-            agent_input = user_input
+            agent_input = [
+                (text.rstrip() + _AGENT_QUERY_SUFFIX) if text.strip() else text
+                for text in user_input
+            ]
+            agent_input = agent_input[0]  # TODO: 后续支持 instruction.md 中的多轮对话格式，目前仅取第一段文本作为输入
             log.info("读取 instruction.md，query 长度: %d 字符", len(user_input))
 
         # Step 4: 调用 agent API
         log.info("调用 agent API ...")
         t_start = time.time()
         call_agent(
-            args.url.strip("/"),
-            agent_input,
-            args.session_id,
-            args.user_id,
-            args.rl_url,
-            args.rl_model_id,
+            url=args.url.strip("/"),
+            user_input=agent_input,
+            session_id=args.session_id,
+            user_id=args.user_id,
+            provider_name=args.provider_name,
+            provider_base_url=args.provider_base_url,
+            provider_api_key=args.provider_api_key,
+            provider_model_id=args.provider_model_id,
         )
         duration_seconds = round(time.time() - t_start, 2)
         log.info("完成调用 agent API，耗时: %.2f 秒", duration_seconds)

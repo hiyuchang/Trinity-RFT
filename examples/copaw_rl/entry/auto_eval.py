@@ -72,10 +72,9 @@ import signal
 import subprocess
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 from datetime import datetime
-import subprocess
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 HEALTH_TIMEOUT = 1200  # 最多等 10 分钟让 vLLM 启动
@@ -85,7 +84,7 @@ DEFAULT_PORT = 29000
 HOST_IP = subprocess.getoutput("hostname -I").strip().split()[0]
 
 
-VLLM_DIR = os.path.join(sys.exec_prefix, 'bin', 'vllm')
+VLLM_DIR = os.path.join(sys.exec_prefix, "bin", "vllm")
 
 # 按天归档的日志/结果根目录
 LOG_BASE = os.path.join(SCRIPT_DIR, "logs")
@@ -133,8 +132,7 @@ def find_free_gpus() -> list[int]:
     """通过 nvidia-smi 找出显存占用 < 1GiB 的空闲 GPU。"""
     try:
         out = subprocess.check_output(
-            ["nvidia-smi", "--query-gpu=index,memory.used",
-             "--format=csv,noheader,nounits"],
+            ["nvidia-smi", "--query-gpu=index,memory.used", "--format=csv,noheader,nounits"],
             text=True,
         )
     except Exception:
@@ -163,8 +161,9 @@ def wait_for_health(port: int, timeout: int = HEALTH_TIMEOUT) -> bool:
     return False
 
 
-def launch_vllm(model_cfg: dict, gpus: list[int], port: int,
-                date_str: str | None = None) -> subprocess.Popen:
+def launch_vllm(
+    model_cfg: dict, gpus: list[int], port: int, date_str: str | None = None
+) -> subprocess.Popen:
     """启动 vLLM serve 进程，返回 Popen 对象。"""
     model_path = model_cfg["model_path"]
     tp = model_cfg.get("tp", 1)
@@ -175,30 +174,36 @@ def launch_vllm(model_cfg: dict, gpus: list[int], port: int,
 
     needed = tp * dp
     if len(gpus) < needed:
-        raise RuntimeError(
-            f"需要 {needed} 张 GPU (TP={tp} × DP={dp})，但只有 {len(gpus)} 张可用: {gpus}"
-        )
+        raise RuntimeError(f"需要 {needed} 张 GPU (TP={tp} × DP={dp})，但只有 {len(gpus)} 张可用: {gpus}")
     use_gpus = gpus[:needed]
 
     max_model_len = model_cfg.get("max_model_len", 98304)
 
     cmd = [
-        VLLM_DIR, "serve", model_path,
-        "--dtype", dtype,
+        VLLM_DIR,
+        "serve",
+        model_path,
+        "--dtype",
+        dtype,
         "--enable-auto-tool-choice",
-        "--tool-call-parser", parser,
-        "--tensor-parallel-size", str(tp),
-        "--data-parallel-size", str(dp),
-        "--port", str(port),
-        "--max-model-len", str(max_model_len),
+        "--tool-call-parser",
+        parser,
+        "--tensor-parallel-size",
+        str(tp),
+        "--data-parallel-size",
+        str(dp),
+        "--port",
+        str(port),
+        "--max-model-len",
+        str(max_model_len),
         "--enable-prefix-caching",
     ] + extra_args
 
     env = os.environ.copy()
     env["CUDA_VISIBLE_DEVICES"] = ",".join(str(g) for g in use_gpus)
 
-    log.info("  CUDA_VISIBLE_DEVICES=%s", env['CUDA_VISIBLE_DEVICES'])
-    log.info("  %s", ' '.join(cmd))
+    log.info("  CUDA_VISIBLE_DEVICES=%s", env["CUDA_VISIBLE_DEVICES"])
+    log.info("  %s", " ".join(cmd))
 
     if not date_str:
         date_str = _get_date_str()
@@ -209,7 +214,10 @@ def launch_vllm(model_cfg: dict, gpus: list[int], port: int,
     fout = open(log_file, "w")
 
     proc = subprocess.Popen(
-        cmd, env=env, stdout=fout, stderr=subprocess.STDOUT,
+        cmd,
+        env=env,
+        stdout=fout,
+        stderr=subprocess.STDOUT,
         preexec_fn=os.setsid,
     )
     log.info("  PID: %d, 日志: %s", proc.pid, log_file)
@@ -232,15 +240,18 @@ def kill_vllm(proc: subprocess.Popen):
     log.info("  vLLM 已停止")
 
 
-def run_batch(model_cfg: dict, port: int, batch_args: list[str],
-              date_str: str | None = None) -> int:
+def run_batch(
+    model_cfg: dict, port: int, batch_args: list[str], date_str: str | None = None
+) -> int:
     """调用 batch_run.py 跑评测，返回 exit code。"""
     key = model_cfg["key"]
     model_id = model_cfg.get("model_id", model_cfg["model_path"])
 
     cmd = [
-        sys.executable, os.path.join(SCRIPT_DIR, "batch_run.py"),
-        "--models", key,
+        sys.executable,
+        os.path.join(SCRIPT_DIR, "batch_run.py"),
+        "--models",
+        key,
     ] + batch_args
 
     env = os.environ.copy()
@@ -253,15 +264,14 @@ def run_batch(model_cfg: dict, port: int, batch_args: list[str],
     if date_str:
         env["RESULT_DATE_PREFIX"] = date_str
 
-    log.info("  命令: %s", ' '.join(cmd))
-    log.info("  AUTO_EVAL_BASE_URL=%s", env['AUTO_EVAL_BASE_URL'])
+    log.info("  命令: %s", " ".join(cmd))
+    log.info("  AUTO_EVAL_BASE_URL=%s", env["AUTO_EVAL_BASE_URL"])
     log.info("  AUTO_EVAL_MODEL_ID=%s", model_id)
     result = subprocess.run(cmd, env=env)
     return result.returncode
 
 
-def print_trial_summary(base_key: str, trial_summaries: list[dict],
-                        date_str: str | None = None):
+def print_trial_summary(base_key: str, trial_summaries: list[dict], date_str: str | None = None):
     """打印同一模型多次 trial 运行后的平均分汇总，并保存到 JSON。"""
     n_trials = len(trial_summaries)
     task_trials: dict[str, list[dict]] = {}
@@ -313,34 +323,20 @@ def print_trial_summary(base_key: str, trial_summaries: list[dict],
     log.info("  Trial 平均分已保存到: %s", avg_path)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="自动化 vLLM 部署 + benchmark 评测流水线"
+def main():  # noqa: C901
+    parser = argparse.ArgumentParser(description="自动化 vLLM 部署 + benchmark 评测流水线")
+    parser.add_argument("--config", required=True, help="模型配置 JSON 文件路径")
+    parser.add_argument(
+        "--gpus", type=str, default=None, help="指定使用的 GPU 编号，逗号分隔（如 2,3,4,5）。不指定则自动检测空闲 GPU"
     )
     parser.add_argument(
-        "--config", required=True,
-        help="模型配置 JSON 文件路径"
+        "--port", type=int, default=DEFAULT_PORT, help=f"vLLM 服务端口（默认 {DEFAULT_PORT}）"
     )
     parser.add_argument(
-        "--gpus", type=str, default=None,
-        help="指定使用的 GPU 编号，逗号分隔（如 2,3,4,5）。不指定则自动检测空闲 GPU"
+        "--package", nargs="+", metavar="PKG", help="传递给 batch_run.py 的 --package 参数"
     )
-    parser.add_argument(
-        "--port", type=int, default=DEFAULT_PORT,
-        help=f"vLLM 服务端口（默认 {DEFAULT_PORT}）"
-    )
-    parser.add_argument(
-        "--package", nargs="+", metavar="PKG",
-        help="传递给 batch_run.py 的 --package 参数"
-    )
-    parser.add_argument(
-        "--tasks", nargs="+", metavar="TASK",
-        help="传递给 batch_run.py 的任务列表"
-    )
-    parser.add_argument(
-        "-p", "--parallel", type=int, default=None,
-        help="传递给 batch_run.py 的并发数"
-    )
+    parser.add_argument("--tasks", nargs="+", metavar="TASK", help="传递给 batch_run.py 的任务列表")
+    parser.add_argument("-p", "--parallel", type=int, default=None, help="传递给 batch_run.py 的并发数")
     args = parser.parse_args()
 
     with open(args.config, "r", encoding="utf-8") as f:
@@ -385,7 +381,7 @@ def main():
         port = args.port
 
         log.info("[%d/%d] 模型: %s (inference_trials=%d)", i, len(models), key, trial_count)
-        log.info("  路径: %s", model_cfg['model_path'])
+        log.info("  路径: %s", model_cfg["model_path"])
         log.info("-" * 60)
 
         log.info("[1/3] 启动 vLLM ...")
@@ -417,17 +413,25 @@ def main():
 
             trial_cfg = dict(model_cfg, key=trial_key)
 
-            existing_dirs = set(os.listdir(result_day_dir)) if os.path.isdir(result_day_dir) else set()
+            existing_dirs = (
+                set(os.listdir(result_day_dir)) if os.path.isdir(result_day_dir) else set()
+            )
 
             exit_code = run_batch(trial_cfg, port, batch_extra, date_str=date_str)
             results[trial_key] = "OK" if exit_code == 0 else f"FAIL (exit={exit_code})"
 
             if trial_count > 1:
                 try:
-                    new_dirs = (set(os.listdir(result_day_dir)) - existing_dirs) if os.path.isdir(result_day_dir) else set()
+                    new_dirs = (
+                        (set(os.listdir(result_day_dir)) - existing_dirs)
+                        if os.path.isdir(result_day_dir)
+                        else set()
+                    )
                     if new_dirs:
                         latest_dir = sorted(new_dirs)[-1]
-                        summary_path = os.path.join(result_day_dir, latest_dir, "_batch_summary.json")
+                        summary_path = os.path.join(
+                            result_day_dir, latest_dir, "_batch_summary.json"
+                        )
                         if os.path.exists(summary_path):
                             with open(summary_path, "r", encoding="utf-8") as f:
                                 trial_data.setdefault(key, []).append(json.load(f))

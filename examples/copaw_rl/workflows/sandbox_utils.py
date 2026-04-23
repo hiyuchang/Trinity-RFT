@@ -1,7 +1,10 @@
+import argparse
+import hashlib
 import json
 import os
 import time
-from typing import Union
+from pathlib import Path
+from typing import Tuple
 
 import httpx
 from e2b import CommandExitException, NotFoundException, Sandbox
@@ -45,6 +48,7 @@ def get_sandbox_info(sandbox_id, token, domain, logger):
                 dashboard_url = data["dashboard_url"]
 
             if dashboard_url:
+                dashboard_url = dashboard_url.replace(".vpc.", ".")
                 logger.info(f"\n{Colors.HEADER}{Colors.BOLD}🌐 Dashboard URL:{Colors.ENDC}")
                 logger.info(f"{Colors.OKGREEN}{Colors.UNDERLINE}{dashboard_url}{Colors.ENDC}\n")
             else:
@@ -96,7 +100,22 @@ def create_sandbox(token, domain, template, logger) -> Sandbox:
     return sandbox
 
 
-def get_or_create_sandbox(sandbox_id, token, domain, template, logger) -> Union[Sandbox, bool]:
+def update_sandbox_files(sandbox: Sandbox, template, logger):
+    utils_dir = Path(__file__).parent.parent / "utils"
+    with utils_dir.joinpath("md5_maps.json").open("r") as f:
+        md5_maps = json.load(f)
+
+    md5_map = md5_maps.get(template, {})
+    for py_file in utils_dir.glob("*.py"):
+        with open(py_file, "rb") as f:
+            file_md5 = hashlib.file_digest(f, "md5").hexdigest()
+        if md5_map.get(py_file.name, "") != file_md5:
+            logger.info(f"Updating sandbox [{sandbox.sandbox_id}] with [{py_file}]...")
+            with open(py_file, "r") as f:
+                sandbox.files.write(f"/root/{py_file.name}", f)
+
+
+def get_or_create_sandbox(sandbox_id, token, domain, template, logger) -> Tuple[Sandbox, bool]:
     """Get existing sandbox or create new one"""
     if sandbox_id:
         logger.info(
@@ -104,13 +123,13 @@ def get_or_create_sandbox(sandbox_id, token, domain, template, logger) -> Union[
         )
         sandbox = connect_sandbox(sandbox_id, token, domain, logger)
         get_sandbox_info(sandbox_id, token, domain, logger)
+        update_sandbox_files(sandbox, template, logger)
         return sandbox, False
     else:
         logger.info(
             f"\n{Colors.OKCYAN}[1] Creating sandbox with template:{Colors.ENDC} {Colors.BOLD}{template}{Colors.ENDC}"
         )
         sandbox = create_sandbox(token, domain, template, logger)
-
         logger.info(f"\n{Colors.OKCYAN}[2] Waiting for sandbox to be ready...{Colors.ENDC}")
         max_attempts = 60
         for attempt in range(1, max_attempts + 1):
@@ -125,6 +144,7 @@ def get_or_create_sandbox(sandbox_id, token, domain, template, logger) -> Union[
                 if is_running:
                     logger.info(f"    {Colors.OKGREEN}✓ Sandbox is now running!{Colors.ENDC}")
                     get_sandbox_info(sandbox.sandbox_id, token, domain, logger)
+                    update_sandbox_files(sandbox, template, logger)
                     return sandbox, True
             except Exception as e:
                 logger.error(
@@ -138,49 +158,50 @@ def get_or_create_sandbox(sandbox_id, token, domain, template, logger) -> Union[
             f"    {Colors.WARNING}Warning: Sandbox did not reach Running state within timeout{Colors.ENDC}"
         )
         get_sandbox_info(sandbox.sandbox_id, token, domain, logger)
+        update_sandbox_files(sandbox, template, logger)
         return sandbox, True
+
+
+def launch_run_py(
+    sandbox: Sandbox, cmd: str, oss_config, dashscope_api_key, logger, raise_error=False
+):
+    t0 = time.perf_counter()
+    try:
+        logger.info(f"Running command in sandbox: {cmd}")
+        result = sandbox.commands.run(
+            cmd,
+            envs={
+                "OSS_ACCESS_KEY_ID": oss_config["access_key_id"],
+                "OSS_ACCESS_KEY_SECRET": oss_config["access_key_secret"],
+                "OSS_REGION": oss_config["region"],
+                "OSS_ENDPOINT": oss_config["endpoint"],
+                "OSS_BUCKET_NAME": oss_config["bucket_name"],
+                "DASHSCOPE_API_KEY": dashscope_api_key,
+            },
+            timeout=3600,
+        )
+        logger.info("result.stdout: %s", result.stdout.strip())
+        logger.info("result.stderr: %s", result.stderr.strip())
+        run_outputs = result.stdout + "\n" + result.stderr
+    except CommandExitException as e:
+        logger.info("run.py exited with non-zero exit code: %s", e.exit_code)
+        logger.info("Error stdout: %s", e.stdout.strip())
+        logger.info("Error stderr: %s", e.stderr.strip())
+        run_outputs = e.stdout + "\n" + e.stderr
+        if raise_error:
+            raise e
+    latency_seconds = time.perf_counter() - t0
+    return latency_seconds, run_outputs
 
 
 def run_workflow(
     sandbox: Sandbox, task_id, oss_config, dashscope_api_key, api_server_url, model_path, logger
 ):
-    # Prepare sandbox before running the workflow
-    # upload /app/working/config.json
-    # upload bench_client.py, run.py, setup_provider.py to /root/
-    # pip uninstall copaw -y
-    # pip install qwenpaw==1.1.2
-    # pip install oss2
-    # patch /app/venv/lib/python3.11/site-packages/qwenpaw/agents/react_agent.py < /root/patch/model_trajectory.patch
-    # patch /app/venv/lib/python3.11/site-packages/agentscope/model/_openai_model.py < /root/patch/openai_model.patch
-    # patch /app/venv/lib/python3.11/site-packages/agentscope/model/_model_response.py < /root/patch/model_response.patch
-    # qwenpaw app &
-
-    from pathlib import Path
-
-    run_path = Path(__file__).parent.parent / "utils" / "run.py"
-    with open(run_path, "r") as f:
-        sandbox.files.write("/root/run.py", f)
-
-    export_data_path = Path(__file__).parent.parent / "utils" / "export_training_data.py"
-    with open(export_data_path, "r") as f:
-        sandbox.files.write("/root/export_training_data.py", f)
-
-    result = sandbox.commands.run(
-        f"python run.py --task_id {task_id} --oss-prefix {oss_config['prefix']} --rl-url {api_server_url} --rl-model-id {model_path}",
-        envs={
-            "OSS_ACCESS_KEY_ID": oss_config["access_key_id"],
-            "OSS_ACCESS_KEY_SECRET": oss_config["access_key_secret"],
-            "OSS_REGION": oss_config["region"],
-            "OSS_ENDPOINT": oss_config["endpoint"],
-            "OSS_BUCKET_NAME": oss_config["bucket_name"],
-            "DASHSCOPE_API_KEY": dashscope_api_key,
-        },
-        timeout=3600,
+    cmd = (
+        f"python run.py --task-id {task_id} --oss-prefix {oss_config['prefix']} "
+        f"--provider-base-url {api_server_url} --provider-model-id {model_path}"
     )
-    # print(f"    {Colors.OKGREEN}✓ run.py executed (exit code: {result.exit_code}){Colors.ENDC}")
-    # print(f"    Output: {result.stdout.strip()}")
-    logger.info("result.stdout: %s", result.stdout.strip())
-    logger.info("result.stderr: %s", result.stderr.strip())
+    _, _ = launch_run_py(sandbox, cmd, oss_config, dashscope_api_key, logger, raise_error=True)
 
     content = sandbox.files.read("/root/dataset.json")
     dataset = json.loads(content)
@@ -198,43 +219,11 @@ def run_eval_workflow(
     checkpoint_job_dir: str,
     logger,
 ):
-    # from pathlib import Path
-    # run_path = Path(__file__).parent.parent / "utils" / "run.py"
-    # with open(run_path, "r") as f:
-    #     sandbox.files.write("/root/run.py", f)
-
-    # export_data_path = Path(__file__).parent.parent / "utils" / "export_training_data.py"
-    # with open(export_data_path, "r") as f:
-    #     sandbox.files.write("/root/export_training_data.py", f)
-
-    # copaw_eval_path = Path(__file__).parent.parent / "utils" / "copaw_eval.py"
-    # with open(copaw_eval_path, "r") as f:
-    #     sandbox.files.write("/root/copaw_eval.py", f)
-
-    t0 = time.perf_counter()
-    try:
-        result = sandbox.commands.run(
-            # "pip install pytest py-openjudge pytest-asyncio && "
-            f"python run.py --task_id {task_id} --oss-prefix {oss_config['prefix']} --rl-url {api_server_url} --rl-model-id {model_path} --evaluation",
-            envs={
-                "OSS_ACCESS_KEY_ID": oss_config["access_key_id"],
-                "OSS_ACCESS_KEY_SECRET": oss_config["access_key_secret"],
-                "OSS_REGION": oss_config["region"],
-                "OSS_ENDPOINT": oss_config["endpoint"],
-                "OSS_BUCKET_NAME": oss_config["bucket_name"],
-                "DASHSCOPE_API_KEY": dashscope_api_key,
-            },
-            timeout=3600,
-        )
-        logger.info("result.stdout: %s", result.stdout.strip())
-        logger.info("result.stderr: %s", result.stderr.strip())
-    except CommandExitException as e:
-        # logger.error(f"{Colors.FAIL}run.py exited with non-zero exit code: {e.exit_code}{Colors.ENDC}")
-        # logger.error(f"{Colors.FAIL}Error output: {e.stderr.strip()}{Colors.ENDC}")
-        logger.info("run.py exited with non-zero exit code: %s", e.exit_code)
-        logger.info("Error stdout: %s", e.stdout.strip())
-        logger.info("Error stderr: %s", e.stderr.strip())
-    latency_seconds = time.perf_counter() - t0
+    cmd = (
+        f"python run.py --task-id {task_id} --oss-prefix {oss_config['prefix']} "
+        f"--provider-base-url {api_server_url} --provider-model-id {model_path} --evaluation"
+    )
+    latency_seconds, _ = launch_run_py(sandbox, cmd, oss_config, dashscope_api_key, logger)
 
     if model_label:
         task_dir = os.path.join(checkpoint_job_dir, model_label, task_id)
@@ -312,3 +301,71 @@ def run_eval_workflow(
         "latency_seconds": round(latency_seconds, 2),
         "duration_seconds": round(duration_seconds, 2) if duration_seconds >= 0 else -1,
     }
+
+
+def run_teacher_workflow(
+    sandbox: Sandbox, task_id, oss_config, dashscope_api_key, model_id, logger
+):
+    cmd = (
+        f"python run.py --task-id {task_id} --oss-prefix {oss_config['prefix']} "
+        f"--provider-name dashscope --provider-model-id {model_id} "
+        f"--provider-api-key {dashscope_api_key} --evaluation"
+    )
+    latency_seconds, run_outputs = launch_run_py(
+        sandbox, cmd, oss_config, dashscope_api_key, logger
+    )
+
+    trajectory_file = sandbox.files.read("/root/tests/traj.json")
+    trajectory = json.loads(trajectory_file)
+    return trajectory_file, trajectory, run_outputs
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--token", type=str, default=os.environ.get("E2B_API_KEY", None))
+    parser.add_argument("--domain", type=str, default=os.environ.get("E2B_DOMAIN", None))
+    parser.add_argument("--template", type=str, default=os.environ.get("E2B_TEMPLATE", None))
+    args = parser.parse_args()
+
+    from trinity.utils.log import get_logger
+
+    logger = get_logger()
+    sandbox, created = get_or_create_sandbox(None, args.token, args.domain, args.template, logger)
+
+    utils_dir = Path(__file__).parent.parent / "utils"
+
+    sandbox.commands.run("mkdir patch")
+    patch_dir = utils_dir / "patch"
+    for patch_file in patch_dir.glob("*.patch"):
+        logger.info(f"Uploading patch {patch_file.name} to sandbox...")
+        with open(patch_file, "r") as f:
+            sandbox.files.write(f"/root/patch/{patch_file.name}", f)
+
+    try:
+        result = sandbox.commands.run(
+            "pip uninstall copaw -y && "
+            "pip install qwenpaw==v1.1.3post1 && "
+            "pip install oss2 pytest py-openjudge pytest-asyncio && "
+            "patch /app/venv/lib/python3.11/site-packages/qwenpaw/agents/react_agent.py < /root/patch/model_trajectory.patch && "
+            "patch /app/venv/lib/python3.11/site-packages/agentscope/model/_openai_model.py < /root/patch/openai_model.patch && "
+            "patch /app/venv/lib/python3.11/site-packages/agentscope/model/_model_response.py < /root/patch/model_response.patch && "
+            "python /root/fix_config.py",
+            timeout=3600,
+        )
+        logger.info("result.stdout: %s", result.stdout.strip())
+        logger.info("result.stderr: %s", result.stderr.strip())
+    except CommandExitException as e:
+        logger.info("Error stdout: %s", e.stdout.strip())
+        logger.info("Error stderr: %s", e.stderr.strip())
+        raise e
+
+    try:
+        result = sandbox.commands.run(
+            "qwenpaw app &> /app/qwenpaw-app.log",
+            background=True,
+        )
+        logger.info("qwenpaw app started with pid %d", result.pid)
+    except CommandExitException as e:
+        logger.info("Error starting qwenpaw app. stdout: %s", e.stdout.strip())
+        logger.info("Error starting qwenpaw app. stderr: %s", e.stderr.strip())
+        raise e

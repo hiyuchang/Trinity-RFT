@@ -50,7 +50,7 @@ batch_run.py
 
   # 运行日志自动写入 logs/{YYYYMMDD}/batch_run_{HHMMSS}.log（与 auto_eval 一致）；仍可 nohup 重定向一份
   nohup env PYTHONUNBUFFERED=1 python batch_run_v2.py --models glm-5 --package file_processing search QA gov bootstrap memory cron other --parallel 16 &
-  
+
   nohup env PYTHONUNBUFFERED=1 python batch_run_v2.py --models glm-5 MiniMax-M2.5 kimi-k2.5 qwen3.5-plus gpt-5.4 qwen3.5-397b-a17b --package file_processing search QA gov bootstrap memory cron other --parallel 16 &
 
 nohup env PYTHONUNBUFFERED=1 python batch_run_v2.py --models qwen3.5-plus --package file_processing search QA gov bootstrap memory cron other multimodel_search skill safety --parallel 16 &
@@ -66,18 +66,15 @@ nohup env PYTHONUNBUFFERED=1 python batch_run_v2.py --models qwen3.5-plus --pack
 
 import argparse
 import asyncio
-import base64
 import copy
+import importlib
 import json
 import os
 import random
 import re
 import sys
-import time
 import traceback
-import zipfile
 from datetime import datetime
-import importlib
 
 spec = importlib.util.spec_from_file_location(
     "sandbox_utils",
@@ -223,7 +220,7 @@ PACKAGE_TASKS: dict[str, list[str]] = {
         "skillbench_007",
         "skillbench_008",
         "skillbench_009",
-        "skillbench_010"
+        "skillbench_010",
     ],
     "safety": [
         "safety_001_zh",
@@ -385,10 +382,7 @@ PACKAGE_TASKS: dict[str, list[str]] = {
         "193-memory-yaml-config",
         "194-memory-list-format",
     ],
-    "claweval": [
-        "T18-ticket-triage",
-        "T29-cross-service-meeting"
-    ],
+    "claweval": ["T18-ticket-triage", "T29-cross-service-meeting"],
     "multimodel": [
         "honey_00137_en",
         "honey_00173_en",
@@ -536,38 +530,33 @@ PROVIDER_BASE = {
             "base_url": "https://api-inference.modelscope.cn/v1",
             "api_key": "",
             "extra_models": [],
-            "chat_model": ""
+            "chat_model": "",
         },
         "dashscope": {
             "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
             "api_key": os.environ.get("DASHSCOPE_API_KEY", ""),
             "extra_models": [],
-            "chat_model": ""
+            "chat_model": "",
         },
         "aliyun-codingplan": {
             "base_url": "https://coding.dashscope.aliyuncs.com/v1",
             "api_key": "",
             "extra_models": [],
-            "chat_model": ""
+            "chat_model": "",
         },
         "openai": {
             "base_url": "https://api.openai.com/v1",
             "api_key": "",
             "extra_models": [],
-            "chat_model": ""
+            "chat_model": "",
         },
-        "azure-openai": {
-            "base_url": "",
-            "api_key": "",
-            "extra_models": [],
-            "chat_model": ""
-        },
+        "azure-openai": {"base_url": "", "api_key": "", "extra_models": [], "chat_model": ""},
         "ollama": {
             "base_url": "http://localhost:11434/v1",
             "api_key": "",
             "extra_models": [],
-            "chat_model": ""
-        }
+            "chat_model": "",
+        },
     },
     "custom_providers": {
         "local-4b": {
@@ -575,21 +564,13 @@ PROVIDER_BASE = {
             "name": "local-4b",
             "default_base_url": "",
             "api_key_prefix": "",
-            "models": [
-                {
-                    "id": "/nas/checkpoints/Qwen3.5-4B",
-                    "name": "4b"
-                }
-            ],
+            "models": [{"id": "/nas/checkpoints/Qwen3.5-4B", "name": "4b"}],
             "base_url": "http://101.37.165.227:8081/v1",
             "api_key": "",
-            "chat_model": "OpenAIChatModel"
+            "chat_model": "OpenAIChatModel",
         }
     },
-    "active_llm": {
-        "provider_id": "dashscope",
-        "model": "qwen3.5-plus"
-    }
+    "active_llm": {"provider_id": "dashscope", "model": "qwen3.5-plus"},
 }
 
 
@@ -603,7 +584,7 @@ MODELS = {
     "claude-opus-4-6": {"provider_id": "dashscope", "model": "vertex_ai.claude-opus-4-6"},
     "gemini-3.1-pro": {"provider_id": "dashscope", "model": "vertex_ai.gemini-3.1-pro-preview"},
     "grok-4-1-fast-reasoning": {"provider_id": "dashscope", "model": "grok-4-1-fast-reasoning"},
-    "qwen3.5-397b-a17b": {"provider_id": "dashscope", "model": "qwen3.5-397b-a17b"}
+    "qwen3.5-397b-a17b": {"provider_id": "dashscope", "model": "qwen3.5-397b-a17b"},
 }
 
 DEFAULT_MODEL = "qwen3.5-plus"
@@ -626,7 +607,15 @@ def build_provider_config(model_key: str) -> dict:
             "name": provider_id,
             "default_base_url": "",
             "api_key_prefix": "",
-            "models": [{"id": auto_model_id, "name": model_key, "supports_multimodal": True, "supports_image": True, "supports_video": False}],
+            "models": [
+                {
+                    "id": auto_model_id,
+                    "name": model_key,
+                    "supports_multimodal": True,
+                    "supports_image": True,
+                    "supports_video": False,
+                }
+            ],
             "base_url": auto_base_url,
             "api_key": "",
             "chat_model": "OpenAIChatModel",
@@ -637,7 +626,7 @@ def build_provider_config(model_key: str) -> dict:
                 custom_provider["generate_kwargs"] = json.loads(generate_kwargs_str)
             except json.JSONDecodeError:
                 pass
-        cfg["custom_providers"][provider_id] = custom_provider
+        cfg["custom_providers"][provider_id] = custom_provider  # type: ignore
         cfg["active_llm"] = {"provider_id": provider_id, "model": auto_model_id}
         return cfg
 
@@ -655,18 +644,23 @@ def build_provider_config(model_key: str) -> dict:
     # Ensure the target model is in the provider's extra_models so CoPaw can find it
     pid = llm_config.get("provider_id", "")
     mid = llm_config.get("model", "")
-    if pid and mid and pid in cfg.get("providers", {}):
-        provider_cfg = cfg["providers"][pid]
+    if pid and mid and pid in cfg.get("providers", {}):  # type: ignore
+        provider_cfg = cfg["providers"][pid]  # type: ignore
         existing = provider_cfg.get("extra_models", [])
         if not any(m.get("id") == mid for m in existing):
-            provider_cfg["extra_models"] = [*existing, {
-                "id": mid, "name": mid,
-                "supports_multimodal": True,
-                "supports_image": True,
-                "supports_video": False,
-            }]
+            provider_cfg["extra_models"] = [
+                *existing,
+                {
+                    "id": mid,
+                    "name": mid,
+                    "supports_multimodal": True,
+                    "supports_image": True,
+                    "supports_video": False,
+                },
+            ]
 
     return cfg
+
 
 def build_provider_config_from_json(item: dict) -> dict:
     """从 JSON 配置项构建 provider config。
@@ -681,12 +675,20 @@ def build_provider_config_from_json(item: dict) -> dict:
         cfg = copy.deepcopy(PROVIDER_BASE)
         provider_id = f"json-{key}"
         model_id = item.get("model_id", key)
-        cfg["custom_providers"][provider_id] = {
+        cfg["custom_providers"][provider_id] = {  # type: ignore
             "id": provider_id,
             "name": key,
             "default_base_url": "",
             "api_key_prefix": "",
-            "models": [{"id": model_id, "name": key, "supports_multimodal": True, "supports_image": True, "supports_video": False}],
+            "models": [
+                {
+                    "id": model_id,
+                    "name": key,
+                    "supports_multimodal": True,
+                    "supports_image": True,
+                    "supports_video": False,
+                }
+            ],
             "base_url": item["base_url"],
             "api_key": item.get("api_key", ""),
             "chat_model": "OpenAIChatModel",
@@ -755,7 +757,7 @@ def infer_trial_groups(model_keys: list[str]) -> dict[str, list[str]]:
     """
     groups: dict[str, list[str]] = {}
     for key in model_keys:
-        m = re.match(r'^(.+)_t(\d+)$', key)
+        m = re.match(r"^(.+)_t(\d+)$", key)
         if m:
             groups.setdefault(m.group(1), []).append(key)
     return {base: sorted(keys) for base, keys in groups.items() if len(keys) > 1}
@@ -764,16 +766,18 @@ def infer_trial_groups(model_keys: list[str]) -> dict[str, list[str]]:
 def merge_retry_results(original_results: list[dict], retry_results: list[dict]) -> list[dict]:
     """将重试结果合并到原始结果中，替换对应的条目。"""
     retry_map = {(r.get("model", ""), r["task"]): r for r in retry_results}
-    return [
-        retry_map.get((r.get("model", ""), r["task"]), r)
-        for r in original_results
-    ]
+    return [retry_map.get((r.get("model", ""), r["task"]), r) for r in original_results]
 
 
-def save_batch_summary(batch_dir: str, all_results: list[dict],
-                       model_keys: list[str], task_ids: list[str],
-                       max_parallel: int, run_ts: str,
-                       multi_model: bool) -> str:
+def save_batch_summary(
+    batch_dir: str,
+    all_results: list[dict],
+    model_keys: list[str],
+    task_ids: list[str],
+    max_parallel: int,
+    run_ts: str,
+    multi_model: bool,
+) -> str:
     """构建 batch summary 并保存到 _batch_summary.json，返回文件路径。"""
     os.makedirs(batch_dir, exist_ok=True)
     total_passed = sum(1 for r in all_results if r["status"] == "PASS")
@@ -816,13 +820,19 @@ def save_batch_summary(batch_dir: str, all_results: list[dict],
             lengths = length_map.get(m, {})
             valid_lengths = [s for t, s in lengths.items() if statuses.get(t) != "ERROR" and s >= 0]
             durations = duration_map.get(m, {})
-            valid_durations = [s for t, s in durations.items() if statuses.get(t) != "ERROR" and s >= 0]
+            valid_durations = [
+                s for t, s in durations.items() if statuses.get(t) != "ERROR" and s >= 0
+            ]
             n_errors = sum(1 for s in statuses.values() if s == "ERROR")
             model_stats[m] = {
                 "avg_score": sum(valid_scores) / len(valid_scores) if valid_scores else -1,
                 "avg_steps": sum(valid_steps) / len(valid_steps) if valid_steps else -1,
-                "avg_response_length": int(sum(valid_lengths) / len(valid_lengths)) if valid_lengths else -1,
-                "avg_duration_seconds": sum(valid_durations) / len(valid_durations) if valid_durations else -1,
+                "avg_response_length": int(sum(valid_lengths) / len(valid_lengths))
+                if valid_lengths
+                else -1,
+                "avg_duration_seconds": sum(valid_durations) / len(valid_durations)
+                if valid_durations
+                else -1,
                 "passed": sum(1 for s in valid_scores if s == 100),
                 "total": len(task_ids),
                 "evaluated": len(task_ids) - n_errors,
@@ -858,7 +868,7 @@ async def run_single_task(
     model_label: str = "",
     semaphore: asyncio.Semaphore | None = None,
     result_root: str = "result",
-    max_retries: int = 3
+    max_retries: int = 3,
 ) -> dict:
     """运行单个任务，返回结果摘要。支持信号量控制并发。"""
     # if provider_config is None:
@@ -867,8 +877,9 @@ async def run_single_task(
 
     def _inner():
         from trinity.utils.log import get_logger
+
         logger = get_logger()
-        token = os.environ.get("E2B_TOKEN")
+        token = os.environ.get("E2B_API_KEY")
         domain = os.environ.get("E2B_DOMAIN")
         template = os.environ.get("E2B_TEMPLATE")
         sandbox, created = get_or_create_sandbox("", token, domain, template, logger)
@@ -909,23 +920,25 @@ async def run_single_task(
             return await asyncio.to_thread(_inner)
         except Exception as e:
             if attempt < max_retries and _is_infra_error(e):
-                wait = min(2 ** attempt * 5, 60)
-                print(f"[RETRY] {tag} attempt {attempt+1}/{max_retries}, "
-                      f"waiting {wait}s... ({type(e).__name__}: {e})")
+                wait = min(2**attempt * 5, 60)
+                print(
+                    f"[RETRY] {tag} attempt {attempt + 1}/{max_retries}, "
+                    f"waiting {wait}s... ({type(e).__name__}: {e})"
+                )
                 await asyncio.sleep(wait)
                 continue
             print(f"[ERROR] {tag}: {e}")
             traceback.print_exc()
-            return {
-                "task": sample_id,
-                "model": model_label,
-                "score": -1,
-                "status": "ERROR",
-                "steps": -1,
-                "response_length": -1,
-                "latency_seconds": -1,
-                "duration_seconds": -1,
-            }
+    return {
+        "task": sample_id,
+        "model": model_label,
+        "score": -1,
+        "status": "ERROR",
+        "steps": -1,
+        "response_length": -1,
+        "latency_seconds": -1,
+        "duration_seconds": -1,
+    }
 
 
 def print_single_model_summary(model_label: str, results: list[dict], max_parallel: int):
@@ -934,11 +947,21 @@ def print_single_model_summary(model_label: str, results: list[dict], max_parall
     failed = sum(1 for r in results if r["status"] == "FAIL")
     errors = sum(1 for r in results if r["status"] == "ERROR")
     evaluated = passed + failed
-    valid_steps = [r["steps"] for r in results if r["status"] != "ERROR" and r.get("steps", -1) >= 0]
+    valid_steps = [
+        r["steps"] for r in results if r["status"] != "ERROR" and r.get("steps", -1) >= 0
+    ]
     avg_steps = sum(valid_steps) / len(valid_steps) if valid_steps else -1
-    valid_len = [r["response_length"] for r in results if r["status"] != "ERROR" and r.get("response_length", -1) >= 0]
+    valid_len = [
+        r["response_length"]
+        for r in results
+        if r["status"] != "ERROR" and r.get("response_length", -1) >= 0
+    ]
     avg_len = int(sum(valid_len) / len(valid_len)) if valid_len else -1
-    valid_time = [r["duration_seconds"] for r in results if r["status"] != "ERROR" and r.get("duration_seconds", -1) >= 0]
+    valid_time = [
+        r["duration_seconds"]
+        for r in results
+        if r["status"] != "ERROR" and r.get("duration_seconds", -1) >= 0
+    ]
     avg_time = sum(valid_time) / len(valid_time) if valid_time else -1
     valid_scores = [r["score"] for r in results if r["status"] != "ERROR" and r["score"] >= 0]
     avg_score = sum(valid_scores) / len(valid_scores) if valid_scores else -1
@@ -949,21 +972,26 @@ def print_single_model_summary(model_label: str, results: list[dict], max_parall
     avg_time_str = f"{avg_time:.1f}s" if avg_time >= 0 else "N/A"
     avg_score_str = f"{avg_score:.1f}" if avg_score >= 0 else "N/A"
     error_note = f" | 错误(未计入): {errors}" if errors else ""
-    print(f"  有效评测: {evaluated} | 通过: {passed} | 失败: {failed}{error_note} "
-          f"| 平均分: {avg_score_str} | 平均步数: {avg_steps_str} | 平均输出(计费): {avg_len_str} | 平均时延: {avg_time_str}")
-    print(f"  {'-'*56}")
+    print(
+        f"  有效评测: {evaluated} | 通过: {passed} | 失败: {failed}{error_note} "
+        f"| 平均分: {avg_score_str} | 平均步数: {avg_steps_str} | 平均输出(计费): {avg_len_str} | 平均时延: {avg_time_str}"
+    )
+    print(f"  {'-' * 56}")
     for r in results:
         icon = {"PASS": "✓", "FAIL": "✗", "ERROR": "!"}[r["status"]]
         steps_str = str(r["steps"]) if r.get("steps", -1) >= 0 else "N/A"
         len_str = str(r["response_length"]) if r.get("response_length", -1) >= 0 else "N/A"
         time_str = f"{r['duration_seconds']:.1f}s" if r.get("duration_seconds", -1) >= 0 else "N/A"
-        print(f"    [{icon}] {r['task']:<40s} score={r['score']:<6} steps={steps_str} 输出={len_str} time={time_str}")
+        print(
+            f"    [{icon}] {r['task']:<40s} score={r['score']:<6} steps={steps_str} 输出={len_str} time={time_str}"
+        )
     return passed, failed, errors
 
 
 def compute_category_stats(results: list[dict]) -> dict[str, dict]:
     """按 PACKAGE_TASKS 类别分组统计平均分和通过率。"""
     from collections import defaultdict
+
     cat_results: dict[str, list[dict]] = defaultdict(list)
     for r in results:
         cat = TASK_TO_CATEGORY.get(r["task"], "unknown")
@@ -996,22 +1024,25 @@ def print_category_stats(results: list[dict]):
     stats = compute_category_stats(results)
     if not stats:
         return stats
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("按类别统计")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"  {'类别':<20s} {'评测':>4s} {'通过':>4s} {'失败':>4s} {'通过率':>7s} {'平均分':>7s}")
-    print(f"  {'-'*56}")
+    print(f"  {'-' * 56}")
     for cat, s in stats.items():
         avg_str = f"{s['avg_score']:.1f}" if s["avg_score"] >= 0 else "N/A"
         err_mark = f" (+{s['errors']}err)" if s["errors"] else ""
-        print(f"  {cat:<20s} {s['evaluated']:>4d} {s['passed']:>4d} {s['failed']:>4d} "
-              f"{s['pass_rate']:>6.1f}% {avg_str:>7s}{err_mark}")
-    print(f"  {'-'*56}")
+        print(
+            f"  {cat:<20s} {s['evaluated']:>4d} {s['passed']:>4d} {s['failed']:>4d} "
+            f"{s['pass_rate']:>6.1f}% {avg_str:>7s}{err_mark}"
+        )
+    print(f"  {'-' * 56}")
     return stats
 
 
-def print_trial_summary(base_key: str, trial_summaries: list[dict],
-                        result_root: str, date_str: str | None = None):
+def print_trial_summary(
+    base_key: str, trial_summaries: list[dict], result_root: str, date_str: str | None = None
+):
     """打印同一模型多次 trial 运行后的平均分汇总，并保存到 JSON。"""
     n_trials = len(trial_summaries)
     task_trials: dict[str, list[dict]] = {}
@@ -1019,9 +1050,9 @@ def print_trial_summary(base_key: str, trial_summaries: list[dict],
         for r in summary.get("results", []):
             task_trials.setdefault(r["task"], []).append(r)
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"模型 {base_key} — {n_trials} 次 Trial 平均分汇总")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     per_trial_avgs = []
     for t_idx, summary in enumerate(trial_summaries, 1):
@@ -1063,8 +1094,7 @@ def print_trial_summary(base_key: str, trial_summaries: list[dict],
     print(f"  Trial 平均分已保存到: {avg_path}")
 
 
-def print_multi_model_matrix(model_keys: list[str], task_ids: list[str],
-                             all_results: list[dict]):
+def print_multi_model_matrix(model_keys: list[str], task_ids: list[str], all_results: list[dict]):
     """打印 模型×任务 对比矩阵表格。ERROR 任务在平均计算中排除。"""
     score_map = {}
     steps_map = {}
@@ -1082,9 +1112,9 @@ def print_multi_model_matrix(model_keys: list[str], task_ids: list[str],
     model_col_width = max(len(m) for m in model_keys)
     model_col_width = max(model_col_width, 6)
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("模型 × 任务 对比矩阵 (score / steps / 输出计费长度 / 时延s)")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     header = f"{'任务':<40s}"
     for m in model_keys:
@@ -1113,16 +1143,24 @@ def print_multi_model_matrix(model_keys: list[str], task_ids: list[str],
     avg_row = f"{'平均(排除ERR)':<40s}"
     for m in model_keys:
         valid_tasks = [t for t in task_ids if status_map.get((m, t)) != "ERROR"]
-        valid_scores = [score_map.get((m, t), -1) for t in valid_tasks if score_map.get((m, t), -1) >= 0]
+        valid_scores = [
+            score_map.get((m, t), -1) for t in valid_tasks if score_map.get((m, t), -1) >= 0
+        ]
         avg_score = sum(valid_scores) / len(valid_scores) if valid_scores else -1
 
-        valid_steps = [steps_map.get((m, t), -1) for t in valid_tasks if steps_map.get((m, t), -1) >= 0]
+        valid_steps = [
+            steps_map.get((m, t), -1) for t in valid_tasks if steps_map.get((m, t), -1) >= 0
+        ]
         avg_steps = sum(valid_steps) / len(valid_steps) if valid_steps else -1
 
-        valid_len = [length_map.get((m, t), -1) for t in valid_tasks if length_map.get((m, t), -1) >= 0]
+        valid_len = [
+            length_map.get((m, t), -1) for t in valid_tasks if length_map.get((m, t), -1) >= 0
+        ]
         avg_len = int(sum(valid_len) / len(valid_len)) if valid_len else -1
 
-        valid_dur = [duration_map.get((m, t), -1) for t in valid_tasks if duration_map.get((m, t), -1) >= 0]
+        valid_dur = [
+            duration_map.get((m, t), -1) for t in valid_tasks if duration_map.get((m, t), -1) >= 0
+        ]
         avg_dur = sum(valid_dur) / len(valid_dur) if valid_dur else -1
 
         n_err = len(task_ids) - len(valid_tasks)
@@ -1140,41 +1178,65 @@ def print_multi_model_matrix(model_keys: list[str], task_ids: list[str],
 
 async def main():
     parser = argparse.ArgumentParser(description="批量运行 benchmark 任务")
-    parser.add_argument("tasks", nargs="*", help="要运行的任务 ID（不指定则跑全部）。可与 --models 混用时，建议用 --tasks 指定任务避免被误解析为模型")
-    parser.add_argument("--tasks", "-t", nargs="+", dest="tasks_opt", metavar="TASK",
-                        help="要运行的任务 ID（如 --tasks 097-bootstrap-modify-identity-xiaolu）。与位置参数 tasks 二选一")
-    parser.add_argument("--range", nargs=2, type=int, metavar=("START", "END"),
-                        help="运行指定编号范围的任务（如 --range 1 8）")
-    parser.add_argument("-p", "--parallel", type=int, default=8, metavar="N",
-                        help="最大并发数（默认 4，设为 1 即串行）")
-    parser.add_argument("--serial", action="store_true",
-                        help="串行执行（等同于 --parallel 1）")
-    parser.add_argument("-m", "--models", nargs="+", metavar="MODEL",
-                        help="要评测的模型列表（如 --models qwen3.5-plus qwen-max）。"
-                             "支持 MODELS 预设名 或 provider_id:model_name 自定义格式")
-    parser.add_argument("--models-file", metavar="FILE",
-                        help="从 JSON 文件加载模型列表，格式为 "
-                             '[{"key":"名称","provider_id":"...","model":"..."}]')
-    parser.add_argument("--package", nargs="+", metavar="PKG",
-                        help="按分类 package 跑任务（如 --package cron dingtalk）。"
-                             f"可选: {', '.join(PACKAGE_CATEGORIES)}")
-    parser.add_argument("--list-packages", action="store_true",
-                        help="列出所有可用 package 及其任务数并退出")
-    parser.add_argument("--shuffle", action="store_true", default=True,
-                        help="随机打乱任务顺序（默认开启，避免固定顺序带来的偏差）")
-    parser.add_argument("--no-shuffle", dest="shuffle", action="store_false",
-                        help="保持任务原始顺序，不打乱")
-    parser.add_argument("--retries", type=int, default=3, metavar="N",
-                        help="基础设施瞬态错误（超时/500）的最大重试次数（默认 3）")
-    parser.add_argument("--retry-from", metavar="RESULT_DIR",
-                        help="从指定结果目录重跑 ERROR 状态的任务（读取 _batch_summary.json）")
-    parser.add_argument("--retry-errors", type=int, default=0, metavar="N",
-                        help="跑完后自动重试 ERROR 任务的最大轮次（默认 0 不重试）")
-    parser.add_argument("--trial", type=int, default=None, metavar="N",
-                        help="每个模型重复推理 N 次（整个任务集重跑），分别保留结果并计算平均分。"
-                             "也可在 --models-file JSON 中为每个模型单独设置 trial 字段")
-    parser.add_argument("--list-models", action="store_true",
-                        help="列出所有预设模型并退出")
+    parser.add_argument(
+        "tasks", nargs="*", help="要运行的任务 ID（不指定则跑全部）。可与 --models 混用时，建议用 --tasks 指定任务避免被误解析为模型"
+    )
+    parser.add_argument(
+        "--tasks",
+        "-t",
+        nargs="+",
+        dest="tasks_opt",
+        metavar="TASK",
+        help="要运行的任务 ID（如 --tasks 097-bootstrap-modify-identity-xiaolu）。与位置参数 tasks 二选一",
+    )
+    parser.add_argument(
+        "--range", nargs=2, type=int, metavar=("START", "END"), help="运行指定编号范围的任务（如 --range 1 8）"
+    )
+    parser.add_argument(
+        "-p", "--parallel", type=int, default=8, metavar="N", help="最大并发数（默认 4，设为 1 即串行）"
+    )
+    parser.add_argument("--serial", action="store_true", help="串行执行（等同于 --parallel 1）")
+    parser.add_argument(
+        "-m",
+        "--models",
+        nargs="+",
+        metavar="MODEL",
+        help="要评测的模型列表（如 --models qwen3.5-plus qwen-max）。"
+        "支持 MODELS 预设名 或 provider_id:model_name 自定义格式",
+    )
+    parser.add_argument(
+        "--models-file",
+        metavar="FILE",
+        help="从 JSON 文件加载模型列表，格式为 " '[{"key":"名称","provider_id":"...","model":"..."}]',
+    )
+    parser.add_argument(
+        "--package",
+        nargs="+",
+        metavar="PKG",
+        help="按分类 package 跑任务（如 --package cron dingtalk）。" f"可选: {', '.join(PACKAGE_CATEGORIES)}",
+    )
+    parser.add_argument("--list-packages", action="store_true", help="列出所有可用 package 及其任务数并退出")
+    parser.add_argument(
+        "--shuffle", action="store_true", default=True, help="随机打乱任务顺序（默认开启，避免固定顺序带来的偏差）"
+    )
+    parser.add_argument("--no-shuffle", dest="shuffle", action="store_false", help="保持任务原始顺序，不打乱")
+    parser.add_argument(
+        "--retries", type=int, default=3, metavar="N", help="基础设施瞬态错误（超时/500）的最大重试次数（默认 3）"
+    )
+    parser.add_argument(
+        "--retry-from", metavar="RESULT_DIR", help="从指定结果目录重跑 ERROR 状态的任务（读取 _batch_summary.json）"
+    )
+    parser.add_argument(
+        "--retry-errors", type=int, default=0, metavar="N", help="跑完后自动重试 ERROR 任务的最大轮次（默认 0 不重试）"
+    )
+    parser.add_argument(
+        "--trial",
+        type=int,
+        default=None,
+        metavar="N",
+        help="每个模型重复推理 N 次（整个任务集重跑），分别保留结果并计算平均分。" "也可在 --models-file JSON 中为每个模型单独设置 trial 字段",
+    )
+    parser.add_argument("--list-models", action="store_true", help="列出所有预设模型并退出")
     args = parser.parse_args()
 
     if args.list_packages:
@@ -1201,7 +1263,7 @@ async def main():
         tee.stop()
 
 
-async def _run_batch_main(args):
+async def _run_batch_main(args):  # noqa: C901
     # --- 解析模型列表 ---
     model_keys: list[str] = []
     model_configs: dict[str, dict] = {}
@@ -1285,8 +1347,7 @@ async def _run_batch_main(args):
                 skipped.append((model_label, task_id))
 
         if skipped:
-            print(f"  跳过 {len(skipped)} 个任务（模型配置缺失）: "
-                  f"{[(m, t) for m, t in skipped[:5]]}...")
+            print(f"  跳过 {len(skipped)} 个任务（模型配置缺失）: " f"{[(m, t) for m, t in skipped[:5]]}...")
         if not retry_jobs:
             print("没有可执行的重试任务（所有 ERROR 模型均缺少配置）")
             return
@@ -1303,34 +1364,45 @@ async def _run_batch_main(args):
 
         for retry_round in range(1, max_retries + 1):
             current_errors = [
-                (ml, tid, cfg) for ml, tid, cfg in retry_jobs
-                if any(r.get("model", "") == ml and r["task"] == tid
-                       and r["status"] == "ERROR" for r in all_results)
+                (ml, tid, cfg)
+                for ml, tid, cfg in retry_jobs
+                if any(
+                    r.get("model", "") == ml and r["task"] == tid and r["status"] == "ERROR"
+                    for r in all_results
+                )
             ]
             if not current_errors:
                 break
 
             if max_retries > 1:
-                print(f"\n{'='*60}")
+                print(f"\n{'=' * 60}")
                 print(f"[RETRY {retry_round}/{max_retries}] {len(current_errors)} 个 ERROR 任务")
-                print(f"{'='*60}")
+                print(f"{'=' * 60}")
 
             if max_parallel <= 1:
                 retry_results = []
                 for ml, tid, cfg in current_errors:
-                    r = await run_single_task(tid, run_ts,
-                                              provider_config=cfg, model_label=ml,
-                                              result_root=result_root,
-                                              max_retries=args.retries)
+                    r = await run_single_task(
+                        tid,
+                        run_ts,
+                        provider_config=cfg,
+                        model_label=ml,
+                        result_root=result_root,
+                        max_retries=args.retries,
+                    )
                     retry_results.append(r)
             else:
                 sem = asyncio.Semaphore(max_parallel)
                 coros = [
-                    run_single_task(tid, run_ts,
-                                    provider_config=cfg, model_label=ml,
-                                    semaphore=sem,
-                                    result_root=result_root,
-                                    max_retries=args.retries)
+                    run_single_task(
+                        tid,
+                        run_ts,
+                        provider_config=cfg,
+                        model_label=ml,
+                        semaphore=sem,
+                        result_root=result_root,
+                        max_retries=args.retries,
+                    )
                     for ml, tid, cfg in current_errors
                 ]
                 retry_results = list(await asyncio.gather(*coros))
@@ -1339,10 +1411,12 @@ async def _run_batch_main(args):
 
             new_errors = sum(1 for r in all_results if r["status"] == "ERROR")
             fixed = len(error_pairs) - new_errors
-            print(f"\n[RETRY {retry_round}] 修复: {fixed}/{len(error_pairs)}, "
-                  f"剩余 ERROR: {new_errors}")
+            print(
+                f"\n[RETRY {retry_round}] 修复: {fixed}/{len(error_pairs)}, "
+                f"剩余 ERROR: {new_errors}"
+            )
 
-        for mk in (orig_model_keys if orig_multi_model else [""]):
+        for mk in orig_model_keys if orig_multi_model else [""]:
             model_results = [r for r in all_results if r.get("model", "") == mk]
             if model_results:
                 print_single_model_summary(mk, model_results, max_parallel)
@@ -1350,8 +1424,15 @@ async def _run_batch_main(args):
         print_category_stats(all_results)
 
         batch_dir = os.path.join(result_root, run_ts)
-        save_batch_summary(batch_dir, all_results, orig_model_keys, all_task_ids,
-                           max_parallel, run_ts, orig_multi_model)
+        save_batch_summary(
+            batch_dir,
+            all_results,
+            orig_model_keys,
+            all_task_ids,
+            max_parallel,
+            run_ts,
+            orig_multi_model,
+        )
 
         # --- 更新 Trial 平均分汇总 ---
         inferred_trials = infer_trial_groups(orig_model_keys)
@@ -1363,9 +1444,9 @@ async def _run_batch_main(args):
                     if trial_results:
                         trial_summaries.append({"results": trial_results})
                 if len(trial_summaries) > 1:
-                    print_trial_summary(base_key, trial_summaries,
-                                        result_root=result_root,
-                                        date_str=date_prefix)
+                    print_trial_summary(
+                        base_key, trial_summaries, result_root=result_root, date_str=date_prefix
+                    )
         return
 
     # --- 解析任务列表 ---
@@ -1376,7 +1457,11 @@ async def _run_batch_main(args):
             return
     elif args.range:
         start, end = args.range
-        task_ids = [t for t in ALL_TASKS if t.split("-")[0].isdigit() and start <= int(t.split("-")[0]) <= end]
+        task_ids = [
+            t
+            for t in ALL_TASKS
+            if t.split("-")[0].isdigit() and start <= int(t.split("-")[0]) <= end
+        ]
     elif args.tasks_opt:
         task_ids = args.tasks_opt
     elif args.tasks:
@@ -1405,9 +1490,7 @@ async def _run_batch_main(args):
     result_root = os.path.join("result", date_prefix)
 
     # 构建全部 (model, task) 作业对，打散后避免同一 task 的多模型扎堆调度
-    jobs = [(sample_id, model_key)
-            for sample_id in task_ids
-            for model_key in model_keys]
+    jobs = [(sample_id, model_key) for sample_id in task_ids for model_key in model_keys]
     if args.shuffle:
         random.shuffle(jobs)
 
@@ -1415,7 +1498,8 @@ async def _run_batch_main(args):
         all_results = []
         for sample_id, model_key in jobs:
             result = await run_single_task(
-                sample_id, run_ts,
+                sample_id,
+                run_ts,
                 provider_config=model_configs[model_key],
                 model_label=model_key if multi_model else "",
                 result_root=result_root,
@@ -1426,7 +1510,8 @@ async def _run_batch_main(args):
         semaphore = asyncio.Semaphore(max_parallel)
         coros = [
             run_single_task(
-                sample_id, run_ts,
+                sample_id,
+                run_ts,
                 provider_config=model_configs[model_key],
                 model_label=model_key if multi_model else "",
                 semaphore=semaphore,
@@ -1440,22 +1525,26 @@ async def _run_batch_main(args):
     # 按 (模型顺序, 任务顺序) 排序
     model_order = {m: i for i, m in enumerate(model_keys)}
     task_order = {t: i for i, t in enumerate(task_ids)}
-    all_results.sort(key=lambda r: (
-        model_order.get(r.get("model", ""), 999),
-        task_order.get(r["task"], 999),
-    ))
+    all_results.sort(
+        key=lambda r: (
+            model_order.get(r.get("model", ""), 999),
+            task_order.get(r["task"], 999),
+        )
+    )
 
     # --- 打印汇总 ---
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"批量运行完成 — {run_ts}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     total_passed = total_failed = total_errors = 0
     for model_key in model_keys:
-        model_results = [r for r in all_results
-                         if r.get("model", "") == (model_key if multi_model else "")]
+        model_results = [
+            r for r in all_results if r.get("model", "") == (model_key if multi_model else "")
+        ]
         p, f_, e = print_single_model_summary(
-            model_key if multi_model else "", model_results, max_parallel)
+            model_key if multi_model else "", model_results, max_parallel
+        )
         total_passed += p
         total_failed += f_
         total_errors += e
@@ -1472,22 +1561,23 @@ async def _run_batch_main(args):
 
     # --- 保存汇总 ---
     batch_dir = os.path.join(result_root, run_ts)
-    save_batch_summary(batch_dir, all_results, model_keys, task_ids,
-                       max_parallel, run_ts, multi_model)
+    save_batch_summary(
+        batch_dir, all_results, model_keys, task_ids, max_parallel, run_ts, multi_model
+    )
 
     # --- 自动重试 ERROR ---
     if args.retry_errors > 0:
         for retry_round in range(1, args.retry_errors + 1):
-            error_in_results = [
-                r for r in all_results if r["status"] == "ERROR"
-            ]
+            error_in_results = [r for r in all_results if r["status"] == "ERROR"]
             if not error_in_results:
                 break
 
-            print(f"\n{'='*60}")
-            print(f"[AUTO-RETRY {retry_round}/{args.retry_errors}] "
-                  f"重跑 {len(error_in_results)} 个 ERROR 任务")
-            print(f"{'='*60}")
+            print(f"\n{'=' * 60}")
+            print(
+                f"[AUTO-RETRY {retry_round}/{args.retry_errors}] "
+                f"重跑 {len(error_in_results)} 个 ERROR 任务"
+            )
+            print(f"{'=' * 60}")
 
             retry_jobs = []
             for r in error_in_results:
@@ -1504,20 +1594,27 @@ async def _run_batch_main(args):
             if max_parallel <= 1:
                 retry_results = []
                 for ml, tid, cfg in retry_jobs:
-                    ret = await run_single_task(tid, run_ts,
-                                                provider_config=cfg,
-                                                model_label=ml,
-                                                result_root=result_root,
-                                                max_retries=args.retries)
+                    ret = await run_single_task(
+                        tid,
+                        run_ts,
+                        provider_config=cfg,
+                        model_label=ml,
+                        result_root=result_root,
+                        max_retries=args.retries,
+                    )
                     retry_results.append(ret)
             else:
                 sem = asyncio.Semaphore(max_parallel)
                 coros = [
-                    run_single_task(tid, run_ts,
-                                    provider_config=cfg, model_label=ml,
-                                    semaphore=sem,
-                                    result_root=result_root,
-                                    max_retries=args.retries)
+                    run_single_task(
+                        tid,
+                        run_ts,
+                        provider_config=cfg,
+                        model_label=ml,
+                        semaphore=sem,
+                        result_root=result_root,
+                        max_retries=args.retries,
+                    )
                     for ml, tid, cfg in retry_jobs
                 ]
                 retry_results = list(await asyncio.gather(*coros))
@@ -1526,11 +1623,14 @@ async def _run_batch_main(args):
 
             new_errors = sum(1 for r in all_results if r["status"] == "ERROR")
             fixed = len(error_in_results) - new_errors
-            print(f"[AUTO-RETRY {retry_round}] 修复: {fixed}/{len(error_in_results)}, "
-                  f"剩余 ERROR: {new_errors}")
+            print(
+                f"[AUTO-RETRY {retry_round}] 修复: {fixed}/{len(error_in_results)}, "
+                f"剩余 ERROR: {new_errors}"
+            )
 
-            save_batch_summary(batch_dir, all_results, model_keys, task_ids,
-                               max_parallel, run_ts, multi_model)
+            save_batch_summary(
+                batch_dir, all_results, model_keys, task_ids, max_parallel, run_ts, multi_model
+            )
 
     # --- Trial 平均分汇总 ---
     if has_trials:
@@ -1542,9 +1642,12 @@ async def _run_batch_main(args):
                 if trial_results:
                     trial_summaries.append({"results": trial_results})
             if len(trial_summaries) > 1:
-                print_trial_summary(base_key, trial_summaries,
-                                    result_root=os.path.join("result", date_prefix),
-                                    date_str=date_prefix)
+                print_trial_summary(
+                    base_key,
+                    trial_summaries,
+                    result_root=os.path.join("result", date_prefix),
+                    date_str=date_prefix,
+                )
 
 
 if __name__ == "__main__":

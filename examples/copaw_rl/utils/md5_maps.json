@@ -1,0 +1,20 @@
+{
+    "agentscope-qwenpaw-0423": {
+        "bench_client.py": "c8ca1beddfb1a3fd5d123adc35552bce",
+        "copaw_eval.py": "19f0d3a06504017d17827ca6d49dddbd",
+        "export_training_data.py": "3670b6f2b9c2995cae7fd4374db807cf",
+        "fix_config.py": "6b16341f1b44de7927a4e78a37c8b76e",
+        "judge.py": "4f9686c48a8064fb6a8b5ae18df9f60a",
+        "run.py": "a281d62b6515c545aabc7d3dbdf6b447",
+        "setup_provider.py": "546879afc4f32f1b501b3c8d0ec0018f"
+    },
+    "agentscope-qwenpaw-0423-v2": {
+        "bench_client.py": "2eeca7fffcb05853f77453010c723eb2",
+        "copaw_eval.py": "dc7185e7590f082244f4a9f8a1e117e5",
+        "export_training_data.py": "a1e2c6f20d079994ef145f4b7f3080ba",
+        "fix_config.py": "6b16341f1b44de7927a4e78a37c8b76e",
+        "judge.py": "fdce261a4c7dfd762a2d64cfd39ca526",
+        "run.py": "185ff2d313f8a07397b03f78264a90cf",
+        "setup_provider.py": "827bb312489dbc5cbbd0ecc6e2dca535"
+    }
+}

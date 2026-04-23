@@ -1,10 +1,10 @@
 import json
-import os
 import logging
+import os
 import sys
+from urllib import request as urllib_request
 
 import numpy as np
-from urllib import request as urllib_request
 from judge import llm_judge as dispatch_llm_judge
 
 logging.basicConfig(
@@ -201,9 +201,9 @@ def export_training_data(task_id, trajectories, session_data=None) -> None:
                     (last_full_token_ids != np_prompt_token_ids[:last_full_length])
                 )[0][0]
                 log.info(
-                    f"添加新数据, {mismatch_position.item() = }, "
-                    f"{last_full_token_ids[mismatch_position:mismatch_position+10].tolist()} vs "
-                    f"{np_prompt_token_ids[mismatch_position:mismatch_position+10].tolist()}"
+                    f"添加新数据, {mismatch_position.item()=}, "
+                    f"{last_full_token_ids[mismatch_position:mismatch_position + 10].tolist()} vs "
+                    f"{np_prompt_token_ids[mismatch_position:mismatch_position + 10].tolist()}"
                 )
             data = {
                 "logprobs": logprobs,

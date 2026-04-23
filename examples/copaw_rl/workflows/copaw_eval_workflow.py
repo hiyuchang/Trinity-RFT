@@ -56,9 +56,7 @@ class CoPawEvalWorkflow(MultiTurnWorkflow):
                 self.logger,
             )
             metrics = {
-                key: value
-                for key, value in metrics.items()
-                if isinstance(value, (int, float))
+                key: value for key, value in metrics.items() if isinstance(value, (int, float))
             }
         except Exception as e:
             self.logger.error(f"Error running workflow (ID: {sandbox.sandbox_id}): {e}")

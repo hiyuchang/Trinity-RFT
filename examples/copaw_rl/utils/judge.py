@@ -3,13 +3,13 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Union
 
 import yaml
 
-import logging
 logger = logging.getLogger(__name__)
 
 try:
@@ -450,9 +450,7 @@ def main() -> None:
 
     task_info, _ = load_task_info(args.task_yaml)
     grader_plan = select_judge_grader(task_info)
-    grader_names = [
-        g.name + (" (log only)" if not g.include_in_score else "") for g in grader_plan
-    ]
+    grader_names = [g.name + (" (log only)" if not g.include_in_score else "") for g in grader_plan]
 
     print(
         f"task_id={task_info.task_id}, prefix={task_info.prefix}, domain={task_info.domain}, "
