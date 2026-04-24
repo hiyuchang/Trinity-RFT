@@ -1,3 +1,4 @@
+import time
 from typing import List, Optional
 
 import torch
@@ -29,6 +30,7 @@ class CoPawWorkflow(MultiTurnWorkflow):
             run_workflow,
         )
 
+        start_time = time.time()
         sandbox_id = self.task.workflow_args.get("sandbox_id", None)
         token = self.task.workflow_args["token"]
         domain = self.task.workflow_args["domain"]
@@ -36,7 +38,6 @@ class CoPawWorkflow(MultiTurnWorkflow):
 
         sandbox, created = get_or_create_sandbox(sandbox_id, token, domain, template, self.logger)
         sandbox_id = sandbox.sandbox_id
-        self.logger.info(f"Sandbox {sandbox_id} created: {created}")
 
         oss_config = self.task.workflow_args["oss"]
         dashscope_api_key = self.task.workflow_args["dashscope_api_key"]
@@ -58,7 +59,6 @@ class CoPawWorkflow(MultiTurnWorkflow):
             raise e
         finally:
             sandbox.kill()
-            pass
 
         exps = []
         for data in dataset:
@@ -83,8 +83,8 @@ class CoPawWorkflow(MultiTurnWorkflow):
             exps.append(exp)
 
         self.logger.info(
-            f"Workflow finished. Sandbox {'created' if created else 'connected'} "
-            f"(ID: {sandbox_id}). Collected {len(exps)} experiences."
+            f"Workflow finished in {time.time() - start_time:.2f} seconds. Sandbox {'created' if created else 'connected'} "
+            f"(ID: {sandbox_id}). Reward = {reward}. Collected {len(exps)} experiences."
         )
 
         return exps

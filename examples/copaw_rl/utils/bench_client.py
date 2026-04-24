@@ -133,6 +133,12 @@ class BenchmarkClient:
 
         if should_flatten and wrapper_dir_name:
             wrapper_dir = target_dir / wrapper_dir_name
+            while wrapper_dir.is_dir():
+                inner_dir = wrapper_dir / wrapper_dir_name
+                if inner_dir.is_dir():
+                    wrapper_dir = inner_dir
+                else:
+                    break
             if wrapper_dir.is_dir():
                 for child in wrapper_dir.iterdir():
                     dst = target_dir / child.name
@@ -286,8 +292,8 @@ class BenchmarkClient:
         """
         archive_name = f"{task_id}.tar.gz"
         candidate_keys = [
-            self._full_key(f"tasks/{task_id}/{archive_name}"),
             self._full_key(f"tasks/{archive_name}"),
+            self._full_key(f"tasks/{task_id}/{archive_name}"),
         ]
         local_path = Path(local_dir)
         archive_path = local_path / archive_name

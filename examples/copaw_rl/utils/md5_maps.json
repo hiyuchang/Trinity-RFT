@@ -16,5 +16,14 @@
         "judge.py": "fdce261a4c7dfd762a2d64cfd39ca526",
         "run.py": "185ff2d313f8a07397b03f78264a90cf",
         "setup_provider.py": "827bb312489dbc5cbbd0ecc6e2dca535"
+    },
+    "agentscope-qwenpaw-0424": {
+        "bench_client.py": "0fe43038e068f796f82015333d69c63d",
+        "copaw_eval.py": "dc7185e7590f082244f4a9f8a1e117e5",
+        "export_training_data.py": "d47dd6be5aa285b6d09f5094c8b493e4",
+        "fix_config.py": "6b16341f1b44de7927a4e78a37c8b76e",
+        "judge.py": "fdce261a4c7dfd762a2d64cfd39ca526",
+        "run.py": "185ff2d313f8a07397b03f78264a90cf",
+        "setup_provider.py": "827bb312489dbc5cbbd0ecc6e2dca535"
     }
 }

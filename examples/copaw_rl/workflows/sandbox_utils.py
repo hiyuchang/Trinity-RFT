@@ -2,6 +2,7 @@ import argparse
 import hashlib
 import json
 import os
+import pickle
 import time
 from pathlib import Path
 from typing import Tuple
@@ -203,8 +204,8 @@ def run_workflow(
     )
     _, _ = launch_run_py(sandbox, cmd, oss_config, dashscope_api_key, logger, raise_error=True)
 
-    content = sandbox.files.read("/root/dataset.json")
-    dataset = json.loads(content)
+    content = sandbox.files.read("/root/dataset.pkl", format="bytes")
+    dataset = pickle.loads(content)
     return dataset
 
 

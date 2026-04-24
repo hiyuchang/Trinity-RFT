@@ -60,6 +60,7 @@ buffer:
     experience_buffer:
       name: experience_buffer
       storage_type: queue
+      max_read_timeout: 4200
       replay_buffer:
         enable: true
         # reuse_cooldown_time is None
@@ -69,7 +70,7 @@ buffer:
           use_count_limit: 3
           sigma: 0.5
 explorer:
-  runner_per_model: 32
+  runner_per_model: ${oc.env:RUNNER_PER_MODEL,32}
   max_timeout: 900
   max_retry_times: 2
   max_repeat_times_per_runner: 1
@@ -89,6 +90,10 @@ explorer:
     reasoning_parser: qwen3
     tool_call_parser: qwen3_coder
   eval_interval: 10000
+  over_rollout:
+    ratio: 0.0
+    wait_after_min: 30.0
+    return_partial_tasks: ${oc.env:RETURN_PARTIAL_TASKS,false}
   bench_on_latest_checkpoint: false
 synchronizer:
   sync_method: 'nccl'

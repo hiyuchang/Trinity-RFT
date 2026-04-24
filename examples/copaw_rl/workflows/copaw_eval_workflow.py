@@ -36,13 +36,13 @@ class CoPawEvalWorkflow(MultiTurnWorkflow):
         checkpoint_job_dir = self.task.workflow_args["checkpoint_job_dir"]
 
         sandbox, created = get_or_create_sandbox(sandbox_id, token, domain, template, self.logger)
-        self.logger.info(f"Sandbox {sandbox.sandbox_id} created: {created}")
 
         oss_config = self.task.workflow_args["oss"]
         dashscope_api_key = self.task.workflow_args["dashscope_api_key"]
         task_id = self.task.raw_task["task_id"]
         api_server_url = f"{self.model.api_address}/v1"
         model_path = self.model.model_path
+        model_version = self.model.model_version
         try:
             metrics = run_eval_workflow(
                 sandbox,
@@ -51,7 +51,7 @@ class CoPawEvalWorkflow(MultiTurnWorkflow):
                 dashscope_api_key,
                 api_server_url,
                 model_path,
-                "",  # model_label，暂时保持空字符串
+                f"step_{model_version}",
                 checkpoint_job_dir,
                 self.logger,
             )
@@ -60,8 +60,10 @@ class CoPawEvalWorkflow(MultiTurnWorkflow):
             }
         except Exception as e:
             self.logger.error(f"Error running workflow (ID: {sandbox.sandbox_id}): {e}")
-            # sandbox.kill()
             raise e
+        finally:
+            sandbox.kill()
+
         exps = [
             Experience(
                 tokens=torch.tensor([]),
@@ -72,24 +74,7 @@ class CoPawEvalWorkflow(MultiTurnWorkflow):
                 metrics=metrics,
             )
         ]
-        # for data in dataset:
-        #     prompt_token_ids = torch.tensor(data["prompt_token_ids"])
-        #     response_token_ids = torch.tensor(data["token_ids"])
-        #     token_ids = torch.cat([prompt_token_ids, response_token_ids])
-        #     logprobs = torch.tensor(data["logprobs"])
-        #     prompt_length = len(prompt_token_ids)
-        #     action_mask = torch.tensor(data["response_mask"], dtype=torch.int)
-        #     reward = float(data.get("judge_ok", 0.0))
-        #     exp = Experience(
-        #         tokens=token_ids,
-        #         logprobs=logprobs,
-        #         prompt_length=prompt_length,
-        #         action_mask=action_mask,
-        #         reward=reward,
-        #     )
-        #     exps.append(exp)
 
-        # sandbox.kill()
         self.logger.info(
             f"Workflow finished. Sandbox {'created' if created else 'connected'} "
             f"(ID: {sandbox.sandbox_id}). Collected {len(exps)} experiences."

@@ -1165,10 +1165,7 @@ class TrainerConfigValidator(ConfigValidator):
             ValueError: If trainer type is invalid, deprecated config path is used,
                        or save checkpoint strategy is invalid.
         """
-        if (
-            config.mode not in ["train", "both", "bench", "colocate"]
-            and config.trainer.trainer_strategy != "megatron"
-        ):
+        if config.mode in ["explore", "bench"] and config.trainer.trainer_strategy != "megatron":
             return
 
         if config.model.external_model.enable:

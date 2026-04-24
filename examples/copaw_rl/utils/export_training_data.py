@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import pickle
 import sys
 from urllib import request as urllib_request
 
@@ -217,5 +218,5 @@ def export_training_data(task_id, trajectories, session_data=None) -> None:
         last_full_token_ids = np.array(prompt_token_ids + token_ids)
         last_full_length = len(last_full_token_ids)
 
-    with open(os.path.join(_SCRIPT_DIR, "dataset.json"), "w", encoding="utf-8") as f:
-        json.dump(dataset, f, ensure_ascii=False)  # , indent=2
+    with open(os.path.join(_SCRIPT_DIR, "dataset.pkl"), "wb") as f:
+        pickle.dump(dataset, f)
