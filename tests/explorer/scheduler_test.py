@@ -3,6 +3,7 @@ import time
 import unittest
 from collections import defaultdict
 from typing import Dict, List, Optional, Sequence
+from unittest.mock import AsyncMock, patch
 
 import ray
 import torch
@@ -97,6 +98,90 @@ class DummyNonRepeatWorkflow(Workflow):
             for step in range(self.step_num)
         ]
         return exps
+
+
+@WORKFLOWS.register_module("dummy_partial_snapshot_workflow")
+class DummyPartialSnapshotWorkflow(Workflow):
+    can_reset: bool = True
+
+    def __init__(self, *, task, model, auxiliary_models):
+        super().__init__(task=task, model=model, auxiliary_models=auxiliary_models)
+        self.reset(task)
+
+    def reset(self, task: Task):
+        self.task = task
+
+    def run(self) -> List[Experience]:
+        actions = self.task.workflow_args.get("actions_by_repeat_times", {})
+        action = actions.get(self.task.rollout_args.n, "success")
+
+        if action.startswith("sleep_"):
+            time.sleep(float(action.split("_", 1)[1]))
+        elif action == "exception":
+            raise ValueError("planned partial failure")
+
+        return [
+            Experience(
+                eid=EID(step=0),
+                tokens=torch.zeros(5),
+                prompt_length=2,
+                prompt_text=action,
+                metrics={"run_metrics": float(self.task.rollout_args.n * 10)},
+            )
+        ]
+
+
+@WORKFLOWS.register_module("dummy_async_partial_snapshot_workflow")
+class DummyAsyncPartialSnapshotWorkflow(Workflow):
+    can_reset: bool = True
+    is_async: bool = True
+    _run_index_by_key = defaultdict(int)
+
+    def __init__(self, *, task, model, auxiliary_models):
+        super().__init__(task=task, model=model, auxiliary_models=auxiliary_models)
+        self.reset(task)
+
+    def reset(self, task: Task):
+        self.task = task
+
+    async def run_async(self) -> List[Experience]:
+        actions = self.task.workflow_args.get("actions_by_repeat_times", {})
+        action_sequences = self.task.workflow_args.get("action_sequence_by_repeat_times", {})
+        metric_sequences = self.task.workflow_args.get("metric_sequence_by_repeat_times", {})
+
+        key = (self.task.batch_id, self.task.task_id, self.task.rollout_args.n)
+        run_index = DummyAsyncPartialSnapshotWorkflow._run_index_by_key[key]
+        DummyAsyncPartialSnapshotWorkflow._run_index_by_key[key] += 1
+
+        sequence_actions = action_sequences.get(self.task.rollout_args.n)
+        if sequence_actions and run_index < len(sequence_actions):
+            action = sequence_actions[run_index]
+        else:
+            action = actions.get(self.task.rollout_args.n, "success")
+
+        if action.startswith("sleep_"):
+            await asyncio.sleep(float(action.split("_", 1)[1]))
+        elif action == "exception":
+            raise ValueError("planned partial failure")
+
+        sequence = metric_sequences.get(self.task.rollout_args.n)
+        if sequence and run_index < len(sequence):
+            run_metric = float(sequence[run_index])
+        else:
+            run_metric = float(self.task.rollout_args.n * 10)
+
+        return [
+            Experience(
+                eid=EID(step=0),
+                tokens=torch.zeros(5),
+                prompt_length=2,
+                prompt_text=action,
+                metrics={"run_metrics": run_metric},
+            )
+        ]
+
+    def run(self):
+        raise RuntimeError("This method should not be called")
 
 
 @WORKFLOWS.register_module("dummy_async_workflow")
@@ -327,6 +412,7 @@ def generate_tasks(
 class SchedulerTest(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         ray.init(ignore_reinit_error=True)
+        DummyAsyncPartialSnapshotWorkflow._run_index_by_key.clear()
         self.config = get_template_config()
         self.config.explorer.max_retry_times = 1
         self.config.explorer.max_timeout = 5
@@ -787,8 +873,9 @@ class SchedulerTest(unittest.IsolatedAsyncioTestCase):
         statuses, exps = await scheduler.get_results(batch_id=0)
         self.assertEqual(len(statuses), 2)
         self.assertEqual(len(exps), 1 * 4 * 1 + 1 * 8 * 4)
-        self.assertAlmostEqual(statuses[0].metrics[0]["run_metrics"], 1.5)  # (0+1+2+3)/4
-        self.assertAlmostEqual(statuses[1].metrics[0]["run_metrics"], 3.5)  # (0+1+2+3+4+5+6+7)/8
+        expected_run_metrics = set({1.5, 3.5})  # (0+1+2+3)/4 and (0+1+2+3+4+5+6+7)/8
+        actual_run_metrics = set(status.metrics[0]["run_metrics"] for status in statuses)
+        self.assertSetEqual(expected_run_metrics, actual_run_metrics)
 
     @parameterized.expand(
         [
@@ -835,6 +922,270 @@ class SchedulerTest(unittest.IsolatedAsyncioTestCase):
         statuses, exps = await scheduler.get_results(batch_id=0, min_num=2)
         self.assertEqual(len(statuses), 3)
         self.assertEqual(len(exps), 3 * 1)
+
+    async def test_over_rollout_return_partial_tasks(self):
+        self.config.explorer.over_rollout.ratio = 0.5
+        self.config.explorer.over_rollout.wait_after_min = 0.5
+        self.config.explorer.over_rollout.return_partial_tasks = True
+        self.config.explorer.max_repeat_times_per_runner = 2
+        self.config.synchronizer.sync_style = SyncStyle.EXPLORER_DRIVEN
+        self.config.buffer.batch_size = 2
+        self.config.check_and_update()
+        scheduler = Scheduler(self.config, [DummyModel.remote(), DummyModel.remote()])
+        await scheduler.start()
+
+        tasks = [
+            Task(
+                workflow=DummyWorkflow,  # type: ignore[type-abstract]
+                workflow_args={"step_num": 1},
+                repeat_times=1,
+                raw_task={},
+            ),
+            Task(
+                # split into 2 sub-tasks with repeat_times=2 and 1.
+                # Inside the repeat_times=2 sub-task, one internal run succeeds and
+                # the other raises, so runner returns a partial subtask result.
+                # The repeat_times=1 sub-task remains in sleep_5 and is later cleaned
+                # up by over-rollout before it can contribute any metric.
+                workflow=DummyAsyncPartialSnapshotWorkflow,  # type: ignore[type-abstract]
+                workflow_args={
+                    "action_sequence_by_repeat_times": {
+                        2: ["success", "exception"],
+                    },
+                    "actions_by_repeat_times": {
+                        1: "sleep_5",
+                    },
+                    "metric_sequence_by_repeat_times": {
+                        2: [10.0, 30.0],
+                    },
+                },
+                repeat_times=3,
+                raw_task={},
+            ),
+        ]
+        scheduler.schedule(tasks, batch_id=0)
+
+        start_time = time.time()
+        statuses, exps = await scheduler.get_results(
+            batch_id=0,
+            min_num=1,
+            timeout=2,
+            return_partial_tasks=True,
+        )
+        end_time = time.time()
+
+        self.assertLess(end_time - start_time, 5)
+        self.assertEqual(len(statuses), 2)
+        self.assertEqual(len(exps), 2)
+
+        full_status = next(status for status in statuses if status.total_runs == 1)
+        partial_status = next(status for status in statuses if status.total_runs == 3)
+        self.assertTrue(full_status.ok)
+        self.assertEqual(partial_status.completed_runs, 1)
+        self.assertFalse(partial_status.ok)
+        metric_bearing_exps = [exp for exp in exps if exp.metrics]
+        full_task_run_metrics = [
+            exp.metrics["run_metrics"]
+            for exp in metric_bearing_exps
+            if exp.info and exp.info.get("repeat_times") == 1
+        ]
+        partial_task_run_metrics = [
+            exp.metrics["run_metrics"]
+            for exp in metric_bearing_exps
+            if not (exp.info and exp.info.get("repeat_times") == 1)
+        ]
+
+        # The normal task should keep its own task-level metric, proving scheduler
+        # does not mix metrics between different tasks in the same batch.
+        self.assertEqual(full_task_run_metrics, [0.0])
+        self.assertEqual(full_status.metrics[0]["run_metrics"], 0.0)
+
+        # End-to-end check: the partially returned task contributes only the single
+        # successful run from the partially failed repeat_times=2 sub-task. The
+        # failed internal run and the cancelled repeat_times=1 sub-task must not be
+        # counted when scheduler computes the task-level metric. This also guards
+        # against retrying the partially successful sub-task, which would add extra
+        # successful runs and change both the emitted experiences and task metric.
+        # We identify partial-task experiences by excluding the known full-task
+        # marker (`info["repeat_times"] == 1`) rather than assuming empty info.
+        self.assertEqual(sorted(partial_task_run_metrics), [10.0])
+        self.assertEqual(
+            partial_status.metrics[0]["run_metrics"],
+            sum(partial_task_run_metrics) / len(partial_task_run_metrics),
+        )
+        self.assertEqual(partial_status.metrics[0]["run_metrics"], 10.0)
+        self.assertIn("1/3 runs completed successfully", partial_status.message)
+
+        statuses, exps = await scheduler.get_results(batch_id=0, timeout=1)
+        self.assertEqual(len(statuses), 0)
+        self.assertEqual(len(exps), 0)
+
+        await scheduler.stop()
+
+    async def test_over_rollout_async_cancelled_runner_accepts_next_batch(self):
+        self.config.explorer.over_rollout.ratio = 0.5
+        self.config.explorer.over_rollout.wait_after_min = 0.5
+        self.config.explorer.over_rollout.return_partial_tasks = True
+        self.config.explorer.max_repeat_times_per_runner = 2
+        self.config.explorer.runner_per_model = 1
+        self.config.synchronizer.sync_style = SyncStyle.EXPLORER_DRIVEN
+        self.config.buffer.batch_size = 2
+        self.config.check_and_update()
+        scheduler = Scheduler(self.config, [DummyModel.remote()])
+        await scheduler.start()
+
+        tasks = [
+            Task(
+                workflow=DummyWorkflow,  # type: ignore[type-abstract]
+                workflow_args={"step_num": 1},
+                repeat_times=1,
+                raw_task={},
+            ),
+            Task(
+                workflow=DummyAsyncPartialSnapshotWorkflow,  # type: ignore[type-abstract]
+                workflow_args={
+                    "actions_by_repeat_times": {
+                        2: "success",
+                        1: "sleep_5",
+                    }
+                },
+                repeat_times=3,
+                raw_task={},
+            ),
+        ]
+        scheduler.schedule(tasks, batch_id=0)
+
+        statuses, exps = await scheduler.get_results(
+            batch_id=0,
+            min_num=1,
+            timeout=3,
+            return_partial_tasks=True,
+        )
+
+        self.assertEqual(len(statuses), 2)
+        self.assertEqual(len(exps), 3)
+
+        follow_up_tasks = generate_tasks(2)
+        scheduler.schedule(follow_up_tasks, batch_id=1)
+        start_time = time.time()
+        next_statuses, next_exps = await scheduler.get_results(batch_id=1, min_num=2, timeout=2)
+        elapsed = time.time() - start_time
+
+        self.assertEqual(len(next_statuses), 2)
+        self.assertEqual(len(next_exps), 2)
+        self.assertLess(elapsed, 1.5)
+
+        await scheduler.stop()
+
+    async def test_over_rollout_sync_cancel_does_not_imply_immediate_runner_reuse(self):
+        self.config.explorer.over_rollout.ratio = 0.5
+        self.config.explorer.over_rollout.wait_after_min = 0.5
+        self.config.explorer.over_rollout.return_partial_tasks = True
+        self.config.explorer.max_repeat_times_per_runner = 2
+        self.config.explorer.runner_per_model = 1
+        self.config.synchronizer.sync_style = SyncStyle.EXPLORER_DRIVEN
+        self.config.buffer.batch_size = 2
+        self.config.check_and_update()
+        scheduler = Scheduler(self.config, [DummyModel.remote()])
+        await scheduler.start()
+
+        tasks = [
+            Task(
+                workflow=DummyWorkflow,  # type: ignore[type-abstract]
+                workflow_args={"step_num": 1},
+                repeat_times=1,
+                raw_task={},
+            ),
+            Task(
+                workflow=DummyPartialSnapshotWorkflow,  # type: ignore[type-abstract]
+                workflow_args={
+                    "actions_by_repeat_times": {
+                        2: "success",
+                        1: "sleep_2",
+                    }
+                },
+                repeat_times=3,
+                raw_task={},
+            ),
+        ]
+        scheduler.schedule(tasks, batch_id=0)
+
+        statuses, exps = await scheduler.get_results(
+            batch_id=0,
+            min_num=1,
+            timeout=3,
+            return_partial_tasks=True,
+        )
+
+        self.assertEqual(len(statuses), 2)
+        self.assertEqual(len(exps), 3)
+
+        follow_up_tasks = generate_tasks(2)
+        scheduler.schedule(follow_up_tasks, batch_id=1)
+        start_time = time.time()
+        next_statuses, next_exps = await scheduler.get_results(
+            batch_id=1,
+            min_num=2,
+            timeout=0.5,
+            clear_timeout_tasks=False,
+        )
+        elapsed = time.time() - start_time
+
+        self.assertEqual(len(next_statuses), 0)
+        self.assertEqual(len(next_exps), 0)
+        self.assertGreaterEqual(elapsed, 0.5)
+        self.assertTrue(scheduler.has_step(1))
+
+        next_statuses, next_exps = await scheduler.get_results(batch_id=1, min_num=2, timeout=4)
+        self.assertEqual(len(next_statuses), 2)
+        self.assertEqual(len(next_exps), 2)
+
+        await scheduler.stop()
+
+    async def test_timeout_cleanup_still_restarts_runner(self):
+        self.config.explorer.over_rollout.wait_after_min = 100
+        self.config.explorer.max_repeat_times_per_runner = None
+        self.config.synchronizer.sync_style = SyncStyle.EXPLORER_DRIVEN
+        self.config.check_and_update()
+        scheduler = Scheduler(self.config, [DummyModel.remote(), DummyModel.remote()])
+        await scheduler.start()
+
+        tasks = generate_tasks(0, timeout_num=2, repeat_times=1, timeout_seconds=10)
+        scheduler.schedule(tasks, batch_id=0)
+
+        with patch.object(scheduler, "_restart_runner", new=AsyncMock()) as restart_runner_mock:
+            await scheduler.get_results(batch_id=0, timeout=1)
+
+        self.assertGreaterEqual(restart_runner_mock.await_count, 1)
+
+        await scheduler.stop()
+
+    async def test_unexpected_task_exception_restarts_runner(self):
+        self.config.explorer.runner_per_model = 1
+        self.config.check_and_update()
+        scheduler = Scheduler(self.config, [DummyModel.remote()])
+        await scheduler.start()
+
+        scheduler.runners[0].run_with_retry = AsyncMock(side_effect=RuntimeError("boom"))
+        restart_event = asyncio.Event()
+
+        async def fake_restart_runner(runner_id):
+            scheduler.busy_runners.pop(runner_id, None)
+            scheduler.idle_runners.add(runner_id)
+            restart_event.set()
+
+        with patch.object(
+            scheduler, "_restart_runner", side_effect=fake_restart_runner
+        ) as restart_runner_mock:
+            scheduler.schedule(generate_tasks(1), batch_id=0)
+            await asyncio.wait_for(restart_event.wait(), timeout=2)
+
+        self.assertEqual(restart_runner_mock.await_count, 1)
+        self.assertEqual(len(scheduler.busy_runners), 0)
+        self.assertEqual(len(scheduler.idle_runners), scheduler.runner_num)
+        self.assertNotIn(0, scheduler.running_tasks)
+
+        await scheduler.stop()
 
     async def test_dynamic_timeout(self):
         self.config.explorer.dynamic_timeout.enable = True

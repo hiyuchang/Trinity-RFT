@@ -253,7 +253,9 @@ def apply_monkey_patch(  # noqa: C901
     )
 
     if is_trl_available():
-        from trl import AutoModelForCausalLMWithValueHead  # type: ignore
+        from trl.experimental.ppo import (
+            AutoModelForCausalLMWithValueHead,  # type: ignore
+        )
 
         def state_dict(self, *args, **kwargs):
             return torch.nn.Module.state_dict(self, *args, **kwargs)

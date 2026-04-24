@@ -1367,6 +1367,7 @@ class TestOverRollout(BaseTrainerCase):
         self.config.buffer.eval_interval = 4  # only eval on start
         self.config.name = f"explore-over-rollout-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         self.config.explorer.over_rollout.ratio = 0.5  # set over rollout rate to 50%, which means only wait for 2 (4 * 50%) tasks in each steps
+        self.config.explorer.over_rollout.return_partial_tasks = True
         self.config.explorer.over_rollout.wait_after_min = 0
         self.config.explorer.dynamic_timeout.enable = True
         self.config.explorer.dynamic_timeout.ratio = 2

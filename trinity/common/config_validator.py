@@ -655,12 +655,15 @@ class ExplorerConfigValidator(ConfigValidator):
             for args in model_args:
                 set_if_none(aux_model, args, getattr(config.model, args))
 
-        if config.explorer.over_rollout.ratio > 0.0:
+        if (
+            config.explorer.over_rollout.ratio > 0.0
+            or config.explorer.over_rollout.return_partial_tasks
+        ):
             if not (0.0 <= config.explorer.over_rollout.ratio < 1.0):
                 raise ValueError("over_rollout_ratio should be in [0.0, 1.0)")
             if config.synchronizer.sync_style == SyncStyle.FIXED:
                 raise ValueError(
-                    "over_rollout_ratio is not compatible with fixed sync_style, please set "
+                    "over_rollout is not compatible with fixed sync_style, please set "
                     "`synchronizer.sync_style` to `explorer_driven` or `trainer_driven`."
                 )
 

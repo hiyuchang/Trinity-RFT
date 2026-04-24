@@ -10,12 +10,14 @@ from transformers import AutoTokenizer
 
 from tests.tools import (
     CHAT_TEMPLATE,
+    CHAT_TEMPLATE_QWEN2_5,
     RayUnittestBaseAsync,
     get_api_model_path,
     get_model_path,
     get_template_config,
 )
 from trinity.common.config import Config
+from trinity.common.constants import MODEL_PATH_ENV_VAR
 from trinity.common.models import create_explorer_models
 from trinity.common.models.model import ModelWrapper
 from trinity.common.models.utils import (
@@ -67,6 +69,7 @@ class ModelWrapperTest(RayUnittestBaseAsync):
         self.config.explorer.rollout_model.tensor_parallel_size = self.tensor_parallel_size
         self.config.algorithm.repeat_times = self.repeat_times
         self.config.explorer.rollout_model.enable_history = self.enable_history
+        self.config.explorer.rollout_model.chat_template = CHAT_TEMPLATE
         self.config.check_and_update()
 
         self.engines, self.auxiliary_engines = create_explorer_models(self.config)
@@ -407,9 +410,11 @@ class TestAPIServer(RayUnittestBaseAsync):
         self.config.model.model_path = get_model_path()
         self.config.explorer.rollout_model.engine_type = "vllm"
         self.config.explorer.rollout_model.engine_num = 1
-        self.config.explorer.rollout_model.tensor_parallel_size = 1
         self.config.explorer.rollout_model.chat_template = CHAT_TEMPLATE
+        self.config.explorer.rollout_model.tensor_parallel_size = 1
         self.config.explorer.rollout_model.enable_openai_api = True
+        self.config.explorer.rollout_model.enable_auto_tool_choice = True
+        self.config.explorer.rollout_model.tool_call_parser = "qwen3_coder"
 
         self.config.check_and_update()
         self.engines, self.auxiliary_engines = create_explorer_models(self.config)
@@ -495,6 +500,70 @@ class TestAPIServer(RayUnittestBaseAsync):
         with self.assertRaises(ValueError):
             self.model_wrapper_no_history.extract_experience_from_history()
         self.assertEqual(len(self.model_wrapper_no_history.history), 0)
+
+    @unittest.skipIf(
+        "Qwen3.5" not in os.getenv(MODEL_PATH_ENV_VAR, ""), "This test is only for Qwen3.5 series"
+    )
+    async def test_reasoning_content(self):
+        await prepare_engines(self.engines, self.auxiliary_engines)
+        await self.model_wrapper.prepare()
+        await self.model_wrapper_no_history.prepare()
+        openai_client = self.model_wrapper.get_openai_client()
+        model_id = openai_client.models.list().data[0].id
+        # test reasoning content
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Please give me all available agents."},
+            {
+                "role": "assistant",
+                "content": [{"type": "text", "text": "\n\n"}],
+                "tool_calls": [
+                    {
+                        "id": "call_9ab63a0fa4fd4c398339e229",
+                        "type": "function",
+                        "function": {"name": "list_agents", "arguments": "{}"},
+                    }
+                ],
+                "reasoning_content": "Use `list_agents` tool to get the list of agents.",
+            },
+            {
+                "role": "tool",
+                "tool_call_id": "call_9ab63a0fa4fd4c398339e229",
+                "content": '{"agents": ["agent_1", "agent_2", "agent_3"]}',
+            },
+        ]
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "list_agents",
+                    "parameters": {
+                        "properties": {
+                            "base_url": {
+                                "anyOf": [{"type": "string"}, {"type": "null"}],
+                                "default": None,
+                            }
+                        },
+                        "type": "object",
+                    },
+                    "description": "List all configured agents from the QwenPaw service.",
+                },
+            },
+        ]
+        _ = openai_client.chat.completions.create(
+            model=model_id,
+            messages=messages,
+            n=1,
+            temperature=0.5,
+            logprobs=True,
+            top_logprobs=0,
+            tools=tools,
+        )
+        exps = self.model_wrapper.extract_experience_from_history()
+        self.assertEqual(len(exps), 1)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config.model.model_path)
+        text = self.tokenizer.decode(exps[0].tokens.tolist())
+        self.assertIn("Use `list_agents` tool to get the list of agents.", text)
 
 
 SYSTEM_PROMPT = """
@@ -882,12 +951,12 @@ class TestTokenizer(unittest.TestCase):
         token_ids, action_mask, prompt_length = tokenize_and_mask_messages_default(
             tokenizer=tokenizer,
             messages=messages,
-            chat_template=CHAT_TEMPLATE,
+            chat_template=CHAT_TEMPLATE_QWEN2_5,
         )
         token_ids_hf, action_mask_hf, prompt_length_hf = tokenize_and_mask_messages_hf(
             tokenizer=tokenizer,
             messages=messages,
-            chat_template=CHAT_TEMPLATE,
+            chat_template=CHAT_TEMPLATE_QWEN2_5,
         )
         self.assertEqual(token_ids.shape, token_ids_hf.shape)
         self.assertEqual(action_mask.shape, action_mask_hf.shape)
@@ -955,13 +1024,13 @@ class TestTokenizer(unittest.TestCase):
             tokenizer=tokenizer,
             messages=messages,
             tools=tools,
-            chat_template=CHAT_TEMPLATE,
+            chat_template=CHAT_TEMPLATE_QWEN2_5,
         )
         token_ids_hf, action_mask_hf, prompt_length_hf = tokenize_and_mask_messages_hf(
             tokenizer=tokenizer,
             messages=messages,
             tools=tools,
-            chat_template=CHAT_TEMPLATE,
+            chat_template=CHAT_TEMPLATE_QWEN2_5,
         )
         self.assertEqual(token_ids.shape, token_ids_hf.shape)
         self.assertEqual(action_mask.shape, action_mask_hf.shape)
@@ -1343,13 +1412,14 @@ class TestTinkerAPI(RayUnittestBaseAsync):
         result_dict = tokenizer.apply_chat_template(
             messages,
             chat_template=CHAT_TEMPLATE,
-            add_generation_prompt=False,
+            add_generation_prompt=True,
             padding=False,
             truncation=True,
             return_tensors="pt",
             add_special_tokens=False,
             return_assistant_tokens_mask=True,
             return_dict=True,
+            enable_thinking=False,
         )
         prompt = types.ModelInput.from_ints(
             result_dict["input_ids"][0].tolist(),
@@ -1359,7 +1429,11 @@ class TestTinkerAPI(RayUnittestBaseAsync):
         response = await engine.sample.remote(
             prompt=prompt,
             num_samples=num_samples,
-            sampling_params=types.SamplingParams(temperature=0.7),  # no limit on length
+            sampling_params=types.SamplingParams(
+                temperature=0.7,
+                top_p=0.9,
+                top_k=20,
+            ),  # no limit on length
         )
         self.assertEqual(len(response.sequences), num_samples)
         for sequence in response.sequences:

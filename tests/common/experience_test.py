@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Test cases for Storage modules."""
+import io
 import os
 import pickle
 import unittest
@@ -8,6 +9,11 @@ import torch
 
 from trinity.buffer.schema.sql_schema import ExperienceModel
 from trinity.common.experience import EID, CustomField, Experience
+from trinity.common.experience_visualizer import (
+    build_experience_token_view,
+    format_experience_colored_tokens,
+    print_experience_colored_tokens,
+)
 
 db_url = os.path.join(os.path.dirname(__file__), "tmp", "test.db")
 dataset_path = os.path.join(os.path.dirname(__file__), "data")
@@ -42,6 +48,46 @@ class TestEID(unittest.TestCase):
 
 
 class TestExperience(unittest.TestCase):
+    class DummyTokenizer:
+        def decode(self, token_ids):
+            mapping = {
+                10: "Prompt",
+                11: " answer",
+                12: "\n",
+                13: "done",
+            }
+            return "".join(mapping[token_id] for token_id in token_ids)
+
+        def convert_ids_to_tokens(self, token_ids):
+            mapping = {
+                10: "Prompt",
+                11: " answer",
+                12: "\n",
+                13: "done",
+            }
+            return [mapping[token_id] for token_id in token_ids]
+
+    class RawTokenDummyTokenizer:
+        def decode(self, token_ids, clean_up_tokenization_spaces=False):
+            mapping = {
+                1: "<|im_start|>",
+                2: " system",
+                3: "\n",
+                4: " You",
+                5: " are",
+            }
+            return "".join(mapping[token_id] for token_id in token_ids)
+
+        def convert_ids_to_tokens(self, token_ids):
+            mapping = {
+                1: "<|im_start|>",
+                2: "Ġsystem",
+                3: "Ċ",
+                4: "ĠYou",
+                5: "Ġare",
+            }
+            return [mapping[token_id] for token_id in token_ids]
+
     def test_single_turn_experience(self):
         tokens = torch.tensor([10, 11, 12], dtype=torch.int32)
         logprobs = torch.tensor([0.2, 0.3], dtype=torch.float32)
@@ -193,6 +239,77 @@ class TestExperience(unittest.TestCase):
         self.assertIsInstance(exp.logprobs, torch.Tensor)
         self.assertIsInstance(exp.action_mask, torch.Tensor)
 
+    def test_format_colored_tokens_uses_action_mask(self):
+        tokenizer = self.DummyTokenizer()
+        exp = Experience(
+            tokens=torch.tensor([10, 11, 12, 13], dtype=torch.int32),
+            action_mask=torch.tensor([0, 1, 0], dtype=torch.bool),
+            prompt_length=1,
+        )
+
+        rendered = format_experience_colored_tokens(exp, tokenizer, tokens_per_line=2)
+
+        self.assertIn("Experience Tokens", rendered)
+        self.assertIn("\033[31mPrompt\033[0m", rendered)
+        self.assertIn("\033[31m␠answer\033[0m", rendered)
+        self.assertIn("\033[32m↵\033[0m", rendered)
+        self.assertIn("\033[31mdone\033[0m", rendered)
+
+    def test_build_experience_token_view_aligns_prompt_action_mask_and_logprobs(self):
+        tokenizer = self.DummyTokenizer()
+        exp = Experience(
+            tokens=torch.tensor([10, 11, 12, 13], dtype=torch.int32),
+            logprobs=torch.tensor([0.1, 0.2, 0.3], dtype=torch.float32),
+            action_mask=torch.tensor([0, 1, 0], dtype=torch.bool),
+            prompt_length=1,
+        )
+
+        token_view = build_experience_token_view(exp, tokenizer)
+
+        self.assertEqual(token_view.prompt_text, "Prompt")
+        self.assertEqual(token_view.response_text, " answer\ndone")
+        self.assertEqual(len(token_view.tokens), 4)
+        self.assertEqual(len(token_view.prompt_tokens), 1)
+        self.assertEqual(len(token_view.response_tokens), 3)
+        self.assertTrue(token_view.tokens[0].is_prompt)
+        self.assertFalse(token_view.tokens[0].is_action)
+        self.assertIsNone(token_view.tokens[0].logprob)
+        self.assertEqual(token_view.tokens[1].token_text, " answer")
+        self.assertFalse(token_view.tokens[1].is_action)
+        self.assertIsNotNone(token_view.tokens[1].logprob)
+        self.assertAlmostEqual(token_view.tokens[1].logprob, 0.1)
+        self.assertTrue(token_view.tokens[2].is_action)
+        self.assertIsNotNone(token_view.tokens[2].logprob)
+        self.assertAlmostEqual(token_view.tokens[2].logprob, 0.2)
+        self.assertFalse(token_view.tokens[3].is_action)
+        self.assertIsNotNone(token_view.tokens[3].logprob)
+        self.assertAlmostEqual(token_view.tokens[3].logprob, 0.3)
+
+    def test_print_colored_tokens_writes_to_file(self):
+        tokenizer = self.DummyTokenizer()
+        exp = Experience(tokens=torch.tensor([10, 11], dtype=torch.int32), prompt_length=1)
+        output = io.StringIO()
+
+        print_experience_colored_tokens(exp, tokenizer, file=output, tokens_per_line=4)
+
+        self.assertIn("Experience Tokens", output.getvalue())
+
+    def test_format_colored_tokens_uses_decoded_token_text(self):
+        tokenizer = self.RawTokenDummyTokenizer()
+        exp = Experience(
+            tokens=torch.tensor([1, 2, 3, 4, 5], dtype=torch.int32),
+            action_mask=torch.tensor([0, 0, 1, 1], dtype=torch.bool),
+            prompt_length=1,
+        )
+
+        rendered = format_experience_colored_tokens(exp, tokenizer, tokens_per_line=5)
+
+        self.assertIn("\033[31m␠system\033[0m", rendered)
+        self.assertIn("\033[31m↵\033[0m", rendered)
+        self.assertIn("\033[32m␠You\033[0m", rendered)
+        self.assertNotIn("Ġsystem", rendered)
+        self.assertNotIn("Ċ", rendered)
+
     def test_assertions(self):
         # prompt_length must be > 0
         with self.assertRaises(AssertionError):
@@ -205,13 +322,7 @@ class TestExperience(unittest.TestCase):
         exp.prompt_length = 2  # should automatically adjust
 
     def test_hf_datasets_conversion(self):
-        import torch
-
-        from trinity.common.experience import (
-            Experience,
-            from_hf_datasets,
-            to_hf_datasets,
-        )
+        from trinity.common.experience import from_hf_datasets, to_hf_datasets
 
         exps = [
             Experience(

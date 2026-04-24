@@ -42,7 +42,7 @@ dependencies = [
     "sortedcontainers",
     "word2number",
     "matplotlib",
-    "transformers>=4.51.0,<=5.3.0",
+    "transformers>=5.5.3",
     "datasets>=4.0.0",
     "typer>=0.20.1",
 ]
@@ -52,7 +52,7 @@ trinity = "trinity.cli.launcher:main"
 
 [project.optional-dependencies]
 vllm = [
-    "vllm>=0.17.0,<=0.19.0",
+    "vllm>=0.17.0,<=0.19.1",
     # For v0.17 to v0.19, the default dependencies require transformers < 5.
     # We have patched vLLM to support transformers >= 5.0.0.
 ]
@@ -60,7 +60,7 @@ data = [
     "py-data-juicer>=1.4.3"
 ]
 agent = [
-    "agentscope[tuner]>=1.0.18"
+    "agentscope[tuner]>=1.0.19"
 ]
 openjudge = [
     "py-openjudge>=0.2.2"
@@ -109,7 +109,7 @@ mm = [
 ]
 
 flash_attn = [
-    "flash-attn>=2.8.1"
+    "flash-attn==2.8.3"
 ]
 
 qwen3_5 = [

@@ -11,6 +11,8 @@ from trinity.common.models.utils import tokenize_and_mask_messages_default
 
 
 class TestTokenizeAndMaskMessagesDefault(unittest.TestCase):
+    """Update this class if you change the default model."""
+
     def setUp(self):
         self.tokenizer = transformers.AutoTokenizer.from_pretrained(get_model_path())
         return super().setUp()
@@ -29,13 +31,22 @@ class TestTokenizeAndMaskMessagesDefault(unittest.TestCase):
             enable_thinking=True,
         )
 
+        if "Qwen3.5" in get_model_path():
+            # For Qwen3.5
+            expected_mask = torch.tensor([0] * 26 + [1] * 12, dtype=torch.int)
+            expected_prompt_length = 26
+        else:
+            # For Qwen3
+            expected_mask = torch.tensor([0] * 24 + [1] * 14, dtype=torch.int)
+            expected_prompt_length = 24
+
         self.assertTrue(
             torch.equal(
                 assistant_mask,
-                torch.tensor([0] * 24 + [1] * 14, dtype=torch.int),
+                expected_mask,
             )
         )
-        self.assertEqual(prompt_length, 24)
+        self.assertEqual(prompt_length, expected_prompt_length)
 
     def test_messages_empty(self):
         with self.assertRaises(ValueError):
@@ -58,9 +69,9 @@ class TestTokenizeAndMaskMessagesDefault(unittest.TestCase):
 
     def test_first_message_is_assistant(self):
         messages = [
-            {"role": "assistant", "content": "I start first.", "reasoning": "starting"},
+            {"role": "assistant", "content": "I start first.", "reasoning_content": "starting"},
             {"role": "user", "content": "Then me."},
-            {"role": "assistant", "content": "Final reply.", "reasoning": "ending"},
+            {"role": "assistant", "content": "Final reply.", "reasoning_content": "ending"},
         ]
 
         token_ids, assistant_mask, prompt_length = tokenize_and_mask_messages_default(
@@ -69,14 +80,19 @@ class TestTokenizeAndMaskMessagesDefault(unittest.TestCase):
             enable_thinking=True,
         )
 
+        if "Qwen3.5" in get_model_path():
+            # For Qwen3.5
+            expected_mask = torch.tensor([0] * 22 + [1] * 9, dtype=torch.int)
+            expected_prompt_length = 22
+        else:
+            # For Qwen3
+            expected_mask = torch.tensor([0] * 20 + [1] * 11, dtype=torch.int)
+            expected_prompt_length = 20
+
         self.assertTrue(
             torch.equal(
                 assistant_mask,
-                torch.tensor([0] * 20 + [1] * 9, dtype=torch.int),
+                expected_mask,
             )
         )
-        self.assertEqual(prompt_length, 20)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        self.assertEqual(prompt_length, expected_prompt_length)

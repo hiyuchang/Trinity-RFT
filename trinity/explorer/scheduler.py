@@ -29,7 +29,13 @@ class TaskWrapper:
     batch_id: Union[int, str]
     sub_task_num: int = 1  # number of sub tasks splitted from this task
     # if max_repeat_times_per_runner is set, one task may be splitted into multiple sub tasks
-    results: List[Tuple[Status, List[Experience]]] = field(default_factory=list)
+    finished_sub_task_num: int = 0
+    completed_runs: int = 0
+    total_runs: int = 0  # total planned runs for the whole task
+    metrics: List[Dict[str, float]] = field(default_factory=list)
+    experiences: List[Experience] = field(default_factory=list)
+    first_error: Optional[str] = None
+    emitted: bool = False
 
 
 # Adapted from verl/trainer/ppo/metric_utils.py
@@ -167,7 +173,12 @@ class RunnerWrapper:
         self.state["running_time"] = time.time() - self.state.get("begin_time", time.time())
 
     async def run_with_retry(
-        self, task: TaskWrapper, repeat_times: int, run_id_base: int, timeout: float
+        self,
+        task: TaskWrapper,
+        repeat_times: int,
+        run_id_base: int,
+        timeout: float,
+        collect_partial_runs: bool,
     ) -> Tuple[Status, List, int, float]:
         """
         Args:
@@ -185,8 +196,9 @@ class RunnerWrapper:
         last_exception_msg = None
         await self.runner.__ray_ready__.remote()
         start_time = time.time()
-        status = Status(ok=False, metrics=list())
+        status = Status(completed_runs=0, total_runs=repeat_times, metrics=list())
         exps = []
+        run_task_ref = None
         task2run = replace(
             task.task,
             rollout_args=replace(
@@ -197,29 +209,55 @@ class RunnerWrapper:
         try:
             for attempt in range(self.retry_times + 1):
                 try:
+                    run_task_ref = self.runner.run_task.remote(
+                        task=task2run,
+                        batch_id=str(task.batch_id),
+                        repeat_times=repeat_times,
+                        run_id_base=run_id_base,
+                        collect_partial_runs=collect_partial_runs,
+                    )
                     status, exps = await asyncio.wait_for(
-                        self.runner.run_task.remote(
-                            task=task2run,
-                            batch_id=str(task.batch_id),
-                            repeat_times=repeat_times,
-                            run_id_base=run_id_base,
-                        ),
+                        run_task_ref,
                         timeout=timeout,
                     )
+                    run_task_ref = None
                     if status.ok:
+                        break
+                    if collect_partial_runs and status.completed_runs > 0:
+                        self.logger.warning(
+                            "Task returned partial success; skipping retry to avoid "
+                            "re-running successful runs. %s",
+                            status.message,
+                        )
                         break
                     else:
                         self.logger.error(status.message)
                 except asyncio.TimeoutError:
+                    run_task_ref = None
                     last_exception_msg = f"Timeout when running task of batch {task.batch_id} at runner {self.runner_id} at attempt {attempt + 1}: {task.task}"
                     self.logger.error(last_exception_msg)
-                    status = Status(ok=False, metrics=list(), message=last_exception_msg)
+                    status = Status(
+                        completed_runs=0,
+                        total_runs=repeat_times,
+                        metrics=list(),
+                        message=last_exception_msg,
+                    )
+                except asyncio.CancelledError:
+                    if run_task_ref is not None:
+                        ray.cancel(run_task_ref, force=False)
+                    raise
                 except Exception:
+                    run_task_ref = None
                     last_exception_msg = traceback.format_exc()
                     self.logger.warning(
                         f"Task execution attempt {attempt + 1} failed:\n{last_exception_msg}"
                     )
-                    status = Status(ok=False, metrics=list(), message=last_exception_msg)
+                    status = Status(
+                        completed_runs=0,
+                        total_runs=repeat_times,
+                        metrics=list(),
+                        message=last_exception_msg,
+                    )
         finally:
             end_time = time.time()
             status.metrics.append({"time/task_execution": end_time - start_time})
@@ -288,11 +326,14 @@ class Scheduler:
             int
         )  # batch_id -> tasks scheduled under this batch_id
         self.running_task_map: Dict[asyncio.Future, TaskWrapper] = dict()  # future -> task
+        self.running_task_runner_map: Dict[asyncio.Future, int] = dict()  # future -> runner_id
+        self.cancelled_task_restart_map: Dict[asyncio.Future, bool] = dict()
         self.completed_tasks: Dict[
             Union[int, str], deque[Tuple[Status, List[Experience]]]
         ] = defaultdict(
             deque
         )  # batch_id -> results
+        self.background_tasks: set[asyncio.Task] = set()
 
         self.scheduler_task: Optional[asyncio.Task] = None
         self.running = False
@@ -329,6 +370,11 @@ class Scheduler:
 
         self.idle_runners.add(runner_id)
         self.logger.info(f"Runner {runner_id} restarted.")
+
+    def _schedule_runner_restart(self, runner_id: int) -> None:
+        restart_task = asyncio.create_task(self._restart_runner(runner_id))
+        self.background_tasks.add(restart_task)
+        restart_task.add_done_callback(self.background_tasks.discard)
 
     async def _scheduler_loop(self) -> None:
         self.logger.info("Scheduler loop started.")
@@ -377,9 +423,11 @@ class Scheduler:
                         repeat_times=repeat_times,
                         run_id_base=run_id_base,
                         timeout=self.dynamic_timeout(),
+                        collect_partial_runs=self.config.explorer.over_rollout.return_partial_tasks,
                     )
                 )
                 self.running_task_map[future] = task
+                self.running_task_runner_map[future] = runner_id
                 future.add_done_callback(self.task_done_callback)
                 self.running_tasks[batch_id].add(future)
 
@@ -388,35 +436,28 @@ class Scheduler:
 
     def task_done_callback(self, async_task: asyncio.Task):
         task = self.running_task_map.pop(async_task)
+        runner_id = self.running_task_runner_map.pop(async_task)
         if async_task.cancelled():
-            return
+            should_restart = self.cancelled_task_restart_map.pop(async_task, True)
+            if not should_restart:
+                self.busy_runners.pop(runner_id, None)
+                self.idle_runners.add(runner_id)
         elif async_task.exception():
             self.logger.error(f"Task {task.task.task_id} failed: {async_task.exception()}")
-            return
+            self.cancelled_task_restart_map.pop(async_task, None)
+            self._schedule_runner_restart(runner_id)
         else:
+            self.cancelled_task_restart_map.pop(async_task, None)
             status, exps, runner_id, run_time = async_task.result()
             if not task.task.is_eval:  # only count running time for non-eval tasks
                 self.total_running_time += run_time
                 self.total_completed_tasks += 1
-            task.results.append((status, exps))
-            self.busy_runners.pop(runner_id)
+            self._accumulate_task_result(task, status, exps)
+            self.busy_runners.pop(runner_id, None)
             self.idle_runners.add(runner_id)
             # If all sub runs in a task are completed
-            if len(task.results) == task.sub_task_num:
-                task_experiences = []
-                task_metrics = []
-                all_success = True
-                for s, exp in task.results:
-                    task_metrics.extend(s.metrics)
-                    task_experiences.extend(exp)
-                    if not s.ok:
-                        all_success = False
-                # calculate task level metrics
-                task_status = Status(
-                    ok=all_success,
-                    metrics=[calculate_task_level_metrics(task_metrics, task.task.is_eval)],
-                )
-                self.completed_tasks[task.batch_id].appendleft((task_status, task_experiences))
+            if task.finished_sub_task_num == task.sub_task_num:
+                self._emit_task_result(task)
                 self.logger.debug(f"Task completed (batch_id {task.batch_id}).")
 
         if task.batch_id in self.running_tasks:
@@ -424,16 +465,77 @@ class Scheduler:
             if not self.running_tasks[task.batch_id]:
                 del self.running_tasks[task.batch_id]
 
-    def _clear_timeout_tasks(self, batch_id: Union[int, str]) -> None:
+    def _accumulate_task_result(
+        self, task: TaskWrapper, status: Status, experiences: List[Experience]
+    ) -> None:
+        task.finished_sub_task_num += 1
+        task.completed_runs += status.completed_runs
+        task.metrics.extend(status.metrics)
+        task.experiences.extend(experiences)
+        if not status.ok and task.first_error is None:
+            task.first_error = status.message
+
+    def _build_task_result(self, task: TaskWrapper) -> Tuple[Status, List[Experience]]:
+        if task.completed_runs < task.total_runs:
+            message = f"{task.completed_runs}/{task.total_runs} runs completed successfully."
+            if task.first_error:
+                message = f"{message} First error: {task.first_error}"
+            else:
+                message = f"{message} Remaining runs were cancelled during scheduler cleanup."
+        else:
+            message = None
+        status = Status(
+            completed_runs=task.completed_runs,
+            total_runs=task.total_runs,
+            metrics=[calculate_task_level_metrics(task.metrics, task.task.is_eval)],
+            message=message,
+        )
+        return status, list(task.experiences)
+
+    def _emit_task_result(self, task: TaskWrapper) -> None:
+        if task.emitted:
+            return
+        self.completed_tasks[task.batch_id].appendleft(self._build_task_result(task))
+        task.emitted = True
+
+    def _collect_incomplete_tasks(self, batch_id: Union[int, str]) -> List[TaskWrapper]:
+        tasks = {}
+        for task, _, _ in self.pending_tasks.get(batch_id, deque()):
+            tasks[id(task)] = task
+        for future in self.running_tasks.get(batch_id, set()):
+            task = self.running_task_map.get(future)
+            if task is not None:
+                tasks[id(task)] = task
+        return list(tasks.values())
+
+    def _emit_partial_tasks_for_batch(self, batch_id: Union[int, str]) -> None:
+        for task in self._collect_incomplete_tasks(batch_id):
+            if task.emitted or task.completed_runs <= 0:
+                continue
+            self._emit_task_result(task)
+            self.logger.debug(
+                f"Task partially completed and emitted (batch_id {task.batch_id}, task_id {task.task.task_id})."
+            )
+
+    def _clear_timeout_tasks(self, batch_id: Union[int, str]) -> List[asyncio.Future]:
+        cancelled_futures = []
         if batch_id in self.pending_tasks:
             self.logger.info(f"Clear timeout pending tasks at batch_id {batch_id}.")
             del self.pending_tasks[batch_id]
         if batch_id in self.running_tasks:
             self.logger.info(f"Clear timeout running tasks at batch_id {batch_id}.")
             for future in self.running_tasks[batch_id]:
+                cancelled_futures.append(future)
                 future.cancel()
             del self.running_tasks[batch_id]
         self.task_num_map.pop(batch_id, None)
+        return cancelled_futures
+
+    def _mark_running_tasks_for_cleanup(
+        self, batch_id: Union[int, str], restart_runners: bool
+    ) -> None:
+        for future in self.running_tasks.get(batch_id, set()):
+            self.cancelled_task_restart_map[future] = restart_runners
 
     async def start(self) -> None:
         if self.running:
@@ -458,6 +560,9 @@ class Scheduler:
         if all_running_futures:
             self.logger.info(f"Waiting for {len(all_running_futures)} running tasks to complete...")
             await asyncio.gather(*all_running_futures, return_exceptions=True)
+
+        if self.background_tasks:
+            await asyncio.gather(*list(self.background_tasks), return_exceptions=True)
 
         if self.scheduler_task:
             self.scheduler_task.cancel()
@@ -493,6 +598,7 @@ class Scheduler:
             task_wrapper = TaskWrapper(
                 task=replace(task, batch_id=batch_id, task_id=i),
                 batch_id=batch_id,
+                total_runs=task.repeat_times,
             )
             if self.max_repeat_times is None:
                 task_wrapper.sub_task_num = 1
@@ -518,9 +624,21 @@ class Scheduler:
             avg_time_per_task * self.config.explorer.dynamic_timeout.ratio,
         )
 
-    async def _cleanup_batch_and_restart_runners(self, batch_id: Union[int, str]) -> None:
-        """Clear timeout tasks for a batch and restart associated runners."""
-        self._clear_timeout_tasks(batch_id=batch_id)
+    async def _cleanup_batch(
+        self,
+        batch_id: Union[int, str],
+        return_partial_tasks: bool = False,
+        restart_runners: bool = True,
+    ) -> None:
+        """Clear unfinished tasks for a batch and optionally restart associated runners."""
+        if return_partial_tasks:
+            self._emit_partial_tasks_for_batch(batch_id)
+        self._mark_running_tasks_for_cleanup(batch_id, restart_runners=restart_runners)
+        cancelled_futures = self._clear_timeout_tasks(batch_id=batch_id)
+        if cancelled_futures:
+            await asyncio.gather(*cancelled_futures, return_exceptions=True)
+        if not restart_runners:
+            return
         runners_to_restart = [
             runner_id
             for runner_id, task in list(self.busy_runners.items())
@@ -535,6 +653,7 @@ class Scheduler:
         min_num: Optional[int] = None,
         timeout: Optional[float] = None,
         clear_timeout_tasks: bool = True,
+        return_partial_tasks: bool = False,
     ) -> Tuple[List[Status], List[Experience]]:
         """Get the result of tasks at the specific batch_id.
 
@@ -543,6 +662,7 @@ class Scheduler:
             min_num (`int`): The minimum number of tasks to wait for. If `None`, wait for all tasks at `batch_id`.
             timeout (`float`): The timeout for waiting for tasks to finish. If `None`, wait for default timeout.
             clear_timeout_tasks (`bool`): Whether to clear timeout tasks.
+            return_partial_tasks (`bool`): Whether to emit tasks with partial successful runs when cleaning up unfinished tasks.
         """
         timeout = timeout or self.default_timeout
         start_time = time.time()
@@ -568,7 +688,11 @@ class Scheduler:
                     >= self.config.explorer.over_rollout.wait_after_min
                 ):
                     if clear_timeout_tasks:
-                        await self._cleanup_batch_and_restart_runners(batch_id)
+                        await self._cleanup_batch(
+                            batch_id,
+                            return_partial_tasks=return_partial_tasks,
+                            restart_runners=False,
+                        )
                         break
             await asyncio.sleep(0.1)
 
@@ -577,7 +701,11 @@ class Scheduler:
                 f"Timed out waiting for tasks at batch {batch_id} to complete after {timeout} seconds"
             )
             if clear_timeout_tasks:
-                await self._cleanup_batch_and_restart_runners(batch_id)
+                await self._cleanup_batch(
+                    batch_id,
+                    return_partial_tasks=return_partial_tasks,
+                    restart_runners=True,
+                )
 
         statuses = []
         experiences = []

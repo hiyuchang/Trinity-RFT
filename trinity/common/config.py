@@ -145,6 +145,9 @@ class OverRolloutConfig:
 
     ratio: float = 0.0  # explorer will only wait for (1 - over_rollout.ratio) * batch_size of tasks at each step
     wait_after_min: float = 30.0  # wait 30 s after reaching minimum task threshold
+    return_partial_tasks: bool = (
+        False  # return tasks with partial successful runs during over-rollout cleanup
+    )
     # more settings will be added in the future
     # e.g., postpone tasks into the next step if not finished in time
 

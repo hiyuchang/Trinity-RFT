@@ -397,7 +397,9 @@ class Explorer:
         metric = {"rollout/model_version": model_version}
         with Timer(metric, "time/wait_explore_step"):
             statuses, exps = await self.scheduler.get_results(
-                batch_id=step, min_num=self.min_wait_num
+                batch_id=step,
+                min_num=self.min_wait_num,
+                return_partial_tasks=self.config.explorer.over_rollout.return_partial_tasks,
             )
         if self.experience_pipeline is not None:
             pipeline_metrics = await self.experience_pipeline.process.remote(
@@ -421,7 +423,10 @@ class Explorer:
             if eval_step != step:
                 return
             self.pending_eval_tasks.popleft()
-            statuses, _ = await self.scheduler.get_results(batch_id=f"{step}/{eval_task_name}")
+            statuses, _ = await self.scheduler.get_results(
+                batch_id=f"{step}/{eval_task_name}",
+                return_partial_tasks=self.config.explorer.over_rollout.return_partial_tasks,
+            )
             metric[f"{prefix}/{eval_task_name}/finished_task_count"] = len(statuses)
             metric.update(
                 gather_eval_metrics(

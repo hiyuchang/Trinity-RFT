@@ -7,6 +7,10 @@ from packaging.version import parse as parse_version
 
 from trinity.common.config import InferenceModelConfig
 
+VLLM_VERSION_0120 = parse_version("0.12.0")
+VLLM_VERSION_0170 = parse_version("0.17.0")
+VLLM_VERSION_0191 = parse_version("0.19.1")
+
 
 def vllm_patch():
     import transformers
@@ -45,6 +49,34 @@ def get_vllm_version():
     return vllm_version
 
 
+def _get_api_server_runner(vllm_version):
+    if vllm_version == VLLM_VERSION_0120:
+        from trinity.common.models.vllm_patch.api_patch_v12 import (
+            run_api_server_in_ray_actor_v12,
+        )
+
+        return run_api_server_in_ray_actor_v12
+
+    if VLLM_VERSION_0120 < vllm_version < VLLM_VERSION_0170:
+        from trinity.common.models.vllm_patch.api_patch_v13 import (
+            run_api_server_in_ray_actor_v13,
+        )
+
+        return run_api_server_in_ray_actor_v13
+
+    if VLLM_VERSION_0170 <= vllm_version <= VLLM_VERSION_0191:
+        from trinity.common.models.vllm_patch.api_patch_v17 import (
+            run_api_server_in_ray_actor_v17,
+        )
+
+        return run_api_server_in_ray_actor_v17
+
+    raise ValueError(
+        f"Unsupported vLLM version: {vllm.__version__}. "
+        "This patch supports vLLM versions 0.12.0, (0.12.0, 0.17.0), and [0.17.0, 0.19.1]."
+    )
+
+
 def get_api_server(
     async_llm,
     host: str,
@@ -53,21 +85,8 @@ def get_api_server(
     logger: Logger,
 ):
     vllm_version = get_vllm_version()
-    if vllm_version <= parse_version("0.11.0"):
-        from trinity.common.models.vllm_patch.api_patch import (
-            run_api_server_in_ray_actor,
-        )
 
-    elif vllm_version == parse_version("0.12.0"):
-        from trinity.common.models.vllm_patch.api_patch_v12 import (
-            run_api_server_in_ray_actor_v12 as run_api_server_in_ray_actor,
-        )
-
-    else:
-        from trinity.common.models.vllm_patch.api_patch_v13 import (
-            run_api_server_in_ray_actor_v13 as run_api_server_in_ray_actor,
-        )
-
+    run_api_server_in_ray_actor = _get_api_server_runner(vllm_version)
     logger.info(f"Using vLLM API patch for version {vllm.__version__}")
     return asyncio.create_task(
         run_api_server_in_ray_actor(

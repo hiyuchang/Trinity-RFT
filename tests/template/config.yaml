@@ -41,6 +41,7 @@ explorer:
     tensor_parallel_size: 1
     dtype: bfloat16
     seed: 42
+    gpu_memory_utilization: 0.8
 trainer:
   trainer_type: verl
   trainer_strategy: fsdp

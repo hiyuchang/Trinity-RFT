@@ -3,13 +3,14 @@
 import asyncio
 import os
 import shutil
+import threading
 import time
 import unittest
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 from unittest import mock
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import openai
 import ray
@@ -531,41 +532,6 @@ class TestWorkflowStateRecording(unittest.IsolatedAsyncioTestCase):
 
 
 class TestAgentScopeWorkflowAdapter(unittest.IsolatedAsyncioTestCase):
-    async def test_adapter_v0(self):
-        try:
-            from agentscope.model import TrinityChatModel
-        except ImportError:
-            self.skipTest("agentscope >= 1.0.9 is not installed")
-
-        async def as_workflow_func(task, model) -> float:
-            self.assertIsInstance(task, dict)
-            self.assertIsInstance(model, TrinityChatModel)
-            return task["reward"]
-
-        model = MagicMock()
-        openai_client = MagicMock()
-        openai_client.model_path = "Qwen/Qwen3-8B"
-        model.get_openai_async_client.return_value = openai_client
-        model.extract_experience_from_history.return_value = [
-            Experience(tokens=Tensor([0, 1, 2]), prompt_length=1, logprobs=Tensor([0.1, 0.2])),
-            Experience(tokens=Tensor([3, 4, 5]), prompt_length=2, logprobs=Tensor([0.3])),
-        ]
-
-        as_adapter_cls = WORKFLOWS.get("agentscope_workflow_adapter")
-        as_adapter = as_adapter_cls(
-            task=Task(
-                raw_task={"reward": 0.1},
-                workflow_args={"workflow_func": as_workflow_func},
-            ),
-            model=model,
-        )
-        result = await as_adapter.run_async()
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].reward, 0.1)
-        self.assertEqual(result[0].prompt_length, 1)
-        self.assertEqual(result[1].reward, 0.1)
-        self.assertEqual(result[1].prompt_length, 2)
-
     async def test_adapter_v1(self):
         try:
             from agentscope.model import ChatModelBase
@@ -660,6 +626,45 @@ class APIWorkflow(Workflow):
         return exps
 
 
+class PartialFailureWorkflow(Workflow):
+    can_reset: bool = True
+
+    _call_lock = threading.Lock()
+    _call_count = 0
+
+    def __init__(self, model: ModelWrapper, task: Task, auxiliary_models=None):
+        super().__init__(task=task, model=model, auxiliary_models=auxiliary_models)
+        self.fail_call_ids = set(task.raw_task.get("fail_call_ids", []))
+
+    def reset(self, task: Task):
+        self.fail_call_ids = set(task.raw_task.get("fail_call_ids", []))
+
+    @classmethod
+    def reset_call_count(cls):
+        with cls._call_lock:
+            cls._call_count = 0
+
+    @classmethod
+    def next_call_id(cls) -> int:
+        with cls._call_lock:
+            call_id = cls._call_count
+            cls._call_count += 1
+            return call_id
+
+    def run(self):
+        call_id = self.next_call_id()
+        if call_id in self.fail_call_ids:
+            raise RuntimeError(f"Intentional failure for run call {call_id}")
+
+        exp = Experience(
+            tokens=Tensor([0, 1, 2]),
+            prompt_length=1,
+            metrics={"run_metrics": float(call_id)},
+        )
+        exp.response_text = str(call_id)
+        return [exp]
+
+
 class TestWorkflowRunner(unittest.IsolatedAsyncioTestCase):
     async def test_workflow_runner(self):
         config = get_template_config()
@@ -704,6 +709,133 @@ class TestWorkflowRunner(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(status.ok)
             self.assertIsInstance(exps, list)
             self.assertEqual(len(exps), 2)
+
+    @parameterized.expand(
+        [
+            ("sequential", 2),
+            ("asynchronous", 2),
+            ("multi-threading", 2),
+        ]
+    )
+    async def test_workflow_runner_partial_success_non_repeatable(
+        self, concurrent_mode: str, expected_success_runs: int
+    ):
+        config = get_template_config()
+        config.explorer.concurrent_mode = concurrent_mode
+
+        with mock.patch(
+            "trinity.explorer.workflow_runner.ModelWrapper",
+            DummyModelWrapper,
+        ):
+            runner = WorkflowRunner(
+                config,
+                model=MagicMock(),
+                auxiliary_models=[],
+                runner_id=0,
+            )
+            await runner.prepare()
+
+            PartialFailureWorkflow.reset_call_count()
+            task = Task(
+                workflow=PartialFailureWorkflow,
+                repeat_times=3,
+                raw_task={"fail_call_ids": [1]},
+            )
+
+            status, exps = await runner.run_task(
+                task, batch_id="test", repeat_times=3, run_id_base=0
+            )
+
+            self.assertFalse(status.ok)
+            self.assertEqual(status.completed_runs, expected_success_runs)
+            self.assertEqual(status.total_runs, 3)
+            self.assertEqual(len(exps), expected_success_runs)
+
+            # One internal run fails with call_id=1, so runner-level metrics should
+            # retain only the successful runs from this single subtask: call_id=0 and 2.
+            self.assertEqual(len(status.metrics), expected_success_runs)
+            self.assertEqual(
+                sorted(metric["run_metrics"] for metric in status.metrics),
+                [0.0, 2.0],
+            )
+
+            # Experiences returned from the runner should match the same successful
+            # run set, proving failed runs do not leak into partial-return outputs.
+            self.assertEqual(
+                sorted(exp.metrics["run_metrics"] for exp in exps if exp.metrics),
+                [0.0, 2.0],
+            )
+            self.assertIn(f"{expected_success_runs}/3 runs completed successfully", status.message)  # type: ignore[arg-type]
+
+    @parameterized.expand(
+        [
+            ("sequential",),
+            ("asynchronous",),
+            ("multi-threading",),
+        ]
+    )
+    async def test_workflow_runner_fail_fast_without_partial_collection(self, concurrent_mode: str):
+        config = get_template_config()
+        config.explorer.concurrent_mode = concurrent_mode
+
+        with mock.patch(
+            "trinity.explorer.workflow_runner.ModelWrapper",
+            DummyModelWrapper,
+        ):
+            runner = WorkflowRunner(
+                config,
+                model=MagicMock(),
+                auxiliary_models=[],
+                runner_id=0,
+            )
+            await runner.prepare()
+
+            task = Task(
+                workflow=PartialFailureWorkflow,
+                repeat_times=3,
+                raw_task={"fail_call_ids": []},
+            )
+
+            async def mock_execute_single_run(
+                workflow: Workflow,
+                task: Task,
+                run_index: int,
+                run_id_base: int,
+            ):
+                if run_index == 0:
+                    await asyncio.sleep(0.01)
+                    exp = Experience(
+                        tokens=Tensor([0, 1, 2]),
+                        prompt_length=1,
+                        metrics={"run_metrics": 0.0},
+                    )
+                    return True, [exp], {"run_metrics": 0.0}, None
+                if run_index == 1:
+                    await asyncio.sleep(0.02)
+                    return False, [], None, "planned failure"
+                await asyncio.sleep(0.5)
+                exp = Experience(
+                    tokens=Tensor([0, 1, 2]),
+                    prompt_length=1,
+                    metrics={"run_metrics": 2.0},
+                )
+                return True, [exp], {"run_metrics": 2.0}, None
+
+            runner._execute_single_run = AsyncMock(side_effect=mock_execute_single_run)
+
+            status, exps = await runner.run_task(
+                task,
+                batch_id="test",
+                repeat_times=3,
+                run_id_base=0,
+                collect_partial_runs=False,
+            )
+
+            self.assertFalse(status.ok)
+            self.assertEqual(status.completed_runs, 1)
+            self.assertEqual(status.total_runs, 3)
+            self.assertEqual(len(exps), 1)
+            self.assertIn("1/3 runs completed successfully", status.message)  # type: ignore[arg-type]
 
     async def test_workflow_runner_get_state(self):
         config = get_template_config()

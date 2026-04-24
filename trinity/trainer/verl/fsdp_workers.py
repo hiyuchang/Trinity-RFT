@@ -899,10 +899,28 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
             metrics["actor/lr"] = lr.item() if torch.is_tensor(lr) else lr
             self.actor_lr_scheduler.step()
 
-            # TODO: here, we should return all metrics
-            output = DataProto(meta_info={"metrics": metrics})
+            # convert all tensor to item (cpu)
+            for key, value in metrics.items():
+                try:
+                    if torch.is_tensor(value):
+                        metrics[key] = value.item()
+                        self.logger.warning(
+                            "Metric %s is a tensor, converted to item: %s",
+                            key,
+                            metrics[key],
+                        )
+                    elif isinstance(value, list) and any(torch.is_tensor(v) for v in value):
+                        metrics[key] = [v.item() if torch.is_tensor(v) else v for v in value]
+                        self.logger.warning(
+                            "Metric %s is a list containing tensors, converted to list of items: %s",
+                            key,
+                            metrics[key],
+                        )
+                except RuntimeError as e:
+                    self.logger.error("Failed to convert metric %s to item: %s", key, e)
+                    metrics[key] = 0
 
-            output = output.to("cpu")
+            output = DataProto(meta_info={"metrics": metrics})
 
         if self._is_offload_param:
             offload_fsdp_model_to_cpu(self.actor_module_fsdp)

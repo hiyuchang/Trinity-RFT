@@ -10,6 +10,7 @@ from transformers import AutoTokenizer
 from trinity.buffer.schema import init_engine
 from trinity.common.config import StorageConfig
 from trinity.common.experience import Experience
+from trinity.common.experience_visualizer import build_experience_token_view
 from trinity.utils.log import get_logger
 
 
@@ -96,32 +97,7 @@ def render_token_detail_html(html: str) -> None:
 
 def render_experience(exp: Experience, tokenizer: Any) -> None:
     """Render a single experience sequence in Streamlit."""
-    token_ids = exp.tokens
-    if token_ids is None:
-        raise ValueError("Experience tokens are required for visualization.")
-    if exp.logprobs is not None:
-        logprobs = exp.logprobs
-    else:
-        logprobs = [0.0] * len(token_ids)
-    action_mask = exp.action_mask
-
-    prompt_length = exp.prompt_length
-
-    prompt_token_ids = token_ids[:prompt_length]  # type: ignore [index]
-    response_token_ids = token_ids[prompt_length:]  # type: ignore [index]
-
-    def decode_token_ids(tokenizer_obj: Any, token_id_list: Any) -> str:
-        return str(tokenizer_obj.decode(token_id_list))
-
-    # Decode tokens
-    prompt_text = decode_token_ids(tokenizer, prompt_token_ids)
-    response_text = decode_token_ids(tokenizer, response_token_ids)
-
-    # Get each response token text
-    response_tokens = []
-    for tid in response_token_ids:
-        token_text = decode_token_ids(tokenizer, [tid])
-        response_tokens.append(token_text)
+    token_view = build_experience_token_view(exp, tokenizer)
 
     # HTML escape function
     def html_escape(text):
@@ -138,11 +114,11 @@ def render_experience(exp: Experience, tokenizer: Any) -> None:
 
     # Prompt section using st.text_area
     st.markdown("**📝 Prompt:**")
-    st.code(prompt_text, language=None, wrap_lines=True, line_numbers=True)
+    st.code(token_view.prompt_text, language=None, wrap_lines=True, line_numbers=True)
 
     # Response section using st.text_area
     st.markdown("**💬 Response:**")
-    st.code(response_text, language=None, wrap_lines=True, line_numbers=True)
+    st.code(token_view.response_text, language=None, wrap_lines=True, line_numbers=True)
 
     # Reward and other info
     st.markdown("**🏆 Reward and Other Info:**")
@@ -215,17 +191,18 @@ def render_experience(exp: Experience, tokenizer: Any) -> None:
     """
 
     # Add each response token
-    for token_text, logprob, mask in zip(response_tokens, logprobs, action_mask):  # type: ignore [arg-type]
-        bg_color = get_color_for_action_mask(mask)
+    for token in token_view.response_tokens:
+        bg_color = get_color_for_action_mask(int(token.is_action))
 
         # Handle special character display
-        token_display = token_text.replace(" ", "␣").replace("\n", "↵").replace("\t", "⇥")
+        token_display = token.token_text.replace(" ", "␣").replace("\n", "↵").replace("\t", "⇥")
         token_display = html_escape(token_display)
+        logprob_text = f"{token.logprob:.4f}" if token.logprob is not None else "N/A"
 
         html += f"""
                 <div class="token-box" style="background-color: {bg_color};">
                     <div class="token-text">{token_display}</div>
-                    <div class="token-logprob">{logprob:.4f}</div>
+                    <div class="token-logprob">{logprob_text}</div>
                 </div>
         """
     html += """
