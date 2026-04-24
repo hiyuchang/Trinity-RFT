@@ -155,7 +155,7 @@ def _extract_final_response(trajectories: list):
     return _extract_text(response)
 
 
-def export_training_data(task_id, trajectories, session_data=None) -> None:
+def export_training_data(task_id, trajectories, session_data=None, input_answer=None) -> None:
     try:
         query = _extract_first_user_query(trajectories)
         final_response = _extract_final_response(trajectories)
@@ -169,7 +169,7 @@ def export_training_data(task_id, trajectories, session_data=None) -> None:
             session_data=judge_session,
             final_response=final_response,
             task_id=task_id,
-            input_answer=None,
+            input_answer=input_answer,
         )
     except Exception as judge_exc:
         # 判断出错时保守处理：视为失败

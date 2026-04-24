@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import json
 import logging
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Union
@@ -416,14 +417,33 @@ def llm_judge(
     )
     task_info = task_info_from_task_id(task_id=task_id, has_answer=has_answer)
     plan = select_judge_grader(task_info)
-    score, details = asyncio.run(
-        _run_grader_plan(
-            plan=plan,
-            query=str(query),
-            session=session,
-            input_answer=input_answer if _answer_is_non_empty(input_answer) else "",
-        )
-    )
+    max_retries = 3
+    last_error: Optional[Exception] = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            score, details = asyncio.run(
+                _run_grader_plan(
+                    plan=plan,
+                    query=str(query),
+                    session=session,
+                    input_answer=input_answer if _answer_is_non_empty(input_answer) else "",
+                )
+            )
+            break
+        except Exception as exc:
+            last_error = exc
+            if attempt >= max_retries:
+                raise
+            logger.warning(
+                "llm_judge failed on attempt %s/%s, retrying: %s",
+                attempt,
+                max_retries,
+                exc,
+            )
+            time.sleep(1)
+    else:
+        # Defensive fallback; the loop should either break or raise.
+        raise RuntimeError(f"llm_judge failed after {max_retries} attempts: {last_error}")
     info = (
         f"task_id={task_info.task_id}, prefix={task_info.prefix}, domain={task_info.domain}, "
         f"has_answer={task_info.has_answer}, final_score={score:.4f} | {details}"

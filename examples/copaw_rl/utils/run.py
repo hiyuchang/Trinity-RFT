@@ -267,6 +267,28 @@ def _build_agent_content(
 
     return content_blocks or None
 
+def _extract_input_answer(task_config: dict) -> str:
+    """从 task_config 中提取 input_answer。"""
+    evaluation = task_config.get("evaluation") or {}
+    inputs = evaluation.get("inputs") or {}
+    raw_answer = inputs.get("answer")
+    answer_text = ""
+
+    if isinstance(raw_answer, dict):
+        answer_obj = raw_answer
+        answer_text = json.dumps(answer_obj, ensure_ascii=False) # TODO
+    elif isinstance(raw_answer, str):
+        s = raw_answer.strip()
+        if s:
+            try:
+                parsed = json.loads(s)
+                if isinstance(parsed, dict):
+                    answer_obj = parsed
+                else:
+                    answer_text = s  # JSON 但不是 dict（如数组/数字），按普通文本处理
+            except json.JSONDecodeError:
+                answer_text = s      # 普通字符串
+    return answer_text
 
 def _extract_text_from_content(content_blocks: list[dict]) -> str:
     """从 content blocks 中提取纯文本部分，用于日志和 summary。"""
@@ -976,6 +998,7 @@ def main():  # noqa: C901
         content_blocks = (
             _build_agent_content(task_config, task_dir=_SCRIPT_DIR) if task_config else None
         )
+        input_answer = _extract_input_answer(task_config)
 
         if content_blocks:
             agent_input: str | list[dict] = content_blocks
@@ -1033,7 +1056,7 @@ def main():  # noqa: C901
         trajectories = extract_trajectories(session_data)
 
         if not args.evaluation:
-            export_training_data(args.task_id, trajectories, session_data=session_data)
+            export_training_data(args.task_id, trajectories, session_data=session_data, input_answer=input_answer)
             return
 
         structured_trajectory = parse_structured_trajectory(session_data)
